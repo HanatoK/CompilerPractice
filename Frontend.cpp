@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QTime>
 
-Source::Source(QTextStream &ifs): mStream(ifs)
+Source::Source(QTextStream &ifs, QObject *parent): mStream(ifs), QObject(parent)
 {
   mLineNum = 0;
   mCurrentPos = -2;
@@ -186,6 +186,16 @@ unique_ptr<Token> Parser::nextToken()
   return mScanner->nextToken();
 }
 
+unique_ptr<SymbolTable> Parser::getSymbolTable() const
+{
+  return std::make_unique<SymbolTable>(*mSymbolTable);
+}
+
+unique_ptr<ICode> Parser::getICode() const
+{
+  return std::make_unique<ICode>(*mICode);
+}
+
 PascalScanner::PascalScanner(QObject *parent): Scanner(parent)
 {
 
@@ -271,7 +281,7 @@ void PascalParserTopDown::parse()
   }
   const int endTime = QTime::currentTime().msec();
   const float elapsedTime = (endTime - startTime) / 1000.0;
-  sendMessage(token->lineNum(), errorCount(), elapsedTime);
+  emit sendMessage(token->lineNum(), errorCount(), elapsedTime);
 }
 
 int PascalParserTopDown::errorCount()

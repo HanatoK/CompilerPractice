@@ -19,10 +19,11 @@ class Token;
 class TokenType;
 
 // the class that represents the source program
-class Source {
+class Source: public QObject {
+  Q_OBJECT
 public:
   // constructor from an input stream
-  Source(QTextStream& ifs);
+  Source(QTextStream& ifs, QObject* parent = nullptr);
   // return the source character of the current position
   QChar currentChar();
   // consume the current source character and return the next one
@@ -109,6 +110,10 @@ public:
   virtual int errorCount() = 0;
   unique_ptr<Token> currentToken() const;
   unique_ptr<Token> nextToken();
+  unique_ptr<SymbolTable> getSymbolTable() const;
+  unique_ptr<ICode> getICode() const;
+signals:
+  void sendMessage(int lineNumber, int errorCount, float elapsedTime);
 protected:
   unique_ptr<SymbolTable> mSymbolTable;
   Scanner* mScanner;
@@ -131,8 +136,6 @@ public:
   virtual ~PascalParserTopDown();
   virtual void parse();
   virtual int errorCount();
-signals:
-  void sendMessage(int lineNumber, int errorCount, float elapsedTime);
 };
 
 Parser* createParser(const QString& language, const QString& type,

@@ -14,12 +14,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(HEADERS
     Frontend.h
     Intermediate.h
-    Backend.h)
+    Backend.h
+    Pascal.h)
 
 set(SOURCES
     main.cpp
     Frontend.cpp
-    Backend.cpp)
+    Backend.cpp
+    Pascal.cpp)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
