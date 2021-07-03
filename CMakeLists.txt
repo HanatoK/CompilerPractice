@@ -15,13 +15,15 @@ set(HEADERS
     Frontend.h
     Intermediate.h
     Backend.h
-    Pascal.h)
+    Pascal.h
+    PascalFrontend.h)
 
 set(SOURCES
     main.cpp
     Frontend.cpp
     Backend.cpp
-    Pascal.cpp)
+    Pascal.cpp
+    PascalFrontend.cpp)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

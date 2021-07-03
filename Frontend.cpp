@@ -90,7 +90,7 @@ Token::~Token()
 
 }
 
-QString Token::getType() const
+QString Token::getTypeStr() const
 {
   return "unknown";
 }
@@ -120,6 +120,16 @@ QChar Token::nextChar()
 QChar Token::peekChar()
 {
   return mSource->peekChar();
+}
+
+const QString &Token::text() const
+{
+  return mText;
+}
+
+const QVariant &Token::value() const
+{
+  return mValue;
 }
 
 int Token::position() const
@@ -201,35 +211,6 @@ unique_ptr<ICode> Parser::getICode() const
   return std::make_unique<ICode>(*mICode);
 }
 
-PascalScanner::PascalScanner(QObject *parent): Scanner(parent)
-{
-
-}
-
-PascalScanner::PascalScanner(Source *source, QObject *parent): Scanner(source, parent)
-{
-
-}
-
-PascalScanner::~PascalScanner()
-{
-
-}
-
-unique_ptr<Token> PascalScanner::extractToken()
-{
-  unique_ptr<Token> token = nullptr;
-  const auto current_char = currentChar();
-  // Construct the next token
-  // The current character determines the token type.
-  if (current_char == QChar(EOF)) {
-    token = std::make_unique<EofToken>(mSource);
-  } else {
-    token = std::make_unique<Token>(mSource);
-  }
-  return std::move(token);
-}
-
 EofToken::EofToken()
 {
 
@@ -253,7 +234,7 @@ EofToken::~EofToken()
 
 }
 
-QString EofToken::getType() const
+QString EofToken::getTypeStr() const
 {
   return "EOF";
 }
@@ -261,49 +242,4 @@ QString EofToken::getType() const
 unique_ptr<Token> EofToken::clone() const
 {
   return std::make_unique<EofToken>(*this);
-}
-
-Parser *createParser(const QString &language, const QString &type,
-                     Source *source, QObject *parent)
-{
-  if ((language.compare("Pascal", Qt::CaseInsensitive) == 0) &&
-      (type.compare("top-down", Qt::CaseInsensitive) == 0)) {
-    Scanner* scanner = new PascalScanner(source);
-    Parser* parser = new PascalParserTopDown(scanner, parent);
-    return parser;
-  } else if (language.compare("Pascal", Qt::CaseInsensitive) != 0) {
-    qDebug() << "Invalid language: " << language;
-    return nullptr;
-  } else {
-    qDebug() << "Invalid type: " << type;
-    return nullptr;
-  }
-}
-
-PascalParserTopDown::PascalParserTopDown(Scanner *scanner, QObject *parent): Parser(scanner, parent)
-{
-
-}
-
-PascalParserTopDown::~PascalParserTopDown()
-{
-
-}
-
-void PascalParserTopDown::parse()
-{
-  auto token = std::make_unique<Token>();
-  const int startTime = QTime::currentTime().msec();
-  while (token->getType() != "EOF") {
-//    qDebug() << "Token type: " << token->getType();
-    token = nextToken();
-  }
-  const int endTime = QTime::currentTime().msec();
-  const float elapsedTime = (endTime - startTime) / 1000.0;
-  emit sendMessage(token->lineNum(), errorCount(), elapsedTime);
-}
-
-int PascalParserTopDown::errorCount()
-{
-  return 0;
 }

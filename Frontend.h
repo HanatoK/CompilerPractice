@@ -55,10 +55,12 @@ public:
   Token();
   Token(Source* source);
   virtual ~Token();
-  virtual QString getType() const;
+  virtual QString getTypeStr() const;
   virtual unique_ptr<Token> clone() const;
   int lineNum() const;
   int position() const;
+  const QVariant &value() const;
+  const QString &text() const;
 protected:
   // default method to extract only one-character tokens from the source
   virtual void extract();
@@ -80,7 +82,7 @@ public:
   EofToken(Source *source);
   virtual void extract();
   virtual ~EofToken();
-  virtual QString getType() const;
+  virtual QString getTypeStr() const;
   virtual unique_ptr<Token> clone() const;
 };
 
@@ -114,32 +116,11 @@ public:
   unique_ptr<SymbolTable> getSymbolTable() const;
   unique_ptr<ICode> getICode() const;
 signals:
-  void sendMessage(int lineNumber, int errorCount, float elapsedTime);
+  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
 protected:
   unique_ptr<SymbolTable> mSymbolTable;
   Scanner* mScanner;
   unique_ptr<ICode> mICode;
 };
-
-class PascalScanner: public Scanner {
-  Q_OBJECT
-public:
-  PascalScanner(QObject* parent = nullptr);
-  PascalScanner(Source* source, QObject* parent = nullptr);
-  virtual ~PascalScanner();
-  virtual unique_ptr<Token> extractToken();
-};
-
-class PascalParserTopDown: public Parser {
-  Q_OBJECT
-public:
-  PascalParserTopDown(Scanner* scanner, QObject* parent = nullptr);
-  virtual ~PascalParserTopDown();
-  virtual void parse();
-  virtual int errorCount();
-};
-
-Parser* createParser(const QString& language, const QString& type,
-                     Source* source, QObject* parent = nullptr);
 
 #endif // FRONTEND_H

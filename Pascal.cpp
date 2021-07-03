@@ -16,7 +16,7 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
   mSource = new Source(*mTextStream, parent);
   mParser = createParser("Pascal", "top-down", mSource, parent);
   connect(mSource, &Source::sendMessage, this, &Pascal::sourceMessageReceived);
-  connect(mParser, &Parser::sendMessage, this, &Pascal::parserMessageReceived);
+  connect(mParser, &Parser::parserSummary, this, &Pascal::parserMessageReceived);
   mBackend = createBackend(operation, parent);
   const QString backend_type = mBackend->getType();
   if (backend_type.compare("compiler", Qt::CaseInsensitive) == 0) {
