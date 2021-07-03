@@ -250,7 +250,7 @@ Parser *createParser(const QString &language, const QString &type,
 {
   if ((language.compare("Pascal", Qt::CaseInsensitive) == 0) &&
       (type.compare("top-down", Qt::CaseInsensitive) == 0)) {
-    Scanner* scanner = new Scanner(source);
+    Scanner* scanner = new PascalScanner(source);
     Parser* parser = new PascalParserTopDown(scanner, parent);
     return parser;
   } else if (language.compare("Pascal", Qt::CaseInsensitive) != 0) {

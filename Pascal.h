@@ -17,6 +17,8 @@ public:
 public slots:
   void sourceMessageReceived(int lineNumber, QString line);
   void parserMessageReceived(int lineNumber, int errorCount, float elapsedTime);
+  void compilerMessageReceived(int instructionCount, float elapsedTime);
+  void intepreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime);
 private:
   Parser* mParser;
   Source* mSource;

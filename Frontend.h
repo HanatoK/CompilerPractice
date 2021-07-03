@@ -90,7 +90,7 @@ public:
   Scanner(Source* source, QObject* parent = nullptr);
   virtual ~Scanner();
   unique_ptr<Token> currentToken() const;
-  virtual unique_ptr<Token> extractToken();
+  virtual unique_ptr<Token> extractToken() = 0;
   unique_ptr<Token> nextToken();
   QChar currentChar();
   QChar nextChar();
