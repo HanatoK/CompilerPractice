@@ -3,6 +3,7 @@
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QDebug>
+#include <QObject>
 
 int main(int argc, char *argv[])
 {
@@ -27,12 +28,17 @@ int main(int argc, char *argv[])
   const QString& filePath = files.first();
   if (parser.isSet(compileOption)) {
     pascal = new Pascal("compile", filePath, "ix", &a);
+    QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
+    emit pascal->exit(0);
+    return 0;
   } else if (parser.isSet(intepretOption)) {
     pascal = new Pascal("intepret", filePath, "ix", &a);
+    QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
+    emit pascal->exit(0);
+    return 0;
   } else {
     parser.showHelp();
+    return 0;
   }
-  delete pascal;
-  pascal = nullptr;
   return a.exec();
 }

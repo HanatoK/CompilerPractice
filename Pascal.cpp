@@ -67,16 +67,16 @@ void Pascal::parserMessageReceived(int lineNumber, int errorCount, float elapsed
   const QString format = QString("\n%1 source lines.") +
                          QString("\n%2 syntax errors.") +
                          QString("\n%3 seconds total parsing time.\n");
-  qInfo().noquote() << format.arg(lineNumber, 5, 10).
-                              arg(errorCount, 5, 10).
-                       arg(elapsedTime, 10, 'g', 2);
+  qInfo().noquote() << format.arg(lineNumber, 10, 10).
+                              arg(errorCount, 10, 10).
+                              arg(elapsedTime, 10, 'g', 2);
 }
 
 void Pascal::compilerMessageReceived(int instructionCount, float elapsedTime)
 {
   const QString format = QString("\n%1 instructions generated.") +
                          QString("\n%2 seconds total code generation time.\n");
-  qInfo().noquote() << format.arg(instructionCount, 5, 10).
+  qInfo().noquote() << format.arg(instructionCount, 10, 10).
                               arg(elapsedTime, 10, 'g', 2);
 }
 
@@ -85,7 +85,7 @@ void Pascal::intepreterMessageReceived(int executionCount, int runtimeErrors, fl
   const QString format = QString("\n%1 statements executed.") +
                          QString("\n%2 runtime errors.") +
                          QString("\n%3 seconds total execution time.\n");
-  qInfo().noquote() << format.arg(executionCount, 5, 10).
-                              arg(runtimeErrors, 5, 10).
+  qInfo().noquote() << format.arg(executionCount, 10, 10).
+                              arg(runtimeErrors, 10, 10).
                               arg(elapsedTime, 10, 'g', 2);
 }

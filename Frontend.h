@@ -56,10 +56,9 @@ public:
   Token(Source* source);
   virtual ~Token();
   virtual QString getType() const;
+  virtual unique_ptr<Token> clone() const;
   int lineNum() const;
-
   int position() const;
-
 protected:
   // default method to extract only one-character tokens from the source
   virtual void extract();
@@ -80,7 +79,9 @@ public:
   EofToken();
   EofToken(Source *source);
   virtual void extract();
+  virtual ~EofToken();
   virtual QString getType() const;
+  virtual unique_ptr<Token> clone() const;
 };
 
 class Scanner: public QObject {

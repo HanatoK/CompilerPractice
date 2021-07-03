@@ -19,6 +19,8 @@ public slots:
   void parserMessageReceived(int lineNumber, int errorCount, float elapsedTime);
   void compilerMessageReceived(int instructionCount, float elapsedTime);
   void intepreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime);
+signals:
+  void exit(int exitCode);
 private:
   Parser* mParser;
   Source* mSource;

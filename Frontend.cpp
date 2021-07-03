@@ -95,6 +95,11 @@ QString Token::getType() const
   return "unknown";
 }
 
+unique_ptr<Token> Token::clone() const
+{
+  return std::make_unique<Token>(*this);
+}
+
 void Token::extract()
 {
   mText = QString(currentChar());
@@ -146,7 +151,7 @@ Scanner::~Scanner()
 
 unique_ptr<Token> Scanner::currentToken() const
 {
-  return std::make_unique<Token>(*mCurrentToken);
+  return mCurrentToken->clone();
 }
 
 unique_ptr<Token> Scanner::nextToken()
@@ -217,7 +222,7 @@ unique_ptr<Token> PascalScanner::extractToken()
   const auto current_char = currentChar();
   // Construct the next token
   // The current character determines the token type.
-  if (current_char.toLatin1() == EOF) {
+  if (current_char == QChar(EOF)) {
     token = std::make_unique<EofToken>(mSource);
   } else {
     token = std::make_unique<Token>(mSource);
@@ -230,9 +235,12 @@ EofToken::EofToken()
 
 }
 
-EofToken::EofToken(Source *source): Token(source)
+EofToken::EofToken(Source *source)
 {
-
+  mSource = source;
+  mLineNum = mSource->lineNum();
+  mPosition = mSource->currentPos();
+  EofToken::extract();
 }
 
 void EofToken::extract()
@@ -240,9 +248,19 @@ void EofToken::extract()
 
 }
 
+EofToken::~EofToken()
+{
+
+}
+
 QString EofToken::getType() const
 {
   return "EOF";
+}
+
+unique_ptr<Token> EofToken::clone() const
+{
+  return std::make_unique<EofToken>(*this);
 }
 
 Parser *createParser(const QString &language, const QString &type,
@@ -277,6 +295,7 @@ void PascalParserTopDown::parse()
   auto token = std::make_unique<Token>();
   const int startTime = QTime::currentTime().msec();
   while (token->getType() != "EOF") {
+//    qDebug() << "Token type: " << token->getType();
     token = nextToken();
   }
   const int endTime = QTime::currentTime().msec();
