@@ -12,10 +12,10 @@ int main(int argc, char *argv[])
   a.setApplicationVersion("0.1");
   QCommandLineParser parser;
   const QCommandLineOption compileOption("compile", "compile the source file");
-  const QCommandLineOption intepretOption("intepret", "execute the source file directly");
+  const QCommandLineOption interpretOption("interpret", "execute the source file directly");
   parser.addHelpOption();
   parser.addOption(compileOption);
-  parser.addOption(intepretOption);
+  parser.addOption(interpretOption);
   parser.addPositionalArgument("source file", "the pascal source file");
   parser.process(a);
   Pascal* pascal = nullptr;
@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
     QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
     emit pascal->exit(0);
     return 0;
-  } else if (parser.isSet(intepretOption)) {
-    pascal = new Pascal("intepret", filePath, "ix", &a);
+  } else if (parser.isSet(interpretOption)) {
+    pascal = new Pascal("interpret", filePath, "ix", &a);
     QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
     emit pascal->exit(0);
     return 0;

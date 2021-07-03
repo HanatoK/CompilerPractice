@@ -34,7 +34,7 @@ signals:
 
 }
 
-namespace Intepreter {
+namespace Interpreter {
 
 class Executor: public Backend {
   Q_OBJECT

@@ -18,7 +18,7 @@ public slots:
   void sourceMessageReceived(int lineNumber, QString line);
   void parserMessageReceived(int lineNumber, int errorCount, float elapsedTime);
   void compilerMessageReceived(int instructionCount, float elapsedTime);
-  void intepreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime);
+  void interpreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime);
 signals:
   void exit(int exitCode);
 private:

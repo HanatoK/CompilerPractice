@@ -31,12 +31,12 @@ QString Compiler::CodeGenerator::getType() const
   return "compiler";
 }
 
-Intepreter::Executor::Executor(QObject *parent): Backend(parent)
+Interpreter::Executor::Executor(QObject *parent): Backend(parent)
 {
 
 }
 
-void Intepreter::Executor::process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable)
+void Interpreter::Executor::process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable)
 {
   const int startTime = QTime::currentTime().msec();
   const float elapsedTime = (QTime::currentTime().msec() - startTime) / 1000.0;
@@ -45,17 +45,17 @@ void Intepreter::Executor::process(unique_ptr<ICode> iCode, unique_ptr<SymbolTab
   emit summary(executionCount, runtimeErrors, elapsedTime);
 }
 
-QString Intepreter::Executor::getType() const
+QString Interpreter::Executor::getType() const
 {
-  return "intepreter";
+  return "interpreter";
 }
 
 Backend *createBackend(const QString &operation, QObject *parent)
 {
   if (operation.compare("compile", Qt::CaseInsensitive) == 0) {
     return new Compiler::CodeGenerator(parent);
-  } else if (operation.compare("intepret", Qt::CaseInsensitive) == 0) {
-    return new Intepreter::Executor(parent);
+  } else if (operation.compare("interpret", Qt::CaseInsensitive) == 0) {
+    return new Interpreter::Executor(parent);
   } else {
     qDebug() << "Invalid operation\n";
     return nullptr;

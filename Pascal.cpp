@@ -22,9 +22,9 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
   if (backend_type.compare("compiler", Qt::CaseInsensitive) == 0) {
     connect(dynamic_cast<Compiler::CodeGenerator*>(mBackend),
             &Compiler::CodeGenerator::summary, this, &Pascal::compilerMessageReceived);
-  } else if (backend_type.compare("intepreter", Qt::CaseInsensitive) == 0) {
-    connect(dynamic_cast<Intepreter::Executor*>(mBackend),
-            &Intepreter::Executor::summary, this, &Pascal::intepreterMessageReceived);
+  } else if (backend_type.compare("interpreter", Qt::CaseInsensitive) == 0) {
+    connect(dynamic_cast<Interpreter::Executor*>(mBackend),
+            &Interpreter::Executor::summary, this, &Pascal::interpreterMessageReceived);
   }
   mParser->parse();
 //  mICode = mParser->getICode();
@@ -80,7 +80,7 @@ void Pascal::compilerMessageReceived(int instructionCount, float elapsedTime)
                               arg(elapsedTime, 10, 'g', 2);
 }
 
-void Pascal::intepreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime)
+void Pascal::interpreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime)
 {
   const QString format = QString("\n%1 statements executed.") +
                          QString("\n%2 runtime errors.") +
