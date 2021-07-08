@@ -2,15 +2,18 @@
 
 #include <QTime>
 #include <QDebug>
+#include <QCoreApplication>
 
-PascalParserTopDown::PascalParserTopDown(Scanner *scanner, QObject *parent): Parser(scanner, parent)
+PascalParserTopDown::PascalParserTopDown(Scanner *scanner,
+                                         QObject *parent):
+  Parser(scanner, parent), mErrorHandler(nullptr)
 {
-
+  mErrorHandler = new PascalErrorHandler(this);
 }
 
 PascalParserTopDown::~PascalParserTopDown()
 {
-
+  if (mErrorHandler != nullptr) delete mErrorHandler;
 }
 
 void PascalParserTopDown::parse()
@@ -21,6 +24,10 @@ void PascalParserTopDown::parse()
     if (token->getTypeStr() != "ERROR") {
       emit tokenMessage(token->lineNum(), token->position(),
                         token->getTypeStr(), token->text(), token->value());
+    } else {
+      mErrorHandler->flag(token->clone(),
+                          PascalErrorCode(token->value().toInt()),
+                          this);
     }
     token = nextToken();
   }
@@ -81,14 +88,43 @@ Parser *createParser(const QString &language, const QString &type,
   }
 }
 
-PascalErrorHandler::PascalErrorHandler()
+PascalErrorHandler::PascalErrorHandler(QObject* parent): QObject(parent)
 {
-  initErrorMessageMap();
-  errorCount = 0;
+  mErrorCount = 0;
 }
 
-void PascalErrorHandler::initErrorMessageMap()
+PascalErrorHandler::~PascalErrorHandler()
 {
+
+}
+
+void PascalErrorHandler::flag(unique_ptr<Token> token,
+                              PascalErrorCode errorCode, Parser *parser)
+{
+  PascalParserTopDown* pascalParser = dynamic_cast<PascalParserTopDown*>(parser);
+  emit pascalParser->syntaxErrorMessage(token->lineNum(), token->position(),
+                                        token->text(), errorMessageMap[errorCode]);
+  if (++mErrorCount > maxError) {
+    abortTranslation(PascalErrorCode::TOO_MANY_ERRORS, parser);
+  }
+}
+
+void PascalErrorHandler::abortTranslation(PascalErrorCode errorCode, Parser* parser)
+{
+  const QString fatalText = "FATAL ERROR: " + errorMessageMap[errorCode];
+  PascalParserTopDown* pascalParser = dynamic_cast<PascalParserTopDown*>(parser);
+  emit pascalParser->syntaxErrorMessage(0, 0, "", fatalText);
+  QCoreApplication::exit(int(errorCode));
+}
+
+int PascalErrorHandler::errorCount() const
+{
+  return mErrorCount;
+}
+
+std::unordered_map<PascalErrorCode, QString> initErrorMessageMap()
+{
+  std::unordered_map<PascalErrorCode, QString> errorMessageMap;
   errorMessageMap[PascalErrorCode::ALREADY_FORWARDED] = "Already specified in FORWARD";
   errorMessageMap[PascalErrorCode::IDENTIFIER_REDEFINED] = "Redefined identifier";
   errorMessageMap[PascalErrorCode::IDENTIFIER_UNDEFINED] = "Undefined identifier";
@@ -148,4 +184,109 @@ void PascalErrorHandler::initErrorMessageMap()
   errorMessageMap[PascalErrorCode::WRONG_NUMBER_OF_PARMS] = "Wrong number of actual parameters";
   errorMessageMap[PascalErrorCode::IO_ERROR] = "Object I/O error";
   errorMessageMap[PascalErrorCode::TOO_MANY_ERRORS] = "Too many syntax errors";
+  return errorMessageMap;
 }
+
+std::unordered_map<PascalErrorCode, QString> PascalErrorHandler::errorMessageMap = initErrorMessageMap();
+
+PascalToken::PascalToken(): Token()
+{
+//  initTextTokenMap();
+}
+
+PascalToken::PascalToken(Source *source): Token(source)
+{
+//  initTextTokenMap();
+}
+
+QString PascalToken::getTypeStr() const
+{
+  return "";
+}
+
+unique_ptr<Token> PascalToken::clone() const
+{
+  return std::make_unique<PascalToken>(*this);
+}
+
+std::unordered_map<QString, PascalTokenType> initReservedWordsMap()
+{
+  std::unordered_map<QString, PascalTokenType> reservedWordsMap;
+  // reserved words
+  reservedWordsMap["and"] = PascalTokenType::AND;
+  reservedWordsMap["array"] = PascalTokenType::ARRAY;
+  reservedWordsMap["begin"] = PascalTokenType::BEGIN;
+  reservedWordsMap["case"] = PascalTokenType::CASE;
+  reservedWordsMap["const"] = PascalTokenType::CONST;
+  reservedWordsMap["div"] = PascalTokenType::DIV;
+  reservedWordsMap["do"] = PascalTokenType::DO;
+  reservedWordsMap["downto"] = PascalTokenType::DOWNTO;
+  reservedWordsMap["else"] = PascalTokenType::ELSE;
+  reservedWordsMap["end"] = PascalTokenType::END;
+  reservedWordsMap["file"] = PascalTokenType::FILE;
+  reservedWordsMap["for"] = PascalTokenType::FOR;
+  reservedWordsMap["function"] = PascalTokenType::FUNCTION;
+  reservedWordsMap["goto"] = PascalTokenType::GOTO;
+  reservedWordsMap["if"] = PascalTokenType::IF;
+  reservedWordsMap["in"] = PascalTokenType::IN;
+  reservedWordsMap["label"] = PascalTokenType::LABEL;
+  reservedWordsMap["mod"] = PascalTokenType::MOD;
+  reservedWordsMap["nil"] = PascalTokenType::NIL;
+  reservedWordsMap["not"] = PascalTokenType::NOT;
+  reservedWordsMap["of"] = PascalTokenType::OF;
+  reservedWordsMap["or"] = PascalTokenType::OR;
+  reservedWordsMap["packed"] = PascalTokenType::PACKED;
+  reservedWordsMap["procedure"] = PascalTokenType::PROCEDURE;
+  reservedWordsMap["program"] = PascalTokenType::PROGRAM;
+  reservedWordsMap["record"] = PascalTokenType::RECORD;
+  reservedWordsMap["repeat"] = PascalTokenType::REPEAT;
+  reservedWordsMap["set"] = PascalTokenType::SET;
+  reservedWordsMap["then"] = PascalTokenType::THEN;
+  reservedWordsMap["to"] = PascalTokenType::TO;
+  reservedWordsMap["type"] = PascalTokenType::TYPE;
+  reservedWordsMap["until"] = PascalTokenType::UNTIL;
+  reservedWordsMap["var"] = PascalTokenType::VAR;
+  reservedWordsMap["while"] = PascalTokenType::WHILE;
+  reservedWordsMap["with"] = PascalTokenType::WITH;
+  reservedWordsMap["identifier"] = PascalTokenType::IDENTIFIER;
+  reservedWordsMap["integer"] = PascalTokenType::INTEGER;
+  reservedWordsMap["real"] = PascalTokenType::REAL;
+  reservedWordsMap["string"] = PascalTokenType::STRING;
+  reservedWordsMap["error"] = PascalTokenType::ERROR;
+  reservedWordsMap["end_of_file"] = PascalTokenType::END_OF_FILE;
+  return reservedWordsMap;
+
+}
+
+std::unordered_map<QString, PascalTokenType> initSpecialSymbolsMap() {
+  std::unordered_map<QString, PascalTokenType> specialSymbolsMap;
+  // special symbols
+  specialSymbolsMap["+"] = PascalTokenType::PLUS;
+  specialSymbolsMap["-"] = PascalTokenType::MINUS;
+  specialSymbolsMap["*"] = PascalTokenType::STAR;
+  specialSymbolsMap["/"] = PascalTokenType::SLASH;
+  specialSymbolsMap[":="] = PascalTokenType::COLON_EQUALS;
+  specialSymbolsMap["."] = PascalTokenType::DOT;
+  specialSymbolsMap[","] = PascalTokenType::COMMA;
+  specialSymbolsMap[";"] = PascalTokenType::SEMICOLON;
+  specialSymbolsMap[":"] = PascalTokenType::COLON;
+  specialSymbolsMap["'"] = PascalTokenType::QUOTE;
+  specialSymbolsMap["="] = PascalTokenType::EQUALS;
+  specialSymbolsMap["<>"] = PascalTokenType::NOT_EQUALS;
+  specialSymbolsMap["<"] = PascalTokenType::LESS_THAN;
+  specialSymbolsMap["<="] = PascalTokenType::LESS_EQUALS;
+  specialSymbolsMap[">="] = PascalTokenType::GREATER_EQUALS;
+  specialSymbolsMap[">"] = PascalTokenType::GREATER_THAN;
+  specialSymbolsMap["("] = PascalTokenType::LEFT_PAREN;
+  specialSymbolsMap[")"] = PascalTokenType::RIGHT_PAREN;
+  specialSymbolsMap["["] = PascalTokenType::LEFT_BRACKET;
+  specialSymbolsMap["]"] = PascalTokenType::RIGHT_BRACKET;
+  specialSymbolsMap["{"] = PascalTokenType::LEFT_BRACE;
+  specialSymbolsMap["}"] = PascalTokenType::RIGHT_BRACE;
+  specialSymbolsMap["^"] = PascalTokenType::UP_ARROW;
+  specialSymbolsMap[".."] = PascalTokenType::DOT_DOT;
+  return specialSymbolsMap;
+}
+
+std::unordered_map<QString, PascalTokenType> PascalToken::mReservedWordsMap = initReservedWordsMap();
+std::unordered_map<QString, PascalTokenType> PascalToken::mSpecialSymbolsMap = initSpecialSymbolsMap();
