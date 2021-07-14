@@ -14,6 +14,8 @@ public:
   PascalScanner(Source* source, QObject* parent = nullptr);
   virtual ~PascalScanner();
   virtual unique_ptr<Token> extractToken();
+private:
+  void skipWhiteSpace();
 };
 
 class PascalToken;
@@ -41,6 +43,8 @@ public:
   virtual unique_ptr<Token> clone() const;
   static std::unordered_map<QString, PascalTokenType> mReservedWordsMap;
   static std::unordered_map<QString, PascalTokenType> mSpecialSymbolsMap;
+protected:
+  QString mTypeStr; // need to rework the type
 };
 
 class PascalParserTopDown: public Parser {
@@ -133,6 +137,43 @@ private:
   static const int maxError = 25;
   static std::unordered_map<PascalErrorCode, QString> errorMessageMap;
   int mErrorCount;
+};
+
+class PascalErrorToken: public PascalToken {
+public:
+  PascalErrorToken();
+  PascalErrorToken(Source *source, PascalErrorCode errorCode,
+                   const QString& tokenText);
+  virtual unique_ptr<Token> clone() const;
+  virtual void extract();
+};
+
+class PascalWordToken: public PascalToken {
+public:
+  PascalWordToken(Source *source);
+  virtual unique_ptr<Token> clone() const;
+  virtual void extract();
+};
+
+class PascalStringToken: public PascalToken {
+public:
+  PascalStringToken(Source *source);
+  virtual unique_ptr<Token> clone() const;
+  virtual void extract();
+};
+
+class PascalSpecialSymbolToken: public PascalToken {
+public:
+  PascalSpecialSymbolToken(Source *source);
+  virtual unique_ptr<Token> clone() const;
+  virtual void extract();
+};
+
+class PascalNumberToken: public PascalToken {
+public:
+  PascalNumberToken(Source *source);
+  virtual unique_ptr<Token> clone() const;
+  virtual void extract();
 };
 
 Parser* createParser(const QString& language, const QString& type,
