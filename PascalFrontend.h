@@ -54,11 +54,6 @@ public:
   virtual ~PascalParserTopDown();
   virtual void parse();
   virtual int errorCount();
-signals:
-  void tokenMessage(int lineNumber, int position, QString tokenType,
-                    QString text, QVariant value);
-  void syntaxErrorMessage(int lineNumber, int position, QString text,
-                          QString error);
 protected:
   PascalErrorHandler* mErrorHandler;
 };

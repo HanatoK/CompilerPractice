@@ -16,10 +16,14 @@ public:
          const QString& flags, QObject* parent = nullptr);
   ~Pascal();
 public slots:
-  void sourceMessageReceived(int lineNumber, QString line);
-  void parserMessageReceived(int lineNumber, int errorCount, float elapsedTime);
-  void compilerMessageReceived(int instructionCount, float elapsedTime);
-  void interpreterMessageReceived(int executionCount, int runtimeErrors, float elapsedTime);
+  void sourceMessage(int lineNumber, QString line);
+  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
+  void compilerSummary(int instructionCount, float elapsedTime);
+  void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime);
+  void tokenMessage(int lineNumber, int position, QString tokenType,
+                    QString text, QVariant value);
+  void syntaxErrorMessage(int lineNumber, int position, QString text,
+                          QString error);
 signals:
   void exit(int exitCode);
 private:

@@ -117,6 +117,10 @@ public:
   unique_ptr<ICode> getICode() const;
 signals:
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
+  void tokenMessage(int lineNumber, int position, QString tokenType,
+                    QString text, QVariant value);
+  void syntaxErrorMessage(int lineNumber, int position, QString text,
+                          QString error);
 protected:
   unique_ptr<SymbolTable> mSymbolTable;
   Scanner* mScanner;

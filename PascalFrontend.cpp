@@ -110,11 +110,9 @@ PascalErrorHandler::~PascalErrorHandler() {}
 
 void PascalErrorHandler::flag(unique_ptr<Token> token,
                               PascalErrorCode errorCode, Parser *parser) {
-  PascalParserTopDown *pascalParser =
-      dynamic_cast<PascalParserTopDown *>(parser);
-  emit pascalParser->syntaxErrorMessage(token->lineNum(), token->position(),
-                                        token->text(),
-                                        errorMessageMap[errorCode]);
+  emit parser->syntaxErrorMessage(token->lineNum(), token->position(),
+                                  token->text(),
+                                  errorMessageMap[errorCode]);
   if (++mErrorCount > maxError) {
     abortTranslation(PascalErrorCode::TOO_MANY_ERRORS, parser);
   }
