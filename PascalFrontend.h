@@ -174,6 +174,8 @@ public:
   PascalNumberToken(Source *source);
   virtual unique_ptr<Token> clone() const;
   virtual void extract();
+  virtual void extractNumber(QString& text);
+  virtual QString unsignedIntegerDigits(QString& text);
 };
 
 Parser* createParser(const QString& language, const QString& type,

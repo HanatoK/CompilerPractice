@@ -18,7 +18,8 @@ void PascalParserTopDown::parse() {
   auto token = std::make_unique<Token>();
   const int startTime = QTime::currentTime().msec();
   while (token->getTypeStr() != "EOF") {
-    if (token->getTypeStr() == "ERROR" || token->getTypeStr() == "UNKNOWN") {
+    if ((token->getTypeStr().compare("error", Qt::CaseInsensitive) == 0) ||
+        (token->getTypeStr().compare("unknown", Qt::CaseInsensitive) == 0)) {
       mErrorHandler->flag(token->clone(),
                           PascalErrorCode(token->value().toInt()), this);
     } else {
@@ -61,6 +62,7 @@ unique_ptr<Token> PascalScanner::extractToken() {
   } else {
     token = std::make_unique<PascalErrorToken>(
         mSource, PascalErrorCode::INVALID_CHARACTER, QString(current_char));
+    nextChar();
   }
   return std::move(token);
 }
@@ -367,7 +369,7 @@ unique_ptr<Token> PascalStringToken::clone() const {
 
 void PascalStringToken::extract() {
   QString text, value;
-  auto current_char = currentChar();
+  auto current_char = nextChar();
   text += '\'';
   do {
     // replace any whitespace character with a blank (why?)
@@ -384,8 +386,8 @@ void PascalStringToken::extract() {
       while (current_char == '\'' && peekChar() == '\'') {
         text += "''";
         value += current_char;        // append single-quote
-        current_char = currentChar(); // consume pair of quotes
-        current_char = currentChar();
+        current_char = nextChar(); // consume pair of quotes
+        current_char = nextChar();
       }
     }
   } while ((current_char != '\'') && (current_char != EOF));
@@ -491,5 +493,71 @@ unique_ptr<Token> PascalNumberToken::clone() const
 
 void PascalNumberToken::extract()
 {
-  // TODO
+  QString text;
+  PascalNumberToken::extractNumber(text);
+  mText = text;
+  if (mTypeStr == "real") {
+    mValue = mText.toDouble();
+  } else if (mTypeStr == "integer") {
+    mValue = mText.toLongLong();
+  } else {
+    mValue = QVariant();
+  }
+}
+
+void PascalNumberToken::extractNumber(QString &text)
+{
+  QString whole_digits, fraction_digits, exponent_digits;
+  QChar exponent_sign = '+';
+  bool dot_dot = false;
+  QChar current_char;
+  mTypeStr = "integer";
+  whole_digits = PascalNumberToken::unsignedIntegerDigits(text);
+  if (mTypeStr == "error") {
+    return;
+  }
+  current_char = currentChar();
+  if (current_char == '.') {
+    if (peekChar() == '.') {
+      dot_dot = true;
+    } else {
+      mTypeStr = "real";
+      text += current_char;
+      current_char = nextChar();
+      fraction_digits = PascalNumberToken::unsignedIntegerDigits(text);
+      if (mTypeStr == "error") {
+        return;
+      }
+    }
+  }
+  current_char = currentChar();
+  if (!dot_dot && (current_char == 'E' || current_char == 'e')) {
+    mTypeStr = "real";
+    text += current_char;
+    current_char = nextChar();
+    if (current_char == '+' ||
+        current_char == '-') {
+      text += current_char;
+      exponent_sign = current_char;
+      current_char = nextChar();
+    }
+    exponent_digits = PascalNumberToken::unsignedIntegerDigits(text);
+  }
+}
+
+QString PascalNumberToken::unsignedIntegerDigits(QString &text)
+{
+  QChar current_char = currentChar();
+  if (!current_char.isDigit()) {
+    mTypeStr = "error";
+    mValue = int(PascalErrorCode::INVALID_NUMBER);
+    return "null";
+  }
+  QString digits;
+  while (current_char.isDigit()) {
+    text += current_char;
+    digits += current_char;
+    current_char = nextChar();
+  }
+  return digits;
 }
