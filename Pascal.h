@@ -20,14 +20,14 @@ public slots:
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   void compilerSummary(int instructionCount, float elapsedTime);
   void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime);
-  void tokenMessage(int lineNumber, int position, QString tokenType,
+  void tokenMessage(int lineNumber, int position, PascalTokenType tokenType,
                     QString text, QVariant value);
   void syntaxErrorMessage(int lineNumber, int position, QString text,
                           QString error);
 signals:
   void exit(int exitCode);
 private:
-  Parser* mParser;
+  PascalParserTopDown* mParser;
   Source* mSource;
   // do I need to hold copies here?
 //  unique_ptr<ICode> mICode;

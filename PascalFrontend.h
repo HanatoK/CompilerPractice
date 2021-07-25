@@ -3,7 +3,7 @@
 
 #include "Frontend.h"
 
-#include <unordered_map>
+#include <map>
 
 class PascalErrorHandler;
 
@@ -41,10 +41,15 @@ public:
   PascalToken(Source* source);
   virtual QString getTypeStr() const;
   virtual unique_ptr<Token> clone() const;
-  static std::unordered_map<QString, PascalTokenType> mReservedWordsMap;
-  static std::unordered_map<QString, PascalTokenType> mSpecialSymbolsMap;
+  static QString typeToStr(const PascalTokenType& tokenType, bool* ok = nullptr);
+  static PascalTokenType strToType(const QString& str, bool* ok = nullptr);
+  // maybe I need boost::bimap
+  static std::map<PascalTokenType, QString> mReservedWordsMap;
+  static std::map<QString, PascalTokenType> mReservedWordsMapRev;
+  static std::map<PascalTokenType, QString> mSpecialSymbolsMap;
+  static std::map<QString, PascalTokenType> mSpecialSymbolsMapRev;
 protected:
-  QString mTypeStr; // need to rework the type
+  PascalTokenType mType;
 };
 
 class PascalParserTopDown: public Parser {
@@ -54,6 +59,9 @@ public:
   virtual ~PascalParserTopDown();
   virtual void parse();
   virtual int errorCount();
+signals:
+  void pascalTokenMessage(int lineNumber, int position, PascalTokenType tokenType,
+                          QString text, QVariant value);
 protected:
   PascalErrorHandler* mErrorHandler;
 };
@@ -130,7 +138,7 @@ public:
   int errorCount() const;
 private:
   static const int maxError = 25;
-  static std::unordered_map<PascalErrorCode, QString> errorMessageMap;
+  static std::map<PascalErrorCode, QString> errorMessageMap;
   int mErrorCount;
 };
 
@@ -173,7 +181,8 @@ public:
   virtual QString unsignedIntegerDigits(QString& text);
 };
 
-Parser* createParser(const QString& language, const QString& type,
-                     Source* source, QObject* parent = nullptr);
+PascalParserTopDown* createPascalParser(
+  const QString& language, const QString& type,
+  Source* source, QObject* parent = nullptr);
 
 #endif // PASCALFRONTEND_H

@@ -8,17 +8,17 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
   mBackend(nullptr), mSourceFile(nullptr), mTextStream(nullptr), QObject(parent)
 {
   // what are these flags??
-  const bool intermediate = flags.indexOf('i') > -1;
-  const bool xref = flags.indexOf('x') > -1;
+//  const bool intermediate = flags.indexOf('i') > -1;
+//  const bool xref = flags.indexOf('x') > -1;
   mSourceFile = new QFile(filePath, parent);
   mSourceFile->open(QIODevice::ReadOnly);
   mTextStream = new QTextStream(mSourceFile);
   mSource = new Source(*mTextStream, parent);
-  mParser = createParser("Pascal", "top-down", mSource, parent);
+  mParser = createPascalParser("Pascal", "top-down", mSource, parent);
   connect(mSource, &Source::sendMessage, this, &Pascal::sourceMessage);
-  connect(mParser, &Parser::parserSummary, this, &Pascal::parserSummary);
-  connect(mParser, &Parser::tokenMessage, this, &Pascal::tokenMessage);
-  connect(mParser, &Parser::syntaxErrorMessage, this, &Pascal::syntaxErrorMessage);
+  connect(mParser, &PascalParserTopDown::parserSummary, this, &Pascal::parserSummary);
+  connect(mParser, &PascalParserTopDown::pascalTokenMessage, this, &Pascal::tokenMessage);
+  connect(mParser, &PascalParserTopDown::syntaxErrorMessage, this, &Pascal::syntaxErrorMessage);
   mBackend = createBackend(operation, parent);
   const QString backend_type = mBackend->getType();
   if (backend_type.compare("compiler", Qt::CaseInsensitive) == 0) {
@@ -92,11 +92,12 @@ void Pascal::interpreterSummary(int executionCount, int runtimeErrors, float ela
                               arg(elapsedTime, 10, 'g', 2);
 }
 
-void Pascal::tokenMessage(int lineNumber, int position, QString tokenType, QString text, QVariant value)
+void Pascal::tokenMessage(int lineNumber, int position, PascalTokenType tokenType, QString text, QVariant value)
 {
   // TODO: invalid QVariant
   const QString format = QString(">>> %1 line = %2, pos = %3, text = %4");
-  const QString output_msg = format.arg(tokenType, 15, '-').
+  const QString type_str = PascalToken::typeToStr(tokenType);
+  const QString output_msg = format.arg(type_str, 15, '-').
                              arg(lineNumber, 5, 10, QChar('0')).
                              arg(position, 3).
                              arg(text) + ", value = " + value.toString();

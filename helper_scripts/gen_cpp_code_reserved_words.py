@@ -11,4 +11,5 @@ with open('reserved_words', 'r') as fInput:
 
 for word in word_list:
     lower_case = word.lower()
-    print(f'mReservedWordsMap["{lower_case}"] = PascalTokenType::{word};')
+    # print(f'mReservedWordsMap["{lower_case}"] = PascalTokenType::{word};')
+    print(f'reservedWordsMap[PascalTokenType::{word}] = QString("{lower_case}");')

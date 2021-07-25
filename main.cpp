@@ -5,8 +5,14 @@
 #include <QDebug>
 #include <QObject>
 
+void initMetaTypes() {
+  qRegisterMetaType<PascalTokenType>("PascalTokenType");
+  qRegisterMetaType<PascalErrorCode>("PascalErrorCode");
+}
+
 int main(int argc, char *argv[])
 {
+  initMetaTypes();
   QCoreApplication a(argc, argv);
   a.setApplicationName("PascalPractice");
   a.setApplicationVersion("0.1");
