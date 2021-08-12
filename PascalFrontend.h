@@ -48,6 +48,7 @@ public:
   static std::map<QString, PascalTokenType> mReservedWordsMapRev;
   static std::map<PascalTokenType, QString> mSpecialSymbolsMap;
   static std::map<QString, PascalTokenType> mSpecialSymbolsMapRev;
+  PascalTokenType type() const;
 protected:
   PascalTokenType mType;
 };
@@ -178,7 +179,11 @@ public:
   virtual unique_ptr<Token> clone() const;
   virtual void extract();
   virtual void extractNumber(QString& text);
-  virtual QString unsignedIntegerDigits(QString& text);
+private:
+  QString unsignedIntegerDigits(QString& text);
+  qulonglong computeIntegerValue(QString& digits);
+  double computeFloatValue(QString& whole_digits, QString& fraction_digits,
+                           QString& exponent_digits, QChar exponent_sign);
 };
 
 PascalParserTopDown* createPascalParser(

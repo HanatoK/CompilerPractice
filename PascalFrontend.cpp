@@ -25,7 +25,7 @@ PascalParserTopDown::~PascalParserTopDown() {
 }
 
 void PascalParserTopDown::parse() {
-  auto token = std::make_unique<Token>();
+  auto token = nextToken();
   const int startTime = QTime::currentTime().msec();
   while (token->getTypeStr() != "EOF") {
     if ((token->getTypeStr().compare("error", Qt::CaseInsensitive) == 0) ||
@@ -33,8 +33,9 @@ void PascalParserTopDown::parse() {
       mErrorHandler->flag(token->clone(),
                           PascalErrorCode(token->value().toInt()), this);
     } else {
-      emit tokenMessage(token->lineNum(), token->position(),
-                        token->getTypeStr(), token->text(), token->value());
+      const auto pascal_token = dynamic_cast<PascalToken*>(token.get());
+      emit pascalTokenMessage(token->lineNum(), token->position(),
+                              pascal_token->type(), token->text(), token->value());
     }
     token = nextToken();
   }
@@ -278,6 +279,11 @@ PascalTokenType PascalToken::strToType(const QString &str, bool *ok)
     *ok = false;
   }
   return PascalTokenType::ERROR;
+}
+
+PascalTokenType PascalToken::type() const
+{
+  return mType;
 }
 
 std::map<PascalTokenType, QString> initReservedWordsMap() {
@@ -554,17 +560,11 @@ void PascalNumberToken::extract()
   QString text;
   PascalNumberToken::extractNumber(text);
   mText = text;
-  if (mType == PascalTokenType::REAL) {
-    mValue = mText.toDouble();
-  } else if (mType == PascalTokenType::INTEGER) {
-    mValue = mText.toLongLong();
-  } else {
-    mValue = QVariant();
-  }
 }
 
 void PascalNumberToken::extractNumber(QString &text)
 {
+  // TODO: is it possible to parse C-style numbers
   QString whole_digits, fraction_digits, exponent_digits;
   QChar exponent_sign = '+';
   bool dot_dot = false;
@@ -582,7 +582,9 @@ void PascalNumberToken::extractNumber(QString &text)
       mType = PascalTokenType::REAL;
       text += current_char;
       current_char = nextChar();
-      fraction_digits = PascalNumberToken::unsignedIntegerDigits(text);
+      if (!peekChar().isSpace()) {
+        fraction_digits = PascalNumberToken::unsignedIntegerDigits(text);
+      }
       if (mType == PascalTokenType::ERROR) {
         return;
       }
@@ -601,6 +603,18 @@ void PascalNumberToken::extractNumber(QString &text)
     }
     exponent_digits = PascalNumberToken::unsignedIntegerDigits(text);
   }
+  if (mType == PascalTokenType::INTEGER) {
+    const qulonglong integer_value = computeIntegerValue(whole_digits);
+    if (mType != PascalTokenType::ERROR) {
+      mValue = integer_value;
+    }
+  } else {
+    const double float_value = computeFloatValue(whole_digits, fraction_digits,
+                                                 exponent_digits, exponent_sign);
+    if (mType != PascalTokenType::ERROR) {
+      mValue = float_value;
+    }
+  }
 }
 
 QString PascalNumberToken::unsignedIntegerDigits(QString &text)
@@ -618,4 +632,44 @@ QString PascalNumberToken::unsignedIntegerDigits(QString &text)
     current_char = nextChar();
   }
   return digits;
+}
+
+qulonglong PascalNumberToken::computeIntegerValue(QString &digits)
+{
+  // does not consume characters
+  bool ok = true;
+  // TODO: try to implement toInt without Qt
+  const qulonglong result = digits.toULongLong(&ok);
+  if (ok) {
+    return result;
+  } else {
+    mType = PascalTokenType::ERROR;
+    // TODO: check if integer out of range
+    mValue = int(PascalErrorCode::INVALID_NUMBER);
+    return 0;
+  }
+}
+
+double PascalNumberToken::computeFloatValue(
+    QString &whole_digits, QString &fraction_digits,
+    QString &exponent_digits, QChar exponent_sign)
+{
+  QString s = whole_digits;
+  if (!fraction_digits.isEmpty()) {
+    s += "." + fraction_digits;
+  }
+  if (!exponent_digits.isEmpty()) {
+    s += 'e' + exponent_sign + exponent_digits;
+  }
+  bool ok = true;
+  // TODO: try to implement toDouble without Qt
+  const double result = s.toDouble(&ok);
+  if (ok) {
+    return result;
+  } else {
+    mType = PascalTokenType::ERROR;
+    // TODO: check if integer out of range
+    mValue = int(PascalErrorCode::INVALID_NUMBER);
+    return 0;
+  }
 }

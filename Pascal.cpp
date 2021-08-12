@@ -108,7 +108,7 @@ void Pascal::syntaxErrorMessage(int lineNumber, int position, QString text, QStr
 {
   // TODO: show the correct position
   const int prefix_width = 3;
-  const int space_count = prefix_width + position;
+  const int space_count = prefix_width + position + 2;
   QString flag_buffer(space_count - 1, QChar(' '));
   flag_buffer += "^\n***" + error;
   flag_buffer += "[at \"" + text + "\"]";
