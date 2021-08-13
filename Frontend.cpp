@@ -201,9 +201,9 @@ unique_ptr<Token> Parser::nextToken()
   return mScanner->nextToken();
 }
 
-unique_ptr<SymbolTable> Parser::getSymbolTable() const
+SymbolTable* Parser::getSymbolTable() const
 {
-  return std::make_unique<SymbolTable>(*mSymbolTable);
+  return mSymbolTable;
 }
 
 unique_ptr<ICode> Parser::getICode() const

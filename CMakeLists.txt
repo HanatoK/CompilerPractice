@@ -8,12 +8,13 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(HEADERS
     Frontend.h
     Intermediate.h
+    IntermediateImpl.h
     Backend.h
     Pascal.h
     PascalFrontend.h)
@@ -23,7 +24,9 @@ set(SOURCES
     Frontend.cpp
     Backend.cpp
     Pascal.cpp
-    PascalFrontend.cpp)
+    PascalFrontend.cpp
+    Intermediate.cpp
+    IntermediateImpl.cpp)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

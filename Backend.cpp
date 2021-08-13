@@ -18,7 +18,7 @@ Compiler::CodeGenerator::CodeGenerator(QObject *parent): Backend(parent)
 
 }
 
-void Compiler::CodeGenerator::process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable)
+void Compiler::CodeGenerator::process(unique_ptr<ICode> iCode, const SymbolTable* symbolTable)
 {
   const int startTime = QTime::currentTime().msec();
   const float elapsedTime = (QTime::currentTime().msec() - startTime) / 1000.0;
@@ -36,7 +36,7 @@ Interpreter::Executor::Executor(QObject *parent): Backend(parent)
 
 }
 
-void Interpreter::Executor::process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable)
+void Interpreter::Executor::process(unique_ptr<ICode> iCode, const SymbolTable* symbolTable)
 {
   const int startTime = QTime::currentTime().msec();
   const float elapsedTime = (QTime::currentTime().msec() - startTime) / 1000.0;

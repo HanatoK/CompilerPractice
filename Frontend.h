@@ -113,7 +113,7 @@ public:
   virtual int errorCount() = 0;
   unique_ptr<Token> currentToken() const;
   unique_ptr<Token> nextToken();
-  unique_ptr<SymbolTable> getSymbolTable() const;
+  SymbolTable* getSymbolTable() const;
   unique_ptr<ICode> getICode() const;
 signals:
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
@@ -122,7 +122,7 @@ signals:
   void syntaxErrorMessage(int lineNumber, int position, QString text,
                           QString error);
 protected:
-  unique_ptr<SymbolTable> mSymbolTable;
+  SymbolTable* mSymbolTable;
   Scanner* mScanner;
   unique_ptr<ICode> mICode;
 };

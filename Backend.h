@@ -13,7 +13,7 @@ class Backend: public QObject {
   Q_OBJECT
 public:
   Backend(QObject* parent = nullptr);
-  virtual void process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable) = 0;
+  virtual void process(unique_ptr<ICode> iCode, const SymbolTable* symbolTable) = 0;
   virtual QString getType() const;
 protected:
   unique_ptr<ICode> mICode;
@@ -26,7 +26,7 @@ class CodeGenerator: public Backend {
   Q_OBJECT
 public:
   CodeGenerator(QObject* parent = nullptr);
-  virtual void process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable);
+  virtual void process(unique_ptr<ICode> iCode, const SymbolTable* symbolTable);
   virtual QString getType() const;
 signals:
   void summary(int instructionCount, float elapsedTime);
@@ -40,7 +40,7 @@ class Executor: public Backend {
   Q_OBJECT
 public:
   Executor(QObject* parent = nullptr);
-  virtual void process(unique_ptr<ICode> iCode, unique_ptr<SymbolTable> symbolTable);
+  virtual void process(unique_ptr<ICode> iCode, const SymbolTable *symbolTable);
   virtual QString getType() const;
 signals:
   void summary(int executionCount, int runtimeErrors, float elapsedTime);
