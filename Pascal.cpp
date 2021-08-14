@@ -10,16 +10,16 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
   // what are these flags??
 //  const bool intermediate = flags.indexOf('i') > -1;
 //  const bool xref = flags.indexOf('x') > -1;
-  mSourceFile = new QFile(filePath, parent);
+  mSourceFile = new QFile(filePath, this);
   mSourceFile->open(QIODevice::ReadOnly);
   mTextStream = new QTextStream(mSourceFile);
-  mSource = new Source(*mTextStream, parent);
-  mParser = createPascalParser("Pascal", "top-down", mSource, parent);
+  mSource = new Source(*mTextStream, this);
+  mParser = createPascalParser("Pascal", "top-down", mSource, this);
   connect(mSource, &Source::sendMessage, this, &Pascal::sourceMessage);
   connect(mParser, &PascalParserTopDown::parserSummary, this, &Pascal::parserSummary);
   connect(mParser, &PascalParserTopDown::pascalTokenMessage, this, &Pascal::tokenMessage);
   connect(mParser, &PascalParserTopDown::syntaxErrorMessage, this, &Pascal::syntaxErrorMessage);
-  mBackend = createBackend(operation, parent);
+  mBackend = createBackend(operation, this);
   const QString backend_type = mBackend->getType();
   if (backend_type.compare("compiler", Qt::CaseInsensitive) == 0) {
     connect(dynamic_cast<Compiler::CodeGenerator*>(mBackend),
@@ -36,6 +36,9 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
 
 Pascal::~Pascal()
 {
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 //  if (mParser != nullptr) {
 //    delete mParser;
 //    mParser = nullptr;

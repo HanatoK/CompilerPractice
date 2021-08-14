@@ -8,6 +8,13 @@ Backend::Backend(QObject *parent): QObject(parent)
 
 }
 
+Backend::~Backend()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
+
 QString Backend::getType() const
 {
   return "unknown";
@@ -16,6 +23,13 @@ QString Backend::getType() const
 Compiler::CodeGenerator::CodeGenerator(QObject *parent): Backend(parent)
 {
 
+}
+
+Compiler::CodeGenerator::~CodeGenerator()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 void Compiler::CodeGenerator::process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable)
@@ -34,6 +48,13 @@ QString Compiler::CodeGenerator::getType() const
 Interpreter::Executor::Executor(QObject *parent): Backend(parent)
 {
 
+}
+
+Interpreter::Executor::~Executor()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 void Interpreter::Executor::process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable)

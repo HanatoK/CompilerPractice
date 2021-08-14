@@ -66,6 +66,13 @@ int Source::currentPos() const
   return mCurrentPos;
 }
 
+Source::~Source()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
+
 int Source::lineNum() const
 {
   return mLineNum;
@@ -87,7 +94,9 @@ Token::Token(Source* source): mSource(source)
 
 Token::~Token()
 {
-
+//#ifdef DEBUG_DESTRUCTOR
+//  qDebug() << "Destructor: " << Q_FUNC_INFO;
+//#endif
 }
 
 QString Token::getTypeStr() const
@@ -151,7 +160,9 @@ Scanner::Scanner(Source *source, QObject *parent):
 
 Scanner::~Scanner()
 {
-
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 std::shared_ptr<Token> Scanner::currentToken() const
@@ -183,7 +194,9 @@ Parser::Parser(Scanner *scanner, QObject *parent):
 
 Parser::~Parser()
 {
-
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 std::shared_ptr<Token> Parser::currentToken() const
@@ -226,7 +239,9 @@ void EofToken::extract()
 
 EofToken::~EofToken()
 {
-
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 QString EofToken::getTypeStr() const

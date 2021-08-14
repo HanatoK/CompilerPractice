@@ -32,6 +32,7 @@ public:
   char peekChar();
   int lineNum() const;
   int currentPos() const;
+  virtual ~Source();
 private:
   // read the next source line
   void readLine();

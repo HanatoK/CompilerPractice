@@ -21,8 +21,9 @@ PascalParserTopDown::PascalParserTopDown(Scanner *scanner, QObject *parent)
 }
 
 PascalParserTopDown::~PascalParserTopDown() {
-  if (mErrorHandler != nullptr)
-    delete mErrorHandler;
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 void PascalParserTopDown::parse() {
@@ -45,14 +46,20 @@ void PascalParserTopDown::parse() {
   emit parserSummary(token->lineNum(), errorCount(), elapsedTime);
 }
 
-int PascalParserTopDown::errorCount() { return 0; }
+int PascalParserTopDown::errorCount() {
+  return mErrorHandler->errorCount();
+}
 
 PascalScanner::PascalScanner(QObject *parent) : Scanner(parent) {}
 
 PascalScanner::PascalScanner(Source *source, QObject *parent)
     : Scanner(source, parent) {}
 
-PascalScanner::~PascalScanner() {}
+PascalScanner::~PascalScanner() {
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
 
 std::shared_ptr<Token> PascalScanner::extractToken() {
   skipWhiteSpace();
@@ -118,7 +125,11 @@ PascalErrorHandler::PascalErrorHandler(QObject *parent) : QObject(parent) {
   mErrorCount = 0;
 }
 
-PascalErrorHandler::~PascalErrorHandler() {}
+PascalErrorHandler::~PascalErrorHandler() {
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
 
 void PascalErrorHandler::flag(const std::shared_ptr<Token> &token,
                               PascalErrorCode errorCode, Parser *parser) {

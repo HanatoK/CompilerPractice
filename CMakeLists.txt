@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(QT_VERSION_MAJOR 5)
+add_compile_definitions(DEBUG_DESTRUCTOR)
 
 set(HEADERS
     Frontend.h
@@ -19,7 +20,8 @@ set(HEADERS
     IntermediateImpl.h
     Backend.h
     Pascal.h
-    PascalFrontend.h)
+    PascalFrontend.h
+    Common.h)
 
 set(SOURCES
     main.cpp
