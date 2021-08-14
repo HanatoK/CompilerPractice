@@ -187,8 +187,9 @@ char Scanner::nextChar()
 }
 
 Parser::Parser(Scanner *scanner, QObject *parent):
-  QObject(parent), mSymbolTable(nullptr), mScanner(scanner), mICode(nullptr)
+  QObject(parent), mSymbolTableStack(nullptr), mScanner(scanner), mICode(nullptr)
 {
+  mSymbolTableStack = createSymbolTableStack();
   scanner->setParent(this);
 }
 
@@ -209,9 +210,9 @@ std::shared_ptr<Token> Parser::nextToken()
   return mScanner->nextToken();
 }
 
-std::shared_ptr<SymbolTable> Parser::getSymbolTable() const
+std::shared_ptr<SymbolTableStack> Parser::getSymbolTableStack() const
 {
-  return mSymbolTable;
+  return mSymbolTableStack;
 }
 
 std::shared_ptr<ICode> Parser::getICode() const

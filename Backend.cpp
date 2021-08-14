@@ -32,7 +32,7 @@ Compiler::CodeGenerator::~CodeGenerator()
 #endif
 }
 
-void Compiler::CodeGenerator::process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable)
+void Compiler::CodeGenerator::process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTableStack> symbol_table_stack)
 {
   const int startTime = QTime::currentTime().msec();
   const float elapsedTime = (QTime::currentTime().msec() - startTime) / 1000.0;
@@ -57,7 +57,7 @@ Interpreter::Executor::~Executor()
 #endif
 }
 
-void Interpreter::Executor::process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable)
+void Interpreter::Executor::process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTableStack> symbol_table_stack)
 {
   const int startTime = QTime::currentTime().msec();
   const float elapsedTime = (QTime::currentTime().msec() - startTime) / 1000.0;

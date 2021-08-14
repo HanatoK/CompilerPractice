@@ -21,7 +21,8 @@ set(HEADERS
     Backend.h
     Pascal.h
     PascalFrontend.h
-    Common.h)
+    Common.h
+    Utilities.h)
 
 set(SOURCES
     main.cpp
@@ -30,7 +31,8 @@ set(SOURCES
     Pascal.cpp
     PascalFrontend.cpp
     Intermediate.cpp
-    IntermediateImpl.cpp)
+    IntermediateImpl.cpp
+    Utilities.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

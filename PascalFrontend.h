@@ -47,6 +47,8 @@ public:
   static std::map<QString, PascalTokenType> mReservedWordsMapRev;
   static std::map<PascalTokenType, QString> mSpecialSymbolsMap;
   static std::map<QString, PascalTokenType> mSpecialSymbolsMapRev;
+  static std::map<PascalTokenType, QString> mSpecialWordsMap;
+  static std::map<QString, PascalTokenType> mSpecialWordsMapRev;
   PascalTokenType type() const;
 protected:
   PascalTokenType mType;

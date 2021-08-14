@@ -62,10 +62,4 @@ private:
   QList<std::shared_ptr<SymbolTable>> mStack;
 };
 
-std::unique_ptr<SymbolTableEntry> createSymbolTableEntry(const QString& name, SymbolTable* symbolTable);
-
-std::unique_ptr<SymbolTable> createSymbolTable(int nestingLevel);
-
-std::unique_ptr<SymbolTableStack> createSymbolTableStack();
-
 #endif // INTERMEDIATEIMPL_H

@@ -1,19 +1,11 @@
 #include "PascalFrontend.h"
+#include "IntermediateImpl.h"
+#include "Common.h"
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTime>
 #include <cctype>
-
-// assume no key shares a same value
-template <typename T1, typename T2>
-std::map<T2, T1> reverse_map(const std::map<T1, T2>& map_in) {
-  std::map<T2, T1> map_out;
-  for (auto it = map_in.begin(); it != map_in.end(); ++it) {
-    map_out[it->second] = it->first;
-  }
-  return map_out;
-}
 
 PascalParserTopDown::PascalParserTopDown(Scanner *scanner, QObject *parent)
     : Parser(scanner, parent), mErrorHandler(nullptr) {
@@ -36,6 +28,15 @@ void PascalParserTopDown::parse() {
                           PascalErrorCode(token->value().toInt()), this);
     } else {
       const auto pascal_token = dynamic_cast<PascalToken*>(token.get());
+      if (pascal_token->type() == PascalTokenType::IDENTIFIER) {
+        const QString name = pascal_token->text().toLower();
+        auto symbol_table_stack = dynamic_cast<SymbolTableStackImpl*>(mSymbolTableStack.get());
+        auto entry = symbol_table_stack->lookup(name);
+        if (entry == nullptr) {
+          entry = symbol_table_stack->enterLocal(name);
+        }
+        entry->appendLineNumber(token->lineNum());
+      }
       emit pascalTokenMessage(token->lineNum(), token->position(),
                               pascal_token->type(), token->text(), token->value());
     }
@@ -261,9 +262,17 @@ QString PascalToken::typeToStr(const PascalTokenType &tokenType, bool *ok)
     }
     return s2->second;
   }
+  const auto s3 = PascalToken::mSpecialWordsMap.find(tokenType);
+  if (s3 != PascalToken::mSpecialSymbolsMap.end()) {
+    if (ok != nullptr) {
+      *ok = true;
+    }
+    return s3->second;
+  }
   if (ok != nullptr) {
     *ok = false;
   }
+  // TODO: 5 extra words
   return "UNKNOWN";
 }
 
@@ -282,6 +291,13 @@ PascalTokenType PascalToken::strToType(const QString &str, bool *ok)
       *ok = true;
     }
     return s2->second;
+  }
+  const auto s3 = PascalToken::mSpecialWordsMapRev.find(str);
+  if (s3 != PascalToken::mSpecialWordsMapRev.end()) {
+    if (ok != nullptr) {
+      *ok = true;
+    }
+    return s3->second;
   }
   if (ok != nullptr) {
     *ok = false;
@@ -332,12 +348,6 @@ std::map<PascalTokenType, QString> initReservedWordsMap() {
   reservedWordsMap[PascalTokenType::VAR] = QString("var");
   reservedWordsMap[PascalTokenType::WHILE] = QString("while");
   reservedWordsMap[PascalTokenType::WITH] = QString("with");
-  reservedWordsMap[PascalTokenType::IDENTIFIER] = QString("identifier");
-  reservedWordsMap[PascalTokenType::INTEGER] = QString("integer");
-  reservedWordsMap[PascalTokenType::REAL] = QString("real");
-  reservedWordsMap[PascalTokenType::STRING] = QString("string");
-  reservedWordsMap[PascalTokenType::ERROR] = QString("error");
-  reservedWordsMap[PascalTokenType::END_OF_FILE] = QString("end_of_file");
   return reservedWordsMap;
 }
 
@@ -371,10 +381,24 @@ std::map<PascalTokenType, QString> initSpecialSymbolsMap() {
   return specialSymbolsMap;
 }
 
+std::map<PascalTokenType, QString> initSpecialWordsMap() {
+  std::map<PascalTokenType, QString> specialWordsMap;
+  // split this
+  specialWordsMap[PascalTokenType::IDENTIFIER] = QString("identifier");
+  specialWordsMap[PascalTokenType::INTEGER] = QString("integer");
+  specialWordsMap[PascalTokenType::REAL] = QString("real");
+  specialWordsMap[PascalTokenType::STRING] = QString("string");
+  specialWordsMap[PascalTokenType::ERROR] = QString("error");
+  specialWordsMap[PascalTokenType::END_OF_FILE] = QString("end_of_file");
+  return specialWordsMap;
+}
+
 std::map<PascalTokenType, QString> PascalToken::mReservedWordsMap = initReservedWordsMap();
 std::map<PascalTokenType, QString> PascalToken::mSpecialSymbolsMap = initSpecialSymbolsMap();
+std::map<PascalTokenType, QString> PascalToken::mSpecialWordsMap = initSpecialWordsMap();
 std::map<QString, PascalTokenType> PascalToken::mReservedWordsMapRev = reverse_map(PascalToken::mReservedWordsMap);
 std::map<QString, PascalTokenType> PascalToken::mSpecialSymbolsMapRev = reverse_map(PascalToken::mSpecialSymbolsMap);
+std::map<QString, PascalTokenType> PascalToken::mSpecialWordsMapRev = reverse_map(PascalToken::mSpecialWordsMap);
 
 PascalErrorToken::PascalErrorToken() : PascalToken() {
   mType = PascalTokenType::ERROR;
@@ -418,7 +442,7 @@ void PascalWordToken::extract() {
     current_char = nextChar();
   }
   mText = s;
-  if (PascalToken::mReservedWordsMapRev.find(mText) !=
+  if (PascalToken::mReservedWordsMapRev.find(mText.toLower()) !=
       PascalToken::mReservedWordsMapRev.end()) {
     mType = mReservedWordsMapRev[mText];
   } else {

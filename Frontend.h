@@ -112,7 +112,7 @@ public:
   virtual int errorCount() = 0;
   std::shared_ptr<Token> currentToken() const;
   std::shared_ptr<Token> nextToken();
-  std::shared_ptr<SymbolTable> getSymbolTable() const;
+  std::shared_ptr<SymbolTableStack> getSymbolTableStack() const;
   std::shared_ptr<ICode> getICode() const;
 signals:
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
@@ -121,7 +121,7 @@ signals:
   void syntaxErrorMessage(int lineNumber, int position, QString text,
                           QString error);
 protected:
-  std::shared_ptr<SymbolTable> mSymbolTable;
+  std::shared_ptr<SymbolTableStack> mSymbolTableStack;
   Scanner* mScanner;
   std::shared_ptr<ICode> mICode;
 };

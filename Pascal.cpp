@@ -1,4 +1,5 @@
 #include "Pascal.h"
+#include "Utilities.h"
 
 #include <QDebug>
 
@@ -9,7 +10,7 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
 {
   // what are these flags??
 //  const bool intermediate = flags.indexOf('i') > -1;
-//  const bool xref = flags.indexOf('x') > -1;
+  const bool xref = flags.indexOf('x') > -1;
   mSourceFile = new QFile(filePath, this);
   mSourceFile->open(QIODevice::ReadOnly);
   mTextStream = new QTextStream(mSourceFile);
@@ -29,9 +30,10 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
             &Interpreter::Executor::summary, this, &Pascal::interpreterSummary);
   }
   mParser->parse();
-//  mICode = mParser->getICode();
-//  mSymbolTable = mParser->getSymbolTable();
-  mBackend->process(mParser->getICode(), mParser->getSymbolTable());
+  if (xref) {
+    CrossReferencer::print(mParser->getSymbolTableStack());
+  }
+  mBackend->process(mParser->getICode(), mParser->getSymbolTableStack());
 }
 
 Pascal::~Pascal()
@@ -39,27 +41,10 @@ Pascal::~Pascal()
 #ifdef DEBUG_DESTRUCTOR
   qDebug() << "Destructor: " << Q_FUNC_INFO;
 #endif
-//  if (mParser != nullptr) {
-//    delete mParser;
-//    mParser = nullptr;
-//  }
-//  if (mSource != nullptr) {
-//    delete mSource;
-//    mSource = nullptr;
-//  }
-//  if (mBackend != nullptr) {
-//    delete mBackend;
-//    mBackend = nullptr;
-//  }
   if (mTextStream != nullptr) {
     delete mTextStream;
     mTextStream = nullptr;
   }
-//  if (mSourceFile != nullptr) {
-//    if (mSourceFile->isOpen()) mSourceFile->close();
-//    delete mSourceFile;
-//    mSourceFile = nullptr;
-//  }
 }
 
 void Pascal::sourceMessage(int lineNumber, QString line)

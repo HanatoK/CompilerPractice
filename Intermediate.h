@@ -49,4 +49,10 @@ public:
   virtual std::shared_ptr<SymbolTableEntry> lookup(const QString& name) = 0;
 };
 
+std::unique_ptr<SymbolTableEntry> createSymbolTableEntry(const QString& name, SymbolTable* symbolTable);
+
+std::unique_ptr<SymbolTable> createSymbolTable(int nestingLevel);
+
+std::unique_ptr<SymbolTableStack> createSymbolTableStack();
+
 #endif // INTERMEDIATE_H
