@@ -13,7 +13,7 @@ public:
   PascalScanner(QObject* parent = nullptr);
   PascalScanner(Source* source, QObject* parent = nullptr);
   virtual ~PascalScanner();
-  virtual unique_ptr<Token> extractToken();
+  virtual std::shared_ptr<Token> extractToken();
 private:
   void skipWhiteSpace();
 };
@@ -40,7 +40,6 @@ public:
   PascalToken();
   PascalToken(Source* source);
   virtual QString getTypeStr() const;
-  virtual unique_ptr<Token> clone() const;
   static QString typeToStr(const PascalTokenType& tokenType, bool* ok = nullptr);
   static PascalTokenType strToType(const QString& str, bool* ok = nullptr);
   // maybe I need boost::bimap
@@ -134,7 +133,7 @@ class PascalErrorHandler: public QObject {
 public:
   PascalErrorHandler(QObject* parent = nullptr);
   virtual ~PascalErrorHandler();
-  void flag(unique_ptr<Token> token, PascalErrorCode errorCode, Parser* parser);
+  void flag(const std::shared_ptr<Token>& token, PascalErrorCode errorCode, Parser* parser);
   void abortTranslation(PascalErrorCode errorCode, Parser* parser);
   int errorCount() const;
 private:
@@ -183,7 +182,7 @@ private:
   QString unsignedIntegerDigits(QString& text);
   qulonglong computeIntegerValue(QString& digits);
   double computeFloatValue(QString& whole_digits, QString& fraction_digits,
-                           QString& exponent_digits, QChar exponent_sign);
+                           QString& exponent_digits, char exponent_sign);
 };
 
 PascalParserTopDown* createPascalParser(

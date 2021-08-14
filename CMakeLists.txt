@@ -11,6 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(QT_VERSION_MAJOR 5)
+
 set(HEADERS
     Frontend.h
     Intermediate.h
@@ -28,7 +30,7 @@ set(SOURCES
     Intermediate.cpp
     IntermediateImpl.cpp)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+#find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
 add_executable(CompilerPractice ${SOURCES} ${HEADERS})

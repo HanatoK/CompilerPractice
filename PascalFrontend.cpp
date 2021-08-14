@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTime>
+#include <cctype>
 
 // assume no key shares a same value
 template <typename T1, typename T2>
@@ -30,7 +31,7 @@ void PascalParserTopDown::parse() {
   while (token->getTypeStr() != "EOF") {
     if ((token->getTypeStr().compare("error", Qt::CaseInsensitive) == 0) ||
         (token->getTypeStr().compare("unknown", Qt::CaseInsensitive) == 0)) {
-      mErrorHandler->flag(token->clone(),
+      mErrorHandler->flag(token,
                           PascalErrorCode(token->value().toInt()), this);
     } else {
       const auto pascal_token = dynamic_cast<PascalToken*>(token.get());
@@ -53,7 +54,7 @@ PascalScanner::PascalScanner(Source *source, QObject *parent)
 
 PascalScanner::~PascalScanner() {}
 
-unique_ptr<Token> PascalScanner::extractToken() {
+std::shared_ptr<Token> PascalScanner::extractToken() {
   skipWhiteSpace();
   unique_ptr<Token> token = nullptr;
   auto current_char = currentChar();
@@ -61,18 +62,18 @@ unique_ptr<Token> PascalScanner::extractToken() {
   // The current character determines the token type.
   if (current_char == EOF) {
     token = std::make_unique<EofToken>(mSource);
-  } else if (current_char.isLetter()) {
+  } else if (std::isalpha(current_char)) {
     token = std::make_unique<PascalWordToken>(mSource);
-  } else if (current_char.isDigit()) {
+  } else if (std::isdigit(current_char)) {
     token = std::make_unique<PascalNumberToken>(mSource);
   } else if (current_char == '\'') {
     token = std::make_unique<PascalStringToken>(mSource);
-  } else if (PascalToken::mSpecialSymbolsMapRev.find(QString(current_char)) !=
+  } else if (PascalToken::mSpecialSymbolsMapRev.find(QString{current_char}) !=
              PascalToken::mSpecialSymbolsMapRev.end()) {
     token = std::make_unique<PascalSpecialSymbolToken>(mSource);
   } else {
     token = std::make_unique<PascalErrorToken>(
-        mSource, PascalErrorCode::INVALID_CHARACTER, QString(current_char));
+        mSource, PascalErrorCode::INVALID_CHARACTER, QString{current_char});
     nextChar();
   }
   return std::move(token);
@@ -81,7 +82,7 @@ unique_ptr<Token> PascalScanner::extractToken() {
 void PascalScanner::skipWhiteSpace() {
   auto current_char = currentChar();
   // isWhiteSpace in Java also checks tabulation
-  while (current_char.isSpace() || current_char == QChar::Tabulation ||
+  while (std::isspace(current_char) ||
          current_char == '{') {
     // consume the comment characters
     if (current_char == '{') {
@@ -119,7 +120,7 @@ PascalErrorHandler::PascalErrorHandler(QObject *parent) : QObject(parent) {
 
 PascalErrorHandler::~PascalErrorHandler() {}
 
-void PascalErrorHandler::flag(unique_ptr<Token> token,
+void PascalErrorHandler::flag(const std::shared_ptr<Token> &token,
                               PascalErrorCode errorCode, Parser *parser) {
   emit parser->syntaxErrorMessage(token->lineNum(), token->position(),
                                   token->text(),
@@ -231,10 +232,6 @@ PascalToken::PascalToken(Source *source) : Token(source) {
 
 QString PascalToken::getTypeStr() const {
   return PascalToken::typeToStr(mType, nullptr);
-}
-
-unique_ptr<Token> PascalToken::clone() const {
-  return std::make_unique<PascalToken>(*this);
 }
 
 QString PascalToken::typeToStr(const PascalTokenType &tokenType, bool *ok)
@@ -405,7 +402,7 @@ unique_ptr<Token> PascalWordToken::clone() const {
 void PascalWordToken::extract() {
   QString s;
   auto current_char = currentChar();
-  while (current_char.isLetterOrNumber()) {
+  while (std::isalnum(current_char)) {
     s += current_char;
     current_char = nextChar();
   }
@@ -435,7 +432,7 @@ void PascalStringToken::extract() {
   text += '\'';
   do {
     // replace any whitespace character with a blank (why?)
-    if (current_char.isSpace() || current_char == QChar::Tabulation) {
+    if (std::isspace(current_char)) {
       current_char = ' ';
     }
     if (current_char != '\'' && current_char != EOF) {
@@ -478,20 +475,20 @@ unique_ptr<Token> PascalSpecialSymbolToken::clone() const {
 
 void PascalSpecialSymbolToken::extract() {
   auto current_char = currentChar();
-  mText = QString(current_char);
+  mText = QString{current_char};
   bool invalid_type = false;
 //  mTypeStr = "null";
-  switch (current_char.unicode()) {
+  switch (current_char) {
   // single-character special symbols
-  case u'+': case u'-': case u'*': case u'/':
-  case u',': case u';': case u'\'': case u'=':
-  case u'(': case u')': case u'[': case u']':
-  case u'{': case u'}': case u'^': {
+  case '+': case '-': case '*': case '/':
+  case ',': case ';': case '\'': case '=':
+  case '(': case ')': case '[': case ']':
+  case '{': case '}': case '^': {
     nextChar();
     break;
   }
   // : or :=
-  case u':': {
+  case ':': {
     current_char = nextChar(); // consume ':'
     if (current_char == '=') {
       mText += current_char;
@@ -500,7 +497,7 @@ void PascalSpecialSymbolToken::extract() {
     break;
   }
   // < or <= or <>
-  case u'<': {
+  case '<': {
     current_char = nextChar(); // consume '>'
     if (current_char == '=' ||
         current_char == '>') {
@@ -510,7 +507,7 @@ void PascalSpecialSymbolToken::extract() {
     break;
   }
   // > or >=
-  case u'>': {
+  case '>': {
     current_char = nextChar(); // consume '>'
     if (current_char == '=') {
       mText += current_char;
@@ -519,7 +516,7 @@ void PascalSpecialSymbolToken::extract() {
     break;
   }
   // . or ..
-  case u'.': {
+  case '.': {
     current_char = nextChar(); // consume '.'
     if (current_char == '.') {
       mText += current_char;
@@ -566,9 +563,9 @@ void PascalNumberToken::extractNumber(QString &text)
 {
   // TODO: is it possible to parse C-style numbers
   QString whole_digits, fraction_digits, exponent_digits;
-  QChar exponent_sign = '+';
+  char exponent_sign = '+';
   bool dot_dot = false;
-  QChar current_char;
+  char current_char;
   mType = PascalTokenType::INTEGER;
   whole_digits = PascalNumberToken::unsignedIntegerDigits(text);
   if (mType == PascalTokenType::ERROR) {
@@ -582,7 +579,7 @@ void PascalNumberToken::extractNumber(QString &text)
       mType = PascalTokenType::REAL;
       text += current_char;
       current_char = nextChar();
-      if (!peekChar().isSpace()) {
+      if (!(std::isspace(peekChar()))) {
         fraction_digits = PascalNumberToken::unsignedIntegerDigits(text);
       }
       if (mType == PascalTokenType::ERROR) {
@@ -619,14 +616,14 @@ void PascalNumberToken::extractNumber(QString &text)
 
 QString PascalNumberToken::unsignedIntegerDigits(QString &text)
 {
-  QChar current_char = currentChar();
-  if (!current_char.isDigit()) {
+  char current_char = currentChar();
+  if (!std::isdigit(current_char)) {
     mType = PascalTokenType::ERROR;
     mValue = int(PascalErrorCode::INVALID_NUMBER);
     return "null";
   }
   QString digits;
-  while (current_char.isDigit()) {
+  while (std::isdigit(current_char)) {
     text += current_char;
     digits += current_char;
     current_char = nextChar();
@@ -650,16 +647,15 @@ qulonglong PascalNumberToken::computeIntegerValue(QString &digits)
   }
 }
 
-double PascalNumberToken::computeFloatValue(
-    QString &whole_digits, QString &fraction_digits,
-    QString &exponent_digits, QChar exponent_sign)
+double PascalNumberToken::computeFloatValue(QString &whole_digits, QString &fraction_digits,
+    QString &exponent_digits, char exponent_sign)
 {
   QString s = whole_digits;
   if (!fraction_digits.isEmpty()) {
     s += "." + fraction_digits;
   }
   if (!exponent_digits.isEmpty()) {
-    s += 'e' + exponent_sign + exponent_digits;
+    s += 'e' + QString{exponent_sign} + exponent_digits;
   }
   bool ok = true;
   // TODO: try to implement toDouble without Qt

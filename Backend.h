@@ -13,11 +13,11 @@ class Backend: public QObject {
   Q_OBJECT
 public:
   Backend(QObject* parent = nullptr);
-  virtual void process(unique_ptr<ICode> iCode, const SymbolTable* symbolTable) = 0;
+  virtual void process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable) = 0;
   virtual QString getType() const;
 protected:
-  unique_ptr<ICode> mICode;
-  unique_ptr<SymbolTable> mSymbolTable;
+  std::shared_ptr<ICode> mICode;
+  std::shared_ptr<SymbolTable> mSymbolTable;
 };
 
 namespace Compiler {
@@ -26,7 +26,7 @@ class CodeGenerator: public Backend {
   Q_OBJECT
 public:
   CodeGenerator(QObject* parent = nullptr);
-  virtual void process(unique_ptr<ICode> iCode, const SymbolTable* symbolTable);
+  virtual void process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable);
   virtual QString getType() const;
 signals:
   void summary(int instructionCount, float elapsedTime);
@@ -40,7 +40,7 @@ class Executor: public Backend {
   Q_OBJECT
 public:
   Executor(QObject* parent = nullptr);
-  virtual void process(unique_ptr<ICode> iCode, const SymbolTable *symbolTable);
+  virtual void process(std::shared_ptr<ICode> iCode, std::shared_ptr<SymbolTable> symbolTable);
   virtual QString getType() const;
 signals:
   void summary(int executionCount, int runtimeErrors, float elapsedTime);

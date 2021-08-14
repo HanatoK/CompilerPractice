@@ -9,7 +9,7 @@ Source::Source(QTextStream &ifs, QObject *parent): mStream(ifs), QObject(parent)
   mCurrentPos = -2;
 }
 
-QChar Source::currentChar()
+char Source::currentChar()
 {
   if (mCurrentPos == -2) {
     // first time?
@@ -26,17 +26,17 @@ QChar Source::currentChar()
     readLine();
     return nextChar();
   } else {
-    return mLine.at(mCurrentPos);
+    return mLine.at(mCurrentPos).toLatin1();
   }
 }
 
-QChar Source::nextChar()
+char Source::nextChar()
 {
   ++mCurrentPos;
   return currentChar();
 }
 
-QChar Source::peekChar()
+char Source::peekChar()
 {
   currentChar();
   if (mStream.atEnd()) {
@@ -44,7 +44,7 @@ QChar Source::peekChar()
   }
   const int nextPos = mCurrentPos + 1;
   if (nextPos < mLine.size()) {
-    return mLine.at(nextPos);
+    return mLine.at(nextPos).toLatin1();
   } else {
     return EOL;
   }
@@ -95,29 +95,24 @@ QString Token::getTypeStr() const
   return "unknown";
 }
 
-unique_ptr<Token> Token::clone() const
-{
-  return std::make_unique<Token>(*this);
-}
-
 void Token::extract()
 {
-  mText = QString(currentChar());
+  mText = QString{currentChar()};
   mValue = QVariant();
   nextChar();
 }
 
-QChar Token::currentChar()
+char Token::currentChar()
 {
   return mSource->currentChar();
 }
 
-QChar Token::nextChar()
+char Token::nextChar()
 {
   return mSource->nextChar();
 }
 
-QChar Token::peekChar()
+char Token::peekChar()
 {
   return mSource->peekChar();
 }
@@ -159,23 +154,23 @@ Scanner::~Scanner()
 
 }
 
-unique_ptr<Token> Scanner::currentToken() const
+std::shared_ptr<Token> Scanner::currentToken() const
 {
-  return mCurrentToken->clone();
+  return mCurrentToken;
 }
 
-unique_ptr<Token> Scanner::nextToken()
+std::shared_ptr<Token> Scanner::nextToken()
 {
   mCurrentToken = extractToken();
   return currentToken();
 }
 
-QChar Scanner::currentChar()
+char Scanner::currentChar()
 {
   return mSource->currentChar();
 }
 
-QChar Scanner::nextChar()
+char Scanner::nextChar()
 {
   return mSource->nextChar();
 }
@@ -191,24 +186,24 @@ Parser::~Parser()
 
 }
 
-unique_ptr<Token> Parser::currentToken() const
+std::shared_ptr<Token> Parser::currentToken() const
 {
   return mScanner->currentToken();
 }
 
-unique_ptr<Token> Parser::nextToken()
+std::shared_ptr<Token> Parser::nextToken()
 {
   return mScanner->nextToken();
 }
 
-SymbolTable* Parser::getSymbolTable() const
+std::shared_ptr<SymbolTable> Parser::getSymbolTable() const
 {
   return mSymbolTable;
 }
 
-unique_ptr<ICode> Parser::getICode() const
+std::shared_ptr<ICode> Parser::getICode() const
 {
-  return std::make_unique<ICode>(*mICode);
+  return mICode;
 }
 
 EofToken::EofToken()
@@ -237,9 +232,4 @@ EofToken::~EofToken()
 QString EofToken::getTypeStr() const
 {
   return "EOF";
-}
-
-unique_ptr<Token> EofToken::clone() const
-{
-  return std::make_unique<EofToken>(*this);
 }
