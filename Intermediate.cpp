@@ -15,3 +15,14 @@ SymbolTableEntry::SymbolTableEntry(const QString &name, SymbolTable *symbol_tabl
   Q_UNUSED(name);
   Q_UNUSED(symbol_table);
 }
+
+ICode::ICode()
+{
+
+}
+
+ICodeNode::ICodeNode()
+{
+
+}
+

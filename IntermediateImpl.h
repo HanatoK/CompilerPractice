@@ -6,6 +6,32 @@
 #include <map>
 #include <unordered_map>
 
+class ICodeImpl: public ICode {
+public:
+  ICodeImpl();
+  virtual std::shared_ptr<ICodeNode> setRoot(std::shared_ptr<ICodeNode> node);
+  virtual std::shared_ptr<ICodeNode> getRoot() const;
+private:
+  std::shared_ptr<ICodeNode> mRoot;
+};
+
+class ICodeNodeImpl: public ICodeNode {
+public:
+  ICodeNodeImpl(const ICodeNodeType& type);
+  virtual const ICodeNode *&parent();
+  virtual ICodeNodeType type() const;
+  virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node);
+  virtual std::vector<std::shared_ptr<ICodeNode>> children() const;
+  virtual void setAttribute(const ICodeKey& key, const QVariant& value);
+  virtual QVariant getAttribute(const ICodeKey &key) const;
+  virtual std::unique_ptr<ICodeNode> clone() const;
+private:
+  ICodeNodeType mType;
+  const ICodeNode* mParent;
+  std::vector<std::shared_ptr<ICodeNode>> mChildren;
+  std::unordered_map<ICodeKey, QVariant> mHashTable;
+};
+
 class SymbolTableKeyImpl: public SymbolTableKey {
 public:
   enum Type {

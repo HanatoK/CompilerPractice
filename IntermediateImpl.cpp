@@ -136,3 +136,69 @@ int SymbolTableKeyImpl::type() const
 {
   return int(mType);
 }
+
+ICodeImpl::ICodeImpl(): ICode()
+{
+
+}
+
+std::shared_ptr<ICodeNode> ICodeImpl::setRoot(std::shared_ptr<ICodeNode> node)
+{
+  mRoot = node;
+  return getRoot();
+}
+
+std::shared_ptr<ICodeNode> ICodeImpl::getRoot() const
+{
+  return mRoot;
+}
+
+ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeType &type): ICodeNode()
+{
+  mType = type;
+  mParent = nullptr;
+}
+
+const ICodeNode *&ICodeNodeImpl::parent()
+{
+  return mParent;
+}
+
+ICodeNodeType ICodeNodeImpl::type() const
+{
+  return mType;
+}
+
+std::shared_ptr<ICodeNode> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode> node)
+{
+  if (node != nullptr) {
+    mChildren.push_back(node);
+    node->parent() = dynamic_cast<const ICodeNode*>(this);
+  }
+  return node;
+}
+
+std::vector<std::shared_ptr<ICodeNode> > ICodeNodeImpl::children() const
+{
+  return mChildren;
+}
+
+void ICodeNodeImpl::setAttribute(const ICodeKey &key, const QVariant &value)
+{
+  mHashTable[key] = value;
+}
+
+QVariant ICodeNodeImpl::getAttribute(const ICodeKey &key) const
+{
+  const auto search = mHashTable.find(key);
+  if (search != mHashTable.end()) {
+    return search->second;
+  } else {
+    return QVariant();
+  }
+}
+
+std::unique_ptr<ICodeNode> ICodeNodeImpl::clone() const
+{
+  return std::make_unique<ICodeNodeImpl>(*this);
+}

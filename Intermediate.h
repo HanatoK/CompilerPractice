@@ -5,13 +5,31 @@
 #include <QString>
 #include <QVariant>
 #include <memory>
+#include <QHash>
 
 class SymbolTable;
 class SymbolTableEntry;
 
+using ICodeKey = QString;
+using ICodeNodeType = QString;
+
+class ICodeNode {
+public:
+  ICodeNode();
+  virtual ICodeNodeType type() const = 0;
+  virtual const ICodeNode*& parent() = 0;
+  virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
+  virtual std::vector<std::shared_ptr<ICodeNode>> children() const = 0;
+  virtual void setAttribute(const ICodeKey& key, const QVariant& value) = 0;
+  virtual QVariant getAttribute(const ICodeKey& key) const = 0;
+  virtual std::unique_ptr<ICodeNode> clone() const = 0;
+};
+
 class ICode {
 public:
-  ICode() {}
+  ICode();
+  virtual std::shared_ptr<ICodeNode> setRoot(std::shared_ptr<ICodeNode> node) = 0;
+  virtual std::shared_ptr<ICodeNode> getRoot() const = 0;
 };
 
 class SymbolTableKey {
@@ -50,9 +68,10 @@ public:
 };
 
 std::unique_ptr<SymbolTableEntry> createSymbolTableEntry(const QString& name, SymbolTable* symbolTable);
-
 std::unique_ptr<SymbolTable> createSymbolTable(int nestingLevel);
-
 std::unique_ptr<SymbolTableStack> createSymbolTableStack();
+
+std::unique_ptr<ICode> createICode();
+std::unique_ptr<ICodeNode> createICodeNode(const ICodeNodeType& type);
 
 #endif // INTERMEDIATE_H

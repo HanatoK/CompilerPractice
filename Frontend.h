@@ -16,7 +16,7 @@ class Scanner;
 class Parser;
 class Source;
 class Token;
-class TokenType;
+//class TokenType;
 
 // the class that represents the source program
 class Source: public QObject {
@@ -46,10 +46,10 @@ private:
   int mCurrentPos;      // current source line position
 };
 
-class TokenType {
-public:
-  TokenType() {}
-};
+//class TokenType {
+//public:
+//  TokenType() {}
+//};
 
 class Token {
 public:
