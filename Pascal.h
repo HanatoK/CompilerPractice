@@ -5,6 +5,7 @@
 #include "Frontend.h"
 #include "Intermediate.h"
 #include "PascalFrontend.h"
+#include "Common.h"
 
 #include <QFile>
 #include <QObject>

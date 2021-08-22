@@ -2,16 +2,16 @@
 #define PASCALFRONTEND_H
 
 #include "Frontend.h"
+#include "Common.h"
 
 #include <map>
 
 class PascalErrorHandler;
 
 class PascalScanner: public Scanner {
-  Q_OBJECT
 public:
-  PascalScanner(QObject* parent = nullptr);
-  PascalScanner(Source* source, QObject* parent = nullptr);
+  PascalScanner();
+  PascalScanner(Source* source);
   virtual ~PascalScanner();
   virtual std::shared_ptr<Token> extractToken();
 private:
@@ -54,16 +54,24 @@ protected:
   PascalTokenType mType;
 };
 
-class PascalParserTopDown: public Parser {
+class PascalParserTopDown:
+  public QObject,
+  public Parser<SymbolTableKeyTypeImpl, ICodeNodeTypeImpl,
+                ICodeKeyTypeImpl,  PascalScanner> {
   Q_OBJECT
 public:
-  PascalParserTopDown(Scanner* scanner, QObject* parent = nullptr);
+  PascalParserTopDown(std::shared_ptr<PascalScanner> scanner, QObject* parent = nullptr);
   virtual ~PascalParserTopDown();
   virtual void parse();
   virtual int errorCount();
 signals:
   void pascalTokenMessage(int lineNumber, int position, PascalTokenType tokenType,
                           QString text, QVariant value);
+  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
+  void tokenMessage(int lineNumber, int position, QString tokenType,
+                    QString text, QVariant value);
+  void syntaxErrorMessage(int lineNumber, int position, QString text,
+                          QString error);
 protected:
   PascalErrorHandler* mErrorHandler;
 };
@@ -135,8 +143,8 @@ class PascalErrorHandler: public QObject {
 public:
   PascalErrorHandler(QObject* parent = nullptr);
   virtual ~PascalErrorHandler();
-  void flag(const std::shared_ptr<Token>& token, PascalErrorCode errorCode, Parser* parser);
-  void abortTranslation(PascalErrorCode errorCode, Parser* parser);
+  void flag(const std::shared_ptr<Token>& token, PascalErrorCode errorCode, PascalParserTopDown *parser);
+  void abortTranslation(PascalErrorCode errorCode, PascalParserTopDown *parser);
   int errorCount() const;
 private:
   static const int maxError = 25;

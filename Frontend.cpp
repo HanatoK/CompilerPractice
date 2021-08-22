@@ -146,14 +146,14 @@ int Token::lineNum() const
   return mLineNum;
 }
 
-Scanner::Scanner(QObject *parent):
-  QObject(parent), mSource(nullptr), mCurrentToken(nullptr)
+Scanner::Scanner():
+  mSource(nullptr), mCurrentToken(nullptr)
 {
 
 }
 
-Scanner::Scanner(Source *source, QObject *parent):
-  QObject(parent), mSource(source), mCurrentToken(nullptr)
+Scanner::Scanner(Source *source):
+  mSource(source), mCurrentToken(nullptr)
 {
 
 }
@@ -186,39 +186,7 @@ char Scanner::nextChar()
   return mSource->nextChar();
 }
 
-Parser::Parser(Scanner *scanner, QObject *parent):
-  QObject(parent), mSymbolTableStack(nullptr), mScanner(scanner), mICode(nullptr)
-{
-  mSymbolTableStack = createSymbolTableStack();
-  scanner->setParent(this);
-}
 
-Parser::~Parser()
-{
-#ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
-#endif
-}
-
-std::shared_ptr<Token> Parser::currentToken() const
-{
-  return mScanner->currentToken();
-}
-
-std::shared_ptr<Token> Parser::nextToken()
-{
-  return mScanner->nextToken();
-}
-
-std::shared_ptr<SymbolTableStack> Parser::getSymbolTableStack() const
-{
-  return mSymbolTableStack;
-}
-
-std::shared_ptr<ICode> Parser::getICode() const
-{
-  return mICode;
-}
 
 EofToken::EofToken()
 {

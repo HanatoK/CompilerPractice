@@ -2,6 +2,7 @@
 #include "Utilities.h"
 
 #include <QDebug>
+#include <fmt/format.h>
 
 Pascal::Pascal(const QString &operation, const QString &filePath,
                const QString &flags, QObject *parent):
@@ -45,60 +46,56 @@ Pascal::~Pascal()
     delete mTextStream;
     mTextStream = nullptr;
   }
+  if (mSource != nullptr) {
+    delete mSource;
+    mSource = nullptr;
+  }
+  if (mParser != nullptr) {
+    delete mParser;
+    mParser = nullptr;
+  }
 }
 
 void Pascal::sourceMessage(int lineNumber, QString line)
 {
-  qInfo().noquote() << QString("%1 %2").arg(lineNumber, 3, 10, QChar('0')).arg(line);
+  fmt::print("{:03d} {}\n", lineNumber, line.toStdString());
 }
 
 void Pascal::parserSummary(int lineNumber, int errorCount, float elapsedTime)
 {
-  const QString format = QString("\n%1 source lines.") +
-                         QString("\n%2 syntax errors.") +
-                         QString("\n%3 seconds total parsing time.\n");
-  qInfo().noquote() << format.arg(lineNumber, 10, 10).
-                              arg(errorCount, 10, 10).
-                              arg(elapsedTime, 10, 'g', 2);
+  fmt::print("\n{:10d} source lines.", lineNumber);
+  fmt::print("\n{:10d} syntax errors.", errorCount);
+  fmt::print("\n{:10.5f} seconds total parsing time.\n\n", elapsedTime);
 }
 
 void Pascal::compilerSummary(int instructionCount, float elapsedTime)
 {
-  const QString format = QString("\n%1 instructions generated.") +
-                         QString("\n%2 seconds total code generation time.\n");
-  qInfo().noquote() << format.arg(instructionCount, 10, 10).
-                              arg(elapsedTime, 10, 'g', 2);
+  fmt::print("\n{:10d} instructions generated.", instructionCount);
+  fmt::print("\n{:10.5f} seconds total code generation time.\n\n", elapsedTime);
 }
 
 void Pascal::interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime)
 {
-  const QString format = QString("\n%1 statements executed.") +
-                         QString("\n%2 runtime errors.") +
-                         QString("\n%3 seconds total execution time.\n");
-  qInfo().noquote() << format.arg(executionCount, 10, 10).
-                              arg(runtimeErrors, 10, 10).
-                              arg(elapsedTime, 10, 'g', 2);
+  fmt::print("\n{:10d} statements executed.", executionCount);
+  fmt::print("\n{:10d} runtime errors.", runtimeErrors);
+  fmt::print("\n{:10.5f} seconds total execution time.\n\n", elapsedTime);
 }
 
 void Pascal::tokenMessage(int lineNumber, int position, PascalTokenType tokenType, QString text, QVariant value)
 {
-  // TODO: invalid QVariant
-  const QString format = QString(">>> %1 line = %2, pos = %3, text = %4");
   const QString type_str = PascalToken::typeToStr(tokenType);
-  const QString output_msg = format.arg(type_str, 15, '-').
-                             arg(lineNumber, 5, 10, QChar('0')).
-                             arg(position, 3).
-                             arg(text) + ", value = " + value.toString();
-  qInfo().noquote() << output_msg;
+  fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
+             type_str.toStdString(), lineNumber, position, text.toStdString());
+  if (!value.isNull()) {
+    fmt::print(", value = {}", value.toString().toStdString());
+  }
+  fmt::print("\n");
 }
 
 void Pascal::syntaxErrorMessage(int lineNumber, int position, QString text, QString error)
 {
-  // TODO: show the correct position
-  const int prefix_width = 3;
-  const int space_count = prefix_width + position + 2;
-  QString flag_buffer(space_count - 1, QChar(' '));
-  flag_buffer += "^\n***" + error;
-  flag_buffer += "[at \"" + text + "\"]";
-  qInfo().noquote() << flag_buffer << '\n';
+  const int prefix_width = 4;
+  const int space_count = prefix_width + position;
+  fmt::print("{: >{}}^\n", "", space_count);
+  fmt::print("***{} [at \"{}\"]\n", error.toStdString(), text.toStdString());
 }

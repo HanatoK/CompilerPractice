@@ -1,9 +1,18 @@
 #include "IntermediateImpl.h"
 
+#include <QDebug>
+
 SymbolTableStackImpl::SymbolTableStackImpl(): SymbolTableStack()
 {
   mCurrentNestingLevel = 0;
-  mStack.append(std::move(createSymbolTable(mCurrentNestingLevel)));
+  mStack.append(createSymbolTable<SymbolTableKeyTypeImpl>(mCurrentNestingLevel));
+}
+
+SymbolTableStackImpl::~SymbolTableStackImpl()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 int SymbolTableStackImpl::currentNestingLevel() const
@@ -11,40 +20,24 @@ int SymbolTableStackImpl::currentNestingLevel() const
   return mCurrentNestingLevel;
 }
 
-std::shared_ptr<SymbolTable> SymbolTableStackImpl::localSymbolTable() const
+std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::localSymbolTable() const
 {
   return mStack[mCurrentNestingLevel];
 }
 
-std::shared_ptr<SymbolTableEntry> SymbolTableStackImpl::enterLocal(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::enterLocal(const QString &name)
 {
   return mStack[mCurrentNestingLevel]->enter(name);
 }
 
-std::shared_ptr<SymbolTableEntry> SymbolTableStackImpl::lookupLocal(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookupLocal(const QString &name)
 {
   return mStack[mCurrentNestingLevel]->lookup(name);
 }
 
-std::shared_ptr<SymbolTableEntry> SymbolTableStackImpl::lookup(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookup(const QString &name)
 {
   return lookupLocal(name);
-}
-
-std::unique_ptr<SymbolTableEntry> createSymbolTableEntry(
-  const QString &name, SymbolTable *symbolTable)
-{
-  return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
-}
-
-std::unique_ptr<SymbolTable> createSymbolTable(int nestingLevel)
-{
-  return std::make_unique<SymbolTableImpl>(nestingLevel);
-}
-
-std::unique_ptr<SymbolTableStack> createSymbolTableStack()
-{
-  return std::make_unique<SymbolTableStackImpl>();
 }
 
 SymbolTableImpl::SymbolTableImpl(int nesting_level): SymbolTable(nesting_level)
@@ -52,12 +45,19 @@ SymbolTableImpl::SymbolTableImpl(int nesting_level): SymbolTable(nesting_level)
   mNestingLevel = nesting_level;
 }
 
+SymbolTableImpl::~SymbolTableImpl()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
+
 int SymbolTableImpl::nestingLevel() const
 {
   return mNestingLevel;
 }
 
-std::shared_ptr<SymbolTableEntry> SymbolTableImpl::lookup(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > SymbolTableImpl::lookup(const QString &name)
 {
   auto search = mSymbolMap.find(name);
   if (search != mSymbolMap.end()) {
@@ -67,28 +67,34 @@ std::shared_ptr<SymbolTableEntry> SymbolTableImpl::lookup(const QString &name)
   }
 }
 
-std::shared_ptr<SymbolTableEntry> SymbolTableImpl::enter(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableImpl::enter(const QString &name)
 {
   mSymbolMap[name] = createSymbolTableEntry(name, this);
   return mSymbolMap[name];
 }
 
-QList<std::shared_ptr<SymbolTableEntry>> SymbolTableImpl::sortedEntries()
+QList<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > > SymbolTableImpl::sortedEntries()
 {
   // std::map is already sorted
-  QList<std::shared_ptr<SymbolTableEntry>> result;
+  QList<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>> result;
   for (auto it = mSymbolMap.begin(); it != mSymbolMap.end(); ++it) {
     result.push_back(it->second);
   }
   return result;
 }
 
-SymbolTableEntryImpl::SymbolTableEntryImpl(
-  const QString &name, SymbolTable *symbol_table):
+SymbolTableEntryImpl::SymbolTableEntryImpl(const QString &name, SymbolTable<SymbolTableKeyTypeImpl> *symbol_table):
   SymbolTableEntry(name, symbol_table)
 {
   mName = name;
   mSymbolTable = symbol_table;
+}
+
+SymbolTableEntryImpl::~SymbolTableEntryImpl()
+{
+//#ifdef DEBUG_DESTRUCTOR
+//  qDebug() << "Destructor: " << Q_FUNC_INFO;
+//#endif
 }
 
 QString SymbolTableEntryImpl::name() const
@@ -96,7 +102,7 @@ QString SymbolTableEntryImpl::name() const
   return mName;
 }
 
-SymbolTable *SymbolTableEntryImpl::symbolTable() const
+SymbolTable<SymbolTableKeyTypeImpl> *SymbolTableEntryImpl::symbolTable() const
 {
   return mSymbolTable;
 }
@@ -111,16 +117,16 @@ QList<int> SymbolTableEntryImpl::lineNumbers() const
   return mLineNumbers;
 }
 
-void SymbolTableEntryImpl::setAttribute(const SymbolTableKey *key, const QVariant &value)
+void SymbolTableEntryImpl::setAttribute(const SymbolTableKeyTypeImpl& key, const QVariant &value)
 {
 //  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
-  mEntryMap[*(static_cast<const SymbolTableKeyImpl*>(key))] = value;
+  mEntryMap[key] = value;
 }
 
-QVariant SymbolTableEntryImpl::getAttribute(const SymbolTableKey *key, bool *ok)
+QVariant SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok)
 {
 //  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
-  auto search = mEntryMap.find(*(static_cast<const SymbolTableKeyImpl*>(key)));
+  auto search = mEntryMap.find(key);
   if (search != mEntryMap.end()) {
     if (ok) {
       *ok = true;
@@ -139,35 +145,48 @@ ICodeImpl::ICodeImpl(): ICode()
 
 }
 
-std::shared_ptr<ICodeNode> ICodeImpl::setRoot(std::shared_ptr<ICodeNode> node)
+ICodeImpl::~ICodeImpl()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
+
+std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeImpl::setRoot(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> node)
 {
   mRoot = node;
   return getRoot();
 }
 
-std::shared_ptr<ICodeNode> ICodeImpl::getRoot() const
+std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeImpl::getRoot() const
 {
   return mRoot;
 }
 
-ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeType *pType): ICodeNode()
+ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType): ICodeNode()
 {
-  const auto node_type_impl = static_cast<const ICodeNodeTypeImpl*>(pType);
-  mType = *(node_type_impl);
+  mType = pType;
   mParent = nullptr;
 }
 
-const ICodeNode *&ICodeNodeImpl::parent()
+ICodeNodeImpl::~ICodeNodeImpl()
+{
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
+}
+
+const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> *&ICodeNodeImpl::parent()
 {
   return mParent;
 }
 
-std::unique_ptr<ICodeNodeType> ICodeNodeImpl::type() const
+ICodeNodeTypeImpl ICodeNodeImpl::type() const
 {
-  return std::make_unique<ICodeNodeTypeImpl>(mType);
+  return mType;
 }
 
-std::shared_ptr<ICodeNode> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode> node)
+std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode> node)
 {
   if (node != nullptr) {
     mChildren.push_back(node);
@@ -176,21 +195,19 @@ std::shared_ptr<ICodeNode> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode> no
   return node;
 }
 
-std::vector<std::shared_ptr<ICodeNode> > ICodeNodeImpl::children() const
+std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> > ICodeNodeImpl::children() const
 {
   return mChildren;
 }
 
-void ICodeNodeImpl::setAttribute(const ICodeKey *key, const QVariant &value)
+void ICodeNodeImpl::setAttribute(const ICodeKeyTypeImpl& key, const QVariant &value)
 {
-  const ICodeKeyImpl* key_impl = static_cast<const ICodeKeyImpl*>(key);
-  mHashTable[*(key_impl)] = value;
+  mHashTable[key] = value;
 }
 
-QVariant ICodeNodeImpl::getAttribute(const ICodeKey *key) const
+QVariant ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl& key) const
 {
-  const ICodeKeyImpl* key_impl = static_cast<const ICodeKeyImpl*>(key);
-  const auto search = mHashTable.find(*(key_impl));
+  const auto search = mHashTable.find(key);
   if (search != mHashTable.end()) {
     return search->second;
   } else {
@@ -198,10 +215,10 @@ QVariant ICodeNodeImpl::getAttribute(const ICodeKey *key) const
   }
 }
 
-std::unique_ptr<ICodeNode> ICodeNodeImpl::copy() const
+std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeNodeImpl::copy() const
 {
   // only copy this node itself, not the parent and children!
-  auto new_node = createICodeNode(&this->mType);
+  auto new_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(this->mType);
   ICodeNodeImpl* ptr = dynamic_cast<ICodeNodeImpl*>(new_node.get());
   for (auto it = mHashTable.begin(); it != mHashTable.end(); ++it) {
     ptr->mHashTable[it->first] = it->second;
@@ -211,7 +228,7 @@ std::unique_ptr<ICodeNode> ICodeNodeImpl::copy() const
 
 QString ICodeNodeImpl::toString() const
 {
-  switch (mType.mType) {
+  switch (mType) {
     case ICodeNodeTypeImpl::PROGRAM: return QString("PROGRAM");
     case ICodeNodeTypeImpl::PROCEDURE: return QString("PROCEDURE");
     case ICodeNodeTypeImpl::FUNCTION: return QString("FUNCTION");
@@ -249,43 +266,35 @@ QString ICodeNodeImpl::toString() const
     case ICodeNodeTypeImpl::REAL_CONSTANT: return QString("REAL_CONSTANT");
     case ICodeNodeTypeImpl::STRING_CONSTANT: return QString("STRING_CONSTANT");
     case ICodeNodeTypeImpl::BOOLEAN_CONSTANT: return QString("BOOLEAN_CONSTANT");
+    default: return QString("");
   }
 }
 
-bool ICodeKeyImpl::operator==(const ICodeKeyImpl &rhs) const
-{
-  return (this->mType == rhs.mType);
-}
-
-bool ICodeKeyImpl::operator!=(const ICodeKeyImpl &rhs) const
-{
-  return (this->mType != rhs.mType);
-}
-
-bool SymbolTableKeyImpl::operator==(const SymbolTableKeyImpl &rhs) const
-{
-  return (this->mType == rhs.mType);
-}
-
-bool SymbolTableKeyImpl::operator!=(const SymbolTableKeyImpl &rhs) const
-{
-  return (this->mType != rhs.mType);
-}
-
-bool ICodeNodeTypeImpl::operator==(const ICodeNodeTypeImpl &rhs) const
-{
-  return (this->mType == rhs.mType);
-}
-
-bool ICodeNodeTypeImpl::operator!=(const ICodeNodeTypeImpl &rhs) const
-{
-  return (this->mType != rhs.mType);
-}
-
-std::unique_ptr<ICode> createICode() {
+template <>
+std::unique_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> createICode() {
   return std::make_unique<ICodeImpl>();
 }
 
-std::unique_ptr<ICodeNode> createICodeNode(const ICodeNodeType* type) {
+template <>
+std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> createICodeNode(const ICodeNodeTypeImpl& type) {
   return std::make_unique<ICodeNodeImpl>(type);
+}
+
+template <>
+std::unique_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> createSymbolTableEntry(
+  const QString &name, SymbolTable<SymbolTableKeyTypeImpl> *symbolTable)
+{
+  return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
+}
+
+template <>
+std::unique_ptr<SymbolTable<SymbolTableKeyTypeImpl>> createSymbolTable(int nestingLevel)
+{
+  return std::make_unique<SymbolTableImpl>(nestingLevel);
+}
+
+template <>
+std::unique_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> createSymbolTableStack()
+{
+  return std::make_unique<SymbolTableStackImpl>();
 }

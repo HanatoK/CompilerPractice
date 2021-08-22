@@ -13,10 +13,8 @@
 using std::unique_ptr;
 
 class Scanner;
-class Parser;
 class Source;
 class Token;
-//class TokenType;
 
 // the class that represents the source program
 class Source: public QObject {
@@ -45,11 +43,6 @@ private:
   int mLineNum;         // current source line number
   int mCurrentPos;      // current source line position
 };
-
-//class TokenType {
-//public:
-//  TokenType() {}
-//};
 
 class Token {
 public:
@@ -85,11 +78,10 @@ public:
   virtual QString getTypeStr() const;
 };
 
-class Scanner: public QObject {
-  Q_OBJECT
+class Scanner {
 public:
-  Scanner(QObject* parent = nullptr);
-  Scanner(Source* source, QObject* parent = nullptr);
+  Scanner();
+  Scanner(Source* source);
   virtual ~Scanner();
   std::shared_ptr<Token> currentToken() const;
   virtual std::shared_ptr<Token> extractToken() = 0;
@@ -102,28 +94,75 @@ private:
   std::shared_ptr<Token> mCurrentToken;
 };
 
-class Parser: public QObject {
-  Q_OBJECT
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+class Parser {
 public:
-  Parser(Scanner* scanner, QObject* parent = nullptr);
+  Parser(std::shared_ptr<ScannerType> scanner);
   virtual ~Parser();
-  // parse a source program
   virtual void parse() = 0;
   virtual int errorCount() = 0;
   std::shared_ptr<Token> currentToken() const;
   std::shared_ptr<Token> nextToken();
-  std::shared_ptr<SymbolTableStack> getSymbolTableStack() const;
-  std::shared_ptr<ICode> getICode() const;
-signals:
-  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
-  void tokenMessage(int lineNumber, int position, QString tokenType,
-                    QString text, QVariant value);
-  void syntaxErrorMessage(int lineNumber, int position, QString text,
-                          QString error);
+  std::shared_ptr<SymbolTableStack<SymbolTableKeyType>> getSymbolTableStack() const;
+  std::shared_ptr<ICode<ICodeNodeType, ICodeKeyType>> getICode() const;
+  std::shared_ptr<ScannerType> scanner() const;
 protected:
-  std::shared_ptr<SymbolTableStack> mSymbolTableStack;
-  Scanner* mScanner;
-  std::shared_ptr<ICode> mICode;
+  std::shared_ptr<SymbolTableStack<SymbolTableKeyType>> mSymbolTableStack;
+  std::shared_ptr<ScannerType> mScanner;
+  std::shared_ptr<ICode<ICodeNodeType, ICodeKeyType>> mICode;
 };
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::Parser(std::shared_ptr<ScannerType> scanner):
+  mSymbolTableStack(nullptr), mScanner(scanner), mICode(nullptr)
+{
+  mSymbolTableStack = createSymbolTableStack<SymbolTableKeyType>();
+//  scanner->setParent(this);
+}
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::~Parser()
+{
+}
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+std::shared_ptr<Token> Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::currentToken() const
+{
+  return mScanner->currentToken();
+}
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+std::shared_ptr<Token> Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::nextToken()
+{
+  return mScanner->nextToken();
+}
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+std::shared_ptr<SymbolTableStack<SymbolTableKeyType>>
+Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::getSymbolTableStack() const
+{
+  return mSymbolTableStack;
+}
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+std::shared_ptr<ICode<ICodeNodeType, ICodeKeyType>>
+Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::getICode() const
+{
+  return mICode;
+}
+
+template <typename SymbolTableKeyType, typename ICodeNodeType,
+          typename ICodeKeyType, typename ScannerType>
+std::shared_ptr<ScannerType> Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::scanner() const
+{
+  return mScanner;
+}
 
 #endif // FRONTEND_H
