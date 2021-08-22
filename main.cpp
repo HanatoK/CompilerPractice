@@ -28,8 +28,9 @@ int main(int argc, char *argv[])
   parser.process(a);
   Pascal* pascal = nullptr;
   QString flags;
+  const auto& reference_listing_option_list = reference_listing_option.names();
   if (parser.isSet(reference_listing_option)) {
-    flags += reference_listing_option.names().first();
+    flags += reference_listing_option_list.first();
   }
   const QStringList files = parser.positionalArguments();
   if (files.empty()) {

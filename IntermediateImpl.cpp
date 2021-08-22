@@ -113,12 +113,14 @@ QList<int> SymbolTableEntryImpl::lineNumbers() const
 
 void SymbolTableEntryImpl::setAttribute(const SymbolTableKey *key, const QVariant &value)
 {
-  mEntryMap[dynamic_cast<const SymbolTableKeyImpl*>(key)->type()] = value;
+//  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
+  mEntryMap[*(static_cast<const SymbolTableKeyImpl*>(key))] = value;
 }
 
 QVariant SymbolTableEntryImpl::getAttribute(const SymbolTableKey *key, bool *ok)
 {
-  auto search = mEntryMap.find(dynamic_cast<const SymbolTableKeyImpl*>(key)->type());
+//  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
+  auto search = mEntryMap.find(*(static_cast<const SymbolTableKeyImpl*>(key)));
   if (search != mEntryMap.end()) {
     if (ok) {
       *ok = true;
@@ -130,11 +132,6 @@ QVariant SymbolTableEntryImpl::getAttribute(const SymbolTableKey *key, bool *ok)
     }
     return QVariant();
   }
-}
-
-int SymbolTableKeyImpl::type() const
-{
-  return int(mType);
 }
 
 ICodeImpl::ICodeImpl(): ICode()
@@ -153,9 +150,10 @@ std::shared_ptr<ICodeNode> ICodeImpl::getRoot() const
   return mRoot;
 }
 
-ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeType &type): ICodeNode()
+ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeType *pType): ICodeNode()
 {
-  mType = type;
+  const auto node_type_impl = static_cast<const ICodeNodeTypeImpl*>(pType);
+  mType = *(node_type_impl);
   mParent = nullptr;
 }
 
@@ -164,9 +162,9 @@ const ICodeNode *&ICodeNodeImpl::parent()
   return mParent;
 }
 
-ICodeNodeType ICodeNodeImpl::type() const
+std::unique_ptr<ICodeNodeType> ICodeNodeImpl::type() const
 {
-  return mType;
+  return std::make_unique<ICodeNodeTypeImpl>(mType);
 }
 
 std::shared_ptr<ICodeNode> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode> node)
@@ -183,14 +181,16 @@ std::vector<std::shared_ptr<ICodeNode> > ICodeNodeImpl::children() const
   return mChildren;
 }
 
-void ICodeNodeImpl::setAttribute(const ICodeKey &key, const QVariant &value)
+void ICodeNodeImpl::setAttribute(const ICodeKey *key, const QVariant &value)
 {
-  mHashTable[key] = value;
+  const ICodeKeyImpl* key_impl = static_cast<const ICodeKeyImpl*>(key);
+  mHashTable[*(key_impl)] = value;
 }
 
-QVariant ICodeNodeImpl::getAttribute(const ICodeKey &key) const
+QVariant ICodeNodeImpl::getAttribute(const ICodeKey *key) const
 {
-  const auto search = mHashTable.find(key);
+  const ICodeKeyImpl* key_impl = static_cast<const ICodeKeyImpl*>(key);
+  const auto search = mHashTable.find(*(key_impl));
   if (search != mHashTable.end()) {
     return search->second;
   } else {
@@ -198,7 +198,94 @@ QVariant ICodeNodeImpl::getAttribute(const ICodeKey &key) const
   }
 }
 
-std::unique_ptr<ICodeNode> ICodeNodeImpl::clone() const
+std::unique_ptr<ICodeNode> ICodeNodeImpl::copy() const
 {
-  return std::make_unique<ICodeNodeImpl>(*this);
+  // only copy this node itself, not the parent and children!
+  auto new_node = createICodeNode(&this->mType);
+  ICodeNodeImpl* ptr = dynamic_cast<ICodeNodeImpl*>(new_node.get());
+  for (auto it = mHashTable.begin(); it != mHashTable.end(); ++it) {
+    ptr->mHashTable[it->first] = it->second;
+  }
+  return std::move(new_node);
+}
+
+QString ICodeNodeImpl::toString() const
+{
+  switch (mType.mType) {
+    case ICodeNodeTypeImpl::PROGRAM: return QString("PROGRAM");
+    case ICodeNodeTypeImpl::PROCEDURE: return QString("PROCEDURE");
+    case ICodeNodeTypeImpl::FUNCTION: return QString("FUNCTION");
+    case ICodeNodeTypeImpl::COMPOUND: return QString("COMPOUND");
+    case ICodeNodeTypeImpl::ASSIGN: return QString("ASSIGN");
+    case ICodeNodeTypeImpl::LOOP: return QString("LOOP");
+    case ICodeNodeTypeImpl::TEST: return QString("TEST");
+    case ICodeNodeTypeImpl::CALL: return QString("CALL");
+    case ICodeNodeTypeImpl::PARAMETERS: return QString("PARAMETERS");
+    case ICodeNodeTypeImpl::IF: return QString("IF");
+    case ICodeNodeTypeImpl::SELECT: return QString("SELECT");
+    case ICodeNodeTypeImpl::SELECT_BRANCH: return QString("SELECT_BRANCH");
+    case ICodeNodeTypeImpl::SELECT_CONSTANTS: return QString("SELECT_CONSTANTS");
+    case ICodeNodeTypeImpl::NO_OP: return QString("NO_OP");
+    case ICodeNodeTypeImpl::EQ: return QString("EQ");
+    case ICodeNodeTypeImpl::NE: return QString("NE");
+    case ICodeNodeTypeImpl::LT: return QString("LT");
+    case ICodeNodeTypeImpl::LE: return QString("LE");
+    case ICodeNodeTypeImpl::GT: return QString("GT");
+    case ICodeNodeTypeImpl::GE: return QString("GE");
+    case ICodeNodeTypeImpl::NOT: return QString("NOT");
+    case ICodeNodeTypeImpl::ADD: return QString("ADD");
+    case ICodeNodeTypeImpl::SUBTRACT: return QString("SUBTRACT");
+    case ICodeNodeTypeImpl::OR: return QString("OR");
+    case ICodeNodeTypeImpl::NEGATE: return QString("NEGATE");
+    case ICodeNodeTypeImpl::MULTIPLY: return QString("MULTIPLY");
+    case ICodeNodeTypeImpl::INTEGER_DIVIDE: return QString("INTEGER_DIVIDE");
+    case ICodeNodeTypeImpl::FLOAT_DIVIDE: return QString("FLOAT_DIVIDE");
+    case ICodeNodeTypeImpl::MOD: return QString("MOD");
+    case ICodeNodeTypeImpl::AND: return QString("AND");
+    case ICodeNodeTypeImpl::VARIABLE: return QString("VARIABLE");
+    case ICodeNodeTypeImpl::SUBSCRIPTS: return QString("SUBSCRIPTS");
+    case ICodeNodeTypeImpl::FIELD: return QString("FIELD");
+    case ICodeNodeTypeImpl::INTEGER_CONSTANT: return QString("INTEGER_CONSTANT");
+    case ICodeNodeTypeImpl::REAL_CONSTANT: return QString("REAL_CONSTANT");
+    case ICodeNodeTypeImpl::STRING_CONSTANT: return QString("STRING_CONSTANT");
+    case ICodeNodeTypeImpl::BOOLEAN_CONSTANT: return QString("BOOLEAN_CONSTANT");
+  }
+}
+
+bool ICodeKeyImpl::operator==(const ICodeKeyImpl &rhs) const
+{
+  return (this->mType == rhs.mType);
+}
+
+bool ICodeKeyImpl::operator!=(const ICodeKeyImpl &rhs) const
+{
+  return (this->mType != rhs.mType);
+}
+
+bool SymbolTableKeyImpl::operator==(const SymbolTableKeyImpl &rhs) const
+{
+  return (this->mType == rhs.mType);
+}
+
+bool SymbolTableKeyImpl::operator!=(const SymbolTableKeyImpl &rhs) const
+{
+  return (this->mType != rhs.mType);
+}
+
+bool ICodeNodeTypeImpl::operator==(const ICodeNodeTypeImpl &rhs) const
+{
+  return (this->mType == rhs.mType);
+}
+
+bool ICodeNodeTypeImpl::operator!=(const ICodeNodeTypeImpl &rhs) const
+{
+  return (this->mType != rhs.mType);
+}
+
+std::unique_ptr<ICode> createICode() {
+  return std::make_unique<ICodeImpl>();
+}
+
+std::unique_ptr<ICodeNode> createICodeNode(const ICodeNodeType* type) {
+  return std::make_unique<ICodeNodeImpl>(type);
 }

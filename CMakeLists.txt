@@ -38,4 +38,4 @@ set(SOURCES
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
 add_executable(CompilerPractice ${SOURCES} ${HEADERS})
-target_link_libraries(CompilerPractice Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(CompilerPractice Qt${QT_VERSION_MAJOR}::Core fmt)
