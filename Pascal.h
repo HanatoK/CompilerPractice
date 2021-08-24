@@ -28,12 +28,11 @@ public slots:
 signals:
   void exit(int exitCode);
 private:
-  PascalParserTopDown* mParser;
-  Source* mSource;
-  // do I need to hold copies here?
-//  unique_ptr<ICode> mICode;
-//  unique_ptr<SymbolTable> mSymbolTable;
-  Backend* mBackend;
+  std::shared_ptr<PascalParserTopDown> mParser;
+  std::shared_ptr<Source> mSource;
+  std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
+  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> mSymbolTableStack;
+  std::shared_ptr<Backend> mBackend;
   QFile* mSourceFile;
   QTextStream* mTextStream;
 };

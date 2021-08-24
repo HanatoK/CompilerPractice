@@ -9,9 +9,9 @@
 #include <cctype>
 #include <fmt/format.h>
 
-PascalParserTopDown::PascalParserTopDown(std::shared_ptr<PascalScanner> scanner, QObject *parent)
+PascalParserTopDown::PascalParserTopDown(std::shared_ptr<PascalScanner> scanner)
     : Parser(scanner), mErrorHandler(nullptr) {
-  mErrorHandler = new PascalErrorHandler(this);
+  mErrorHandler = new PascalErrorHandler();
 }
 
 PascalParserTopDown::~PascalParserTopDown() {
@@ -28,8 +28,7 @@ void PascalParserTopDown::parse() {
   while (token->getTypeStr() != "EOF") {
     if ((token->getTypeStr().compare("error", Qt::CaseInsensitive) == 0) ||
         (token->getTypeStr().compare("unknown", Qt::CaseInsensitive) == 0)) {
-      mErrorHandler->flag(token,
-                          PascalErrorCode(token->value().toInt()), this);
+      mErrorHandler->flag(token, PascalErrorCode(token->value().toInt()), this);
     } else {
       const auto pascal_token = dynamic_cast<PascalToken*>(token.get());
 //      if (pascal_token->type() == PascalTokenType::BEGIN) {
@@ -55,14 +54,14 @@ void PascalParserTopDown::parse() {
         }
         entry->appendLineNumber(token->lineNum());
       }
-      emit pascalTokenMessage(token->lineNum(), token->position(),
-                              pascal_token->type(), token->text(), token->value());
+      pascalTokenMessage(token->lineNum(), token->position(),
+                         pascal_token->type(), token->text(), token->value());
     }
     token = nextToken();
   }
   const int endTime = QTime::currentTime().msec();
   const float elapsedTime = (endTime - startTime) / 1000.0;
-  emit parserSummary(token->lineNum(), errorCount(), elapsedTime);
+  parserSummary(token->lineNum(), errorCount(), elapsedTime);
 }
 
 int PascalParserTopDown::errorCount() {
@@ -71,7 +70,7 @@ int PascalParserTopDown::errorCount() {
 
 PascalScanner::PascalScanner() : Scanner(nullptr) {}
 
-PascalScanner::PascalScanner(Source *source)
+PascalScanner::PascalScanner(std::shared_ptr<Source> source)
     : Scanner(source) {}
 
 PascalScanner::~PascalScanner() {
@@ -124,13 +123,12 @@ void PascalScanner::skipWhiteSpace() {
   }
 }
 
-PascalParserTopDown *createPascalParser(
-  const QString &language, const QString &type,
-  Source *source, QObject *parent) {
+std::unique_ptr<PascalParserTopDown> createPascalParser(
+    const QString &language, const QString &type, std::shared_ptr<Source> source) {
   if ((language.compare("Pascal", Qt::CaseInsensitive) == 0) &&
       (type.compare("top-down", Qt::CaseInsensitive) == 0)) {
     std::unique_ptr<PascalScanner> scanner = std::make_unique<PascalScanner>(source);
-    return new PascalParserTopDown(std::move(scanner), parent);
+    return std::make_unique<PascalParserTopDown>(std::move(scanner));
   } else if (language.compare("Pascal", Qt::CaseInsensitive) != 0) {
     qDebug() << "Invalid language: " << language;
     return nullptr;
@@ -140,7 +138,7 @@ PascalParserTopDown *createPascalParser(
   }
 }
 
-PascalErrorHandler::PascalErrorHandler(QObject *parent) : QObject(parent) {
+PascalErrorHandler::PascalErrorHandler() {
   mErrorCount = 0;
 }
 
@@ -152,9 +150,8 @@ PascalErrorHandler::~PascalErrorHandler() {
 
 void PascalErrorHandler::flag(const std::shared_ptr<Token> &token,
                               PascalErrorCode errorCode, PascalParserTopDown *parser) {
-  emit parser->syntaxErrorMessage(token->lineNum(), token->position(),
-                                  token->text(),
-                                  errorMessageMap[errorCode]);
+  parser->syntaxErrorMessage(
+      token->lineNum(), token->position(), token->text(), errorMessageMap[errorCode]);
   if (++mErrorCount > maxError) {
     abortTranslation(PascalErrorCode::TOO_MANY_ERRORS, parser);
   }
@@ -165,7 +162,7 @@ void PascalErrorHandler::abortTranslation(PascalErrorCode errorCode,
   const QString fatalText = "FATAL ERROR: " + errorMessageMap[errorCode];
   PascalParserTopDown *pascalParser =
       dynamic_cast<PascalParserTopDown *>(parser);
-  emit pascalParser->syntaxErrorMessage(0, 0, "", fatalText);
+  pascalParser->syntaxErrorMessage(0, 0, "", fatalText);
   QCoreApplication::exit(int(errorCode));
 }
 
@@ -256,7 +253,7 @@ std::map<PascalErrorCode, QString>
 
 PascalToken::PascalToken() : Token() { mType = PascalTokenType::ERROR; }
 
-PascalToken::PascalToken(Source *source) : Token(source) {
+PascalToken::PascalToken(std::shared_ptr<Source> source) : Token(source) {
   mType = PascalTokenType::ERROR;
 }
 
@@ -422,7 +419,7 @@ PascalErrorToken::PascalErrorToken() : PascalToken() {
   mType = PascalTokenType::ERROR;
 }
 
-PascalErrorToken::PascalErrorToken(Source *source, PascalErrorCode errorCode,
+PascalErrorToken::PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCode errorCode,
                                    const QString &tokenText) {
   mSource = source;
   mLineNum = mSource->lineNum();
@@ -440,7 +437,7 @@ unique_ptr<Token> PascalErrorToken::clone() const {
 
 void PascalErrorToken::extract() {}
 
-PascalWordToken::PascalWordToken(Source *source) {
+PascalWordToken::PascalWordToken(std::shared_ptr<Source> source) {
   mSource = source;
   mLineNum = mSource->lineNum();
   mPosition = mSource->currentPos();
@@ -468,7 +465,7 @@ void PascalWordToken::extract() {
   }
 }
 
-PascalStringToken::PascalStringToken(Source *source) {
+PascalStringToken::PascalStringToken(std::shared_ptr<Source> source) {
   mSource = source;
   mLineNum = mSource->lineNum();
   mPosition = mSource->currentPos();
@@ -515,7 +512,7 @@ void PascalStringToken::extract() {
   mText = text;
 }
 
-PascalSpecialSymbolToken::PascalSpecialSymbolToken(Source *source) {
+PascalSpecialSymbolToken::PascalSpecialSymbolToken(std::shared_ptr<Source> source) {
   mSource = source;
   mLineNum = mSource->lineNum();
   mPosition = mSource->currentPos();
@@ -592,7 +589,7 @@ void PascalSpecialSymbolToken::extract() {
   }
 }
 
-PascalNumberToken::PascalNumberToken(Source *source)
+PascalNumberToken::PascalNumberToken(std::shared_ptr<Source> source)
 {
   mSource = source;
   mLineNum = mSource->lineNum();

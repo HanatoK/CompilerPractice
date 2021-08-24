@@ -4,18 +4,15 @@
 #include "Intermediate.h"
 #include "Common.h"
 
-#include <QObject>
+#include <boost/signals2.hpp>
 #include <utility>
 #include <memory>
 #include <QTime>
 #include <QDebug>
 
-using std::unique_ptr;
-
-class Backend: public QObject {
-  Q_OBJECT
+class Backend {
 public:
-  Backend(QObject* parent = nullptr): QObject(parent) {}
+  Backend() {}
   virtual ~Backend() {
 #ifdef DEBUG_DESTRUCTOR
     qDebug() << "Destructor: " << Q_FUNC_INFO;
@@ -34,17 +31,16 @@ protected:
 namespace Compiler {
 
 class CodeGenerator: public Backend {
-  Q_OBJECT
 public:
-  CodeGenerator(QObject* parent = nullptr): Backend(parent) {}
+  CodeGenerator(): Backend() {}
   virtual ~CodeGenerator() {}
   virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
                        std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
   virtual QString getType() const {
     return "compiler";
   }
-signals:
-  void summary(int instructionCount, float elapsedTime);
+  //  void summary(int instructionCount, float elapsedTime);
+  boost::signals2::signal<void(int, float)> summary;
 };
 
 }
@@ -52,9 +48,8 @@ signals:
 namespace Interpreter {
 
 class Executor: public Backend {
-  Q_OBJECT
 public:
-  Executor(QObject* parent = nullptr): Backend(parent) {}
+  Executor(): Backend() {}
   virtual ~Executor() {}
   virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
                        std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
@@ -62,11 +57,12 @@ public:
     return "interpreter";
   }
 signals:
-  void summary(int executionCount, int runtimeErrors, float elapsedTime);
+  //  void summary(int executionCount, int runtimeErrors, float elapsedTime);
+  boost::signals2::signal<void(int, int, float)> summary;
 };
 
 }
 
-Backend *createBackend(const QString& operation, QObject* parent = nullptr);
+std::unique_ptr<Backend> createBackend(const QString& operation);
 
 #endif // BACKEND_H

@@ -4,11 +4,13 @@
 #include "Intermediate.h"
 
 #include <QString>
+#include <QDebug>
 #include <QTextStream>
 #include <QObject>
 #include <memory>
 #include <utility>
 #include <cstdio>
+#include <boost/signals2.hpp>
 
 using std::unique_ptr;
 
@@ -17,11 +19,10 @@ class Source;
 class Token;
 
 // the class that represents the source program
-class Source: public QObject {
-  Q_OBJECT
+class Source {
 public:
   // constructor from an input stream
-  Source(QTextStream& ifs, QObject* parent = nullptr);
+  Source(QTextStream& ifs);
   // return the source character of the current position
   char currentChar();
   // consume the current source character and return the next one
@@ -31,11 +32,10 @@ public:
   int lineNum() const;
   int currentPos() const;
   virtual ~Source();
+  boost::signals2::signal<void(int, QString)> sendMessage;
 private:
   // read the next source line
   void readLine();
-signals:
-  void sendMessage(int lineNumber, QString line);
 private:
   static const char EOL = '\n';
   QTextStream& mStream; // input stream of the source program
@@ -47,7 +47,7 @@ private:
 class Token {
 public:
   Token();
-  Token(Source* source);
+  Token(std::shared_ptr<Source> source);
   virtual ~Token();
   virtual QString getTypeStr() const;
   int lineNum() const;
@@ -62,7 +62,7 @@ protected:
   char nextChar();
   char peekChar();
 protected:
-  Source* mSource;
+  std::shared_ptr<Source> mSource;
   QString mText;
   QVariant mValue;
   int mLineNum;
@@ -72,7 +72,7 @@ protected:
 class EofToken: public Token {
 public:
   EofToken();
-  EofToken(Source *source);
+  EofToken(std::shared_ptr<Source> source);
   virtual void extract();
   virtual ~EofToken();
   virtual QString getTypeStr() const;
@@ -81,7 +81,7 @@ public:
 class Scanner {
 public:
   Scanner();
-  Scanner(Source* source);
+  Scanner(std::shared_ptr<Source> source);
   virtual ~Scanner();
   std::shared_ptr<Token> currentToken() const;
   virtual std::shared_ptr<Token> extractToken() = 0;
@@ -89,7 +89,7 @@ public:
   char currentChar();
   char nextChar();
 protected:
-  Source* mSource;
+  std::shared_ptr<Source> mSource;
 private:
   std::shared_ptr<Token> mCurrentToken;
 };
@@ -126,6 +126,9 @@ template <typename SymbolTableKeyType, typename ICodeNodeType,
           typename ICodeKeyType, typename ScannerType>
 Parser<SymbolTableKeyType, ICodeNodeType, ICodeKeyType, ScannerType>::~Parser()
 {
+#ifdef DEBUG_DESTRUCTOR
+  qDebug() << "Destructor: " << Q_FUNC_INFO;
+#endif
 }
 
 template <typename SymbolTableKeyType, typename ICodeNodeType,

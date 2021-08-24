@@ -2,7 +2,7 @@
 #include "IntermediateImpl.h"
 
 StatementParser::StatementParser(PascalParserTopDown *parent)
-    : PascalParserTopDown(parent->scanner(), parent) {}
+    : PascalParserTopDown(parent->scanner()) {}
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
 StatementParser::parse(std::shared_ptr<Token> token) {

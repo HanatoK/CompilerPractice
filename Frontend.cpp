@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QTime>
 
-Source::Source(QTextStream &ifs, QObject *parent): mStream(ifs), QObject(parent)
+Source::Source(QTextStream &ifs): mStream(ifs)
 {
   mLineNum = 0;
   mCurrentPos = -2;
@@ -57,7 +57,7 @@ void Source::readLine()
   if (read_ok) {
     // not EOF or error
     ++mLineNum;
-    emit sendMessage(mLineNum, mLine);
+    sendMessage(mLineNum, mLine);
   }
 }
 
@@ -84,7 +84,7 @@ Token::Token(): mSource(nullptr)
   mPosition = -2;
 }
 
-Token::Token(Source* source): mSource(source)
+Token::Token(std::shared_ptr<Source> source): mSource(source)
 {
   mLineNum = mSource->lineNum();
   mPosition = mSource->currentPos();
@@ -152,7 +152,7 @@ Scanner::Scanner():
 
 }
 
-Scanner::Scanner(Source *source):
+Scanner::Scanner(std::shared_ptr<Source> source):
   mSource(source), mCurrentToken(nullptr)
 {
 
@@ -193,7 +193,7 @@ EofToken::EofToken()
 
 }
 
-EofToken::EofToken(Source *source)
+EofToken::EofToken(std::shared_ptr<Source> source)
 {
   mSource = source;
   mLineNum = mSource->lineNum();
