@@ -49,11 +49,11 @@ public:
   Token();
   Token(std::shared_ptr<Source> source);
   virtual ~Token();
-  virtual QString getTypeStr() const;
   int lineNum() const;
   int position() const;
   const QVariant &value() const;
   const QString &text() const;
+  virtual bool isEof() const;
 protected:
   // default method to extract only one-character tokens from the source
   virtual void extract();
@@ -75,7 +75,7 @@ public:
   EofToken(std::shared_ptr<Source> source);
   virtual void extract();
   virtual ~EofToken();
-  virtual QString getTypeStr() const;
+  virtual bool isEof() const;
 };
 
 class Scanner {

@@ -38,7 +38,6 @@ class PascalToken: public Token {
 public:
   PascalToken();
   PascalToken(std::shared_ptr<Source> source);
-  virtual QString getTypeStr() const;
   static QString typeToStr(const PascalTokenType& tokenType, bool* ok = nullptr);
   static PascalTokenType strToType(const QString& str, bool* ok = nullptr);
   // maybe I need boost::bimap

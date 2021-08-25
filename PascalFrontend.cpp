@@ -24,13 +24,10 @@ void PascalParserTopDown::parse() {
   const int startTime = QTime::currentTime().msec();
   mICode = createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>();
   auto token = nextToken();
+  auto pascal_token = dynamic_cast<PascalToken*>(token.get());
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node = nullptr;
-  while (token->getTypeStr() != "EOF") {
-    if ((token->getTypeStr().compare("error", Qt::CaseInsensitive) == 0) ||
-        (token->getTypeStr().compare("unknown", Qt::CaseInsensitive) == 0)) {
-      mErrorHandler->flag(token, PascalErrorCode(token->value().toInt()), this);
-    } else {
-      const auto pascal_token = dynamic_cast<PascalToken*>(token.get());
+  while (!token->isEof()) {
+    if (pascal_token->type() != PascalTokenType::ERROR) {
 //      if (pascal_token->type() == PascalTokenType::BEGIN) {
 //        StatementParser statement_parser(this);
 //        root_node = statement_parser.parse(token);
@@ -56,8 +53,11 @@ void PascalParserTopDown::parse() {
       }
       pascalTokenMessage(token->lineNum(), token->position(),
                          pascal_token->type(), token->text(), token->value());
+    } else {
+      mErrorHandler->flag(token, PascalErrorCode(token->value().toInt()), this);
     }
     token = nextToken();
+    pascal_token = dynamic_cast<PascalToken*>(token.get());
   }
   const int endTime = QTime::currentTime().msec();
   const float elapsedTime = (endTime - startTime) / 1000.0;
@@ -255,10 +255,6 @@ PascalToken::PascalToken() : Token() { mType = PascalTokenType::ERROR; }
 
 PascalToken::PascalToken(std::shared_ptr<Source> source) : Token(source) {
   mType = PascalTokenType::ERROR;
-}
-
-QString PascalToken::getTypeStr() const {
-  return PascalToken::typeToStr(mType, nullptr);
 }
 
 QString PascalToken::typeToStr(const PascalTokenType &tokenType, bool *ok)

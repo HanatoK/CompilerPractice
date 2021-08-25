@@ -99,11 +99,6 @@ Token::~Token()
 //#endif
 }
 
-QString Token::getTypeStr() const
-{
-  return "unknown";
-}
-
 void Token::extract()
 {
   mText = QString{currentChar()};
@@ -129,6 +124,11 @@ char Token::peekChar()
 const QString &Token::text() const
 {
   return mText;
+}
+
+bool Token::isEof() const
+{
+  return false;
 }
 
 const QVariant &Token::value() const
@@ -213,7 +213,7 @@ EofToken::~EofToken()
 #endif
 }
 
-QString EofToken::getTypeStr() const
+bool EofToken::isEof() const
 {
-  return "EOF";
+  return true;
 }
