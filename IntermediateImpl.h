@@ -16,8 +16,8 @@ public:
   virtual ICodeNodeTypeImpl type() const;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node);
   virtual std::vector<std::shared_ptr<ICodeNode>> children() const;
-  virtual void setAttribute(const ICodeKeyTypeImpl &key, const QVariant &value);
-  virtual QVariant getAttribute(const ICodeKeyTypeImpl &key) const;
+  virtual void setAttribute(const ICodeKeyTypeImpl &key, const std::any &value);
+  virtual std::any getAttribute(const ICodeKeyTypeImpl &key) const;
   // only copy this node itself, not the parent and children!
   virtual std::unique_ptr<ICodeNode> copy() const;
   virtual QString toString() const;
@@ -26,7 +26,7 @@ private:
   ICodeNodeTypeImpl mType;
   const ICodeNode *mParent;
   std::vector<std::shared_ptr<ICodeNode>> mChildren;
-  std::unordered_map<ICodeKeyTypeImpl, QVariant> mHashTable;
+  std::unordered_map<ICodeKeyTypeImpl, std::any> mHashTable;
 };
 
 class ICodeImpl : public ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> {
@@ -52,15 +52,15 @@ public:
   virtual void appendLineNumber(int line_number);
   virtual QList<int> lineNumbers() const;
   virtual void setAttribute(const SymbolTableKeyTypeImpl &key,
-                            const QVariant &value);
-  virtual QVariant getAttribute(const SymbolTableKeyTypeImpl &key,
+                            const std::any &value);
+  virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key,
                                 bool *ok = nullptr);
 
 private:
   SymbolTable<SymbolTableKeyTypeImpl> *mSymbolTable;
   QList<int> mLineNumbers;
   QString mName;
-  std::unordered_map<SymbolTableKeyTypeImpl, QVariant> mEntryMap;
+  std::unordered_map<SymbolTableKeyTypeImpl, std::any> mEntryMap;
 };
 
 class SymbolTableImpl : public SymbolTable<SymbolTableKeyTypeImpl> {

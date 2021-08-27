@@ -29,7 +29,7 @@ void PascalParserTopDown::parse() {
   while (!token->isEof()) {
     if (pascal_token->type() != PascalTokenType::ERROR) {
 //      if (pascal_token->type() == PascalTokenType::BEGIN) {
-//        StatementParser statement_parser(this);
+//        StatementParser statement_parser(*this);
 //        root_node = statement_parser.parse(token);
 //        token = currentToken();
 //      } else {
@@ -283,7 +283,6 @@ QString PascalToken::typeToStr(const PascalTokenType &tokenType, bool *ok)
   if (ok != nullptr) {
     *ok = false;
   }
-  // TODO: 5 extra words
   return "UNKNOWN";
 }
 
@@ -714,4 +713,54 @@ double PascalNumberToken::computeFloatValue(QString &whole_digits, QString &frac
     mValue = int(PascalErrorCode::INVALID_NUMBER);
     return 0;
   }
+}
+
+PascalSubparserTopDownBase::PascalSubparserTopDownBase(PascalParserTopDown &pascal_parser): mPascalParser(pascal_parser)
+{
+
+}
+
+PascalSubparserTopDownBase::~PascalSubparserTopDownBase()
+{
+
+}
+
+std::shared_ptr<Token> PascalSubparserTopDownBase::currentToken() const
+{
+  return mPascalParser.currentToken();
+}
+
+std::shared_ptr<Token> PascalSubparserTopDownBase::nextToken()
+{
+  return mPascalParser.nextToken();
+}
+
+std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl> > PascalSubparserTopDownBase::getSymbolTableStack() const
+{
+  return mPascalParser.getSymbolTableStack();
+}
+
+std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > PascalSubparserTopDownBase::getICode() const
+{
+  return mPascalParser.getICode();
+}
+
+std::shared_ptr<PascalScanner> PascalSubparserTopDownBase::scanner() const
+{
+  return mPascalParser.scanner();
+}
+
+int PascalSubparserTopDownBase::errorCount()
+{
+  return mPascalParser.errorCount();
+}
+
+PascalErrorHandler *PascalSubparserTopDownBase::errorHandler()
+{
+  return mPascalParser.mErrorHandler;
+}
+
+PascalParserTopDown *PascalSubparserTopDownBase::currentParser()
+{
+  return &mPascalParser;
 }

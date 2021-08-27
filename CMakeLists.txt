@@ -23,7 +23,10 @@ set(HEADERS
     PascalFrontend.h
     Common.h
     Utilities.h
-    StatementParser.h)
+    StatementParser.h
+    CompoundStatementParser.h
+    AssignmentStatementParser.h
+    ExpressionParser.h)
 
 set(SOURCES
     main.cpp
@@ -34,7 +37,10 @@ set(SOURCES
     Intermediate.cpp
     IntermediateImpl.cpp
     Utilities.cpp
-    StatementParser.cpp)
+    StatementParser.cpp
+    CompoundStatementParser.cpp
+    AssignmentStatementParser.cpp
+    ExpressionParser.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

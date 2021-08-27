@@ -5,9 +5,9 @@
 
 #include <QList>
 #include <QString>
-#include <QVariant>
 #include <memory>
 #include <QHash>
+#include <any>
 
 template <typename SymbolTableKeyType>
 class SymbolTable;
@@ -21,8 +21,8 @@ public:
   virtual const ICodeNode*& parent() = 0;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual std::vector<std::shared_ptr<ICodeNode>> children() const = 0;
-  virtual void setAttribute(const ICodeKeyType& key, const QVariant& value) = 0;
-  virtual QVariant getAttribute(const ICodeKeyType& key) const = 0;
+  virtual void setAttribute(const ICodeKeyType& key, const std::any& value) = 0;
+  virtual std::any getAttribute(const ICodeKeyType& key) const = 0;
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
   virtual QString toString() const = 0;
 };
@@ -45,8 +45,8 @@ public:
   virtual SymbolTable<SymbolTableKeyType>* symbolTable() const = 0;
   virtual void appendLineNumber(int line_number) = 0;
   virtual QList<int> lineNumbers() const = 0;
-  virtual void setAttribute(const SymbolTableKeyType& key, const QVariant& value) = 0;
-  virtual QVariant getAttribute(const SymbolTableKeyType& key, bool* ok = nullptr) = 0;
+  virtual void setAttribute(const SymbolTableKeyType& key, const std::any& value) = 0;
+  virtual std::any getAttribute(const SymbolTableKeyType& key, bool* ok = nullptr) = 0;
 };
 
 template <typename SymbolTableKeyType>

@@ -117,13 +117,13 @@ QList<int> SymbolTableEntryImpl::lineNumbers() const
   return mLineNumbers;
 }
 
-void SymbolTableEntryImpl::setAttribute(const SymbolTableKeyTypeImpl& key, const QVariant &value)
+void SymbolTableEntryImpl::setAttribute(const SymbolTableKeyTypeImpl& key, const std::any &value)
 {
 //  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
   mEntryMap[key] = value;
 }
 
-QVariant SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok)
+std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok)
 {
 //  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
   auto search = mEntryMap.find(key);
@@ -200,12 +200,12 @@ std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> > IC
   return mChildren;
 }
 
-void ICodeNodeImpl::setAttribute(const ICodeKeyTypeImpl& key, const QVariant &value)
+void ICodeNodeImpl::setAttribute(const ICodeKeyTypeImpl& key, const std::any &value)
 {
   mHashTable[key] = value;
 }
 
-QVariant ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl& key) const
+std::any ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl& key) const
 {
   const auto search = mHashTable.find(key);
   if (search != mHashTable.end()) {

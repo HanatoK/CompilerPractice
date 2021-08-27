@@ -2,12 +2,14 @@
 #define PASCALFRONTEND_H
 
 #include "Frontend.h"
+#include "Intermediate.h"
 #include "Common.h"
 
 #include <boost/signals2/connection.hpp>
 #include <map>
 
 class PascalErrorHandler;
+class PascalSubparserTopDownBase;
 
 class PascalScanner: public Scanner {
 public:
@@ -31,7 +33,9 @@ enum class PascalTokenType {
   COLON, QUOTE, EQUALS, NOT_EQUALS, LESS_THAN, LESS_EQUALS,
   GREATER_EQUALS, GREATER_THAN, LEFT_PAREN, RIGHT_PAREN,
   LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE,
-  UP_ARROW, DOT_DOT
+  UP_ARROW, DOT_DOT,
+  // unknown type
+  UNKNOWN
 };
 
 class PascalToken: public Token {
@@ -71,8 +75,25 @@ public:
   //  void syntaxErrorMessage(int lineNumber, int position, QString text,
   //                          QString error);
   boost::signals2::signal<void(int, int, QString, QString)> syntaxErrorMessage;
+  friend class PascalSubparserTopDownBase;
 protected:
   PascalErrorHandler* mErrorHandler;
+};
+
+class PascalSubparserTopDownBase {
+public:
+  explicit PascalSubparserTopDownBase(PascalParserTopDown& pascal_parser);
+  virtual ~PascalSubparserTopDownBase();
+  std::shared_ptr<Token> currentToken() const;
+  std::shared_ptr<Token> nextToken();
+  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> getSymbolTableStack() const;
+  std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> getICode() const;
+  std::shared_ptr<PascalScanner> scanner() const;
+  int errorCount();
+  PascalErrorHandler* errorHandler();
+  PascalParserTopDown* currentParser();
+private:
+  PascalParserTopDown& mPascalParser;
 };
 
 enum class PascalErrorCode {
