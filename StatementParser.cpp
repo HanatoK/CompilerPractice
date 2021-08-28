@@ -14,17 +14,16 @@ StatementParser::~StatementParser()
 }
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-StatementParser::parse(std::shared_ptr<Token> token) {
+StatementParser::parse(std::shared_ptr<PascalToken> token) {
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
       statement_node = nullptr;
-  const auto pascal_token = dynamic_cast<PascalToken *>(token.get());
-  switch (pascal_token->type()) {
-  case PascalTokenType::BEGIN: {
+  switch (token->type()) {
+  case PascalTokenTypeImpl::BEGIN: {
     CompoundStatementParser compound_parser(*currentParser());
     statement_node = compound_parser.parse(token);
     break;
   }
-  case PascalTokenType::IDENTIFIER: {
+  case PascalTokenTypeImpl::IDENTIFIER: {
     AssignmentStatementParser assignment_parser(*currentParser());
     statement_node = assignment_parser.parse(token);
     break;
@@ -41,7 +40,7 @@ StatementParser::parse(std::shared_ptr<Token> token) {
 
 void StatementParser::setLineNumber(
     std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> &node,
-    const std::shared_ptr<Token> &token) {
+    const std::shared_ptr<PascalToken> &token) {
   if (node != nullptr) {
     node->setAttribute(ICodeKeyTypeImpl::LINE, token->lineNum());
   }
@@ -49,39 +48,35 @@ void StatementParser::setLineNumber(
 
 // TODO: figure out what does parseList do
 void StatementParser::parseList(
-    std::shared_ptr<Token> token,
+    std::shared_ptr<PascalToken> token,
     std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
         &parent_node,
-    PascalTokenType terminator, PascalErrorCode error_code) {
-  auto pascal_token = dynamic_cast<PascalToken*>(token.get());
+    PascalTokenTypeImpl terminator, PascalErrorCode error_code) {
 //  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> statement_node = nullptr;
-  while (!token->isEof() && pascal_token->type() != terminator) {
+  while (!token->isEof() && token->type() != terminator) {
     auto statement_node = parse(token);
     parent_node->addChild(std::move(statement_node));
     token = currentToken();
-    pascal_token = dynamic_cast<PascalToken*>(token.get());
-    switch (pascal_token->type()) {
+    switch (token->type()) {
       // look for the semicolon between statements
-      case PascalTokenType::SEMICOLON: {
+      case PascalTokenTypeImpl::SEMICOLON: {
         token = nextToken();
-        pascal_token = dynamic_cast<PascalToken*>(token.get());
       }
       // if at the start of the next assignment statement,
       // then a semicolon is missing
-      case PascalTokenType::IDENTIFIER: {
+      case PascalTokenTypeImpl::IDENTIFIER: {
         errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
       }
       // unexpected token
       default: {
-        if (pascal_token->type() == terminator) {
+        if (token->type() == terminator) {
           errorHandler()->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, currentParser());
           token = nextToken();
-          pascal_token = dynamic_cast<PascalToken*>(token.get());
         }
       }
     }
   }
-  if (pascal_token->type() == terminator) {
+  if (token->type() == terminator) {
     token = nextToken();
 //    pascal_token = dynamic_cast<PascalToken*>(token.get());
   } else {

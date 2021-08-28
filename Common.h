@@ -2,6 +2,24 @@
 #define COMMON_H
 
 #include <map>
+#include <QString>
+
+enum class PascalTokenTypeImpl {
+  // reserved words
+  AND, ARRAY, BEGIN, CASE, CONST, DIV, DO, DOWNTO, ELSE, END,
+  FILE, FOR, FUNCTION, GOTO, IF, IN, LABEL, MOD, NIL, NOT,
+  OF, OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET,
+  THEN, TO, TYPE, UNTIL, VAR, WHILE, WITH, IDENTIFIER, INTEGER,
+  REAL, STRING, ERROR, END_OF_FILE,
+  // special symbols
+  PLUS, MINUS, STAR, SLASH, COLON_EQUALS, DOT, COMMA, SEMICOLON,
+  COLON, QUOTE, EQUALS, NOT_EQUALS, LESS_THAN, LESS_EQUALS,
+  GREATER_EQUALS, GREATER_THAN, LEFT_PAREN, RIGHT_PAREN,
+  LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE,
+  UP_ARROW, DOT_DOT,
+  // unknown type
+  UNKNOWN
+};
 
 enum class SymbolTableKeyTypeImpl {
   // Constant
@@ -34,6 +52,13 @@ enum class ICodeNodeTypeImpl {
   INTEGER_CONSTANT, REAL_CONSTANT,
   STRING_CONSTANT, BOOLEAN_CONSTANT
 };
+
+extern std::map<PascalTokenTypeImpl, QString> mReservedWordsMap;
+extern std::map<QString, PascalTokenTypeImpl> mReservedWordsMapRev;
+extern std::map<PascalTokenTypeImpl, QString> mSpecialSymbolsMap;
+extern std::map<QString, PascalTokenTypeImpl> mSpecialSymbolsMapRev;
+extern std::map<PascalTokenTypeImpl, QString> mSpecialWordsMap;
+extern std::map<QString, PascalTokenTypeImpl> mSpecialWordsMapRev;
 
 // assume no key shares a same value
 template <typename T1, typename T2>

@@ -2,20 +2,20 @@
 
 ExpressionParser::ExpressionParser(PascalParserTopDown &parent):
   PascalSubparserTopDownBase(parent),
-  mRelOps({PascalTokenType::EQUALS, PascalTokenType::NOT_EQUALS,
-           PascalTokenType::LESS_THAN, PascalTokenType::LESS_EQUALS,
-           PascalTokenType::GREATER_THAN, PascalTokenType::GREATER_EQUALS}),
-  mAddOps({PascalTokenType::PLUS, PascalTokenType::MINUS,
-           PascalTokenType::OR}),
-  mRelOpsMap({{PascalTokenType::EQUALS, ICodeNodeTypeImpl::EQ},
-              {PascalTokenType::NOT_EQUALS, ICodeNodeTypeImpl::NE},
-              {PascalTokenType::LESS_THAN, ICodeNodeTypeImpl::LT},
-              {PascalTokenType::LESS_EQUALS, ICodeNodeTypeImpl::LE},
-              {PascalTokenType::GREATER_THAN, ICodeNodeTypeImpl::GT},
-              {PascalTokenType::GREATER_EQUALS, ICodeNodeTypeImpl::GE}}),
-  mAddOpsMap({{PascalTokenType::PLUS, ICodeNodeTypeImpl::ADD},
-              {PascalTokenType::MINUS, ICodeNodeTypeImpl::SUBTRACT},
-              {PascalTokenType::OR, ICodeNodeTypeImpl::OR}})
+  mRelOps({PascalTokenTypeImpl::EQUALS, PascalTokenTypeImpl::NOT_EQUALS,
+           PascalTokenTypeImpl::LESS_THAN, PascalTokenTypeImpl::LESS_EQUALS,
+           PascalTokenTypeImpl::GREATER_THAN, PascalTokenTypeImpl::GREATER_EQUALS}),
+  mAddOps({PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
+           PascalTokenTypeImpl::OR}),
+  mRelOpsMap({{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},
+              {PascalTokenTypeImpl::NOT_EQUALS, ICodeNodeTypeImpl::NE},
+              {PascalTokenTypeImpl::LESS_THAN, ICodeNodeTypeImpl::LT},
+              {PascalTokenTypeImpl::LESS_EQUALS, ICodeNodeTypeImpl::LE},
+              {PascalTokenTypeImpl::GREATER_THAN, ICodeNodeTypeImpl::GT},
+              {PascalTokenTypeImpl::GREATER_EQUALS, ICodeNodeTypeImpl::GE}}),
+  mAddOpsMap({{PascalTokenTypeImpl::PLUS, ICodeNodeTypeImpl::ADD},
+              {PascalTokenTypeImpl::MINUS, ICodeNodeTypeImpl::SUBTRACT},
+              {PascalTokenTypeImpl::OR, ICodeNodeTypeImpl::OR}})
 {
 
 }
@@ -27,13 +27,12 @@ ExpressionParser::~ExpressionParser()
 #endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parse(std::shared_ptr<Token> token)
+std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parse(std::shared_ptr<PascalToken> token)
 {
   // parse a simple expression and make the root of its tree the root node
   auto root_node = parseSimpleExpression(token);
   token = currentToken();
-  auto pascal_token = dynamic_cast<PascalToken*>(token.get());
-  auto token_type = pascal_token->type();
+  auto token_type = token->type();
   auto search = mRelOps.find(token_type);
   if (search != mRelOps.end()) {
     // relational operator found
@@ -50,11 +49,10 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   return std::move(root_node);
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parseSimpleExpression(std::shared_ptr<Token> token)
+std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parseSimpleExpression(std::shared_ptr<PascalToken> token)
 {
-  auto pascal_token = dynamic_cast<PascalToken*>(token.get());
-  auto token_type = pascal_token->type();
-  auto sign_type = (token_type == PascalTokenType::PLUS || token_type == PascalTokenType::MINUS) ? token_type : PascalTokenType::UNKNOWN;
+  auto token_type = token->type();
+  auto sign_type = (token_type == PascalTokenTypeImpl::PLUS || token_type == PascalTokenTypeImpl::MINUS) ? token_type : PascalTokenTypeImpl::UNKNOWN;
   // TODO
   return nullptr;
 }

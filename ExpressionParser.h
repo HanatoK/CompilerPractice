@@ -11,13 +11,13 @@ class ExpressionParser : public PascalSubparserTopDownBase
 public:
   explicit ExpressionParser(PascalParserTopDown& parent);
   virtual ~ExpressionParser();
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<Token> token);
+  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token);
 private:
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parseSimpleExpression(std::shared_ptr<Token> token);
-  std::set<PascalTokenType> mRelOps;
-  std::set<PascalTokenType> mAddOps;
-  std::unordered_map<PascalTokenType, ICodeNodeTypeImpl> mRelOpsMap;
-  std::unordered_map<PascalTokenType, ICodeNodeTypeImpl> mAddOpsMap;
+  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parseSimpleExpression(std::shared_ptr<PascalToken> token);
+  std::set<PascalTokenTypeImpl> mRelOps;
+  std::set<PascalTokenTypeImpl> mAddOps;
+  std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mRelOpsMap;
+  std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mAddOpsMap;
 };
 
 #endif // EXPRESSIONPARSER_H

@@ -12,7 +12,7 @@ AssignmentStatementParser::~AssignmentStatementParser()
 #endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentStatementParser::parse(std::shared_ptr<Token> token)
+std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   auto assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::ASSIGN);
   // lookup the target identifier in the symbol table stack
@@ -30,9 +30,8 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
   assign_node->addChild(std::move(variable_node));
   // consume the identifier token
   token = nextToken();
-  auto pascal_token = dynamic_cast<PascalToken*>(token.get());
   // and look for the := token
-  if (pascal_token->type() == PascalTokenType::COLON_EQUALS) {
+  if (token->type() == PascalTokenTypeImpl::COLON_EQUALS) {
     // consume :=
     token = nextToken();
   } else {

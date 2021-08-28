@@ -98,9 +98,9 @@ void Pascal::interpreterSummary(int executionCount, int runtimeErrors,
 }
 
 void Pascal::tokenMessage(int lineNumber, int position,
-                          PascalTokenType tokenType, QString text,
+                          PascalTokenTypeImpl tokenType, QString text,
                           QVariant value) {
-  const QString type_str = PascalToken::typeToStr(tokenType);
+  const QString type_str = typeToStr(tokenType);
   fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
              type_str.toStdString(), lineNumber, position, text.toStdString());
   if (!value.isNull()) {

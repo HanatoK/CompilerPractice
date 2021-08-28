@@ -21,7 +21,7 @@ public slots:
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   void compilerSummary(int instructionCount, float elapsedTime);
   void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime);
-  void tokenMessage(int lineNumber, int position, PascalTokenType tokenType,
+  void tokenMessage(int lineNumber, int position, PascalTokenTypeImpl tokenType,
                     QString text, QVariant value);
   void syntaxErrorMessage(int lineNumber, int position, QString text,
                           QString error);

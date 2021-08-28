@@ -9,6 +9,97 @@
 #include <cctype>
 #include <fmt/format.h>
 
+
+std::map<PascalTokenTypeImpl, QString> initReservedWordsMap() {
+  std::map<PascalTokenTypeImpl, QString> reservedWordsMap;
+  // reserved words
+  reservedWordsMap[PascalTokenTypeImpl::AND] = QString("and");
+  reservedWordsMap[PascalTokenTypeImpl::ARRAY] = QString("array");
+  reservedWordsMap[PascalTokenTypeImpl::BEGIN] = QString("begin");
+  reservedWordsMap[PascalTokenTypeImpl::CASE] = QString("case");
+  reservedWordsMap[PascalTokenTypeImpl::CONST] = QString("const");
+  reservedWordsMap[PascalTokenTypeImpl::DIV] = QString("div");
+  reservedWordsMap[PascalTokenTypeImpl::DO] = QString("do");
+  reservedWordsMap[PascalTokenTypeImpl::DOWNTO] = QString("downto");
+  reservedWordsMap[PascalTokenTypeImpl::ELSE] = QString("else");
+  reservedWordsMap[PascalTokenTypeImpl::END] = QString("end");
+  reservedWordsMap[PascalTokenTypeImpl::FILE] = QString("file");
+  reservedWordsMap[PascalTokenTypeImpl::FOR] = QString("for");
+  reservedWordsMap[PascalTokenTypeImpl::FUNCTION] = QString("function");
+  reservedWordsMap[PascalTokenTypeImpl::GOTO] = QString("goto");
+  reservedWordsMap[PascalTokenTypeImpl::IF] = QString("if");
+  reservedWordsMap[PascalTokenTypeImpl::IN] = QString("in");
+  reservedWordsMap[PascalTokenTypeImpl::LABEL] = QString("label");
+  reservedWordsMap[PascalTokenTypeImpl::MOD] = QString("mod");
+  reservedWordsMap[PascalTokenTypeImpl::NIL] = QString("nil");
+  reservedWordsMap[PascalTokenTypeImpl::NOT] = QString("not");
+  reservedWordsMap[PascalTokenTypeImpl::OF] = QString("of");
+  reservedWordsMap[PascalTokenTypeImpl::OR] = QString("or");
+  reservedWordsMap[PascalTokenTypeImpl::PACKED] = QString("packed");
+  reservedWordsMap[PascalTokenTypeImpl::PROCEDURE] = QString("procedure");
+  reservedWordsMap[PascalTokenTypeImpl::PROGRAM] = QString("program");
+  reservedWordsMap[PascalTokenTypeImpl::RECORD] = QString("record");
+  reservedWordsMap[PascalTokenTypeImpl::REPEAT] = QString("repeat");
+  reservedWordsMap[PascalTokenTypeImpl::SET] = QString("set");
+  reservedWordsMap[PascalTokenTypeImpl::THEN] = QString("then");
+  reservedWordsMap[PascalTokenTypeImpl::TO] = QString("to");
+  reservedWordsMap[PascalTokenTypeImpl::TYPE] = QString("type");
+  reservedWordsMap[PascalTokenTypeImpl::UNTIL] = QString("until");
+  reservedWordsMap[PascalTokenTypeImpl::VAR] = QString("var");
+  reservedWordsMap[PascalTokenTypeImpl::WHILE] = QString("while");
+  reservedWordsMap[PascalTokenTypeImpl::WITH] = QString("with");
+  return reservedWordsMap;
+}
+
+std::map<PascalTokenTypeImpl, QString> initSpecialSymbolsMap() {
+  std::map<PascalTokenTypeImpl, QString> specialSymbolsMap;
+  // special symbols
+  specialSymbolsMap[PascalTokenTypeImpl::PLUS]            = QString("+");
+  specialSymbolsMap[PascalTokenTypeImpl::MINUS]           = QString("-");
+  specialSymbolsMap[PascalTokenTypeImpl::STAR]            = QString("*");
+  specialSymbolsMap[PascalTokenTypeImpl::SLASH]           = QString("/");
+  specialSymbolsMap[PascalTokenTypeImpl::COLON_EQUALS]    = QString(":=");
+  specialSymbolsMap[PascalTokenTypeImpl::DOT]             = QString(".");
+  specialSymbolsMap[PascalTokenTypeImpl::COMMA]           = QString(",");
+  specialSymbolsMap[PascalTokenTypeImpl::SEMICOLON]       = QString(";");
+  specialSymbolsMap[PascalTokenTypeImpl::COLON]           = QString(":");
+  specialSymbolsMap[PascalTokenTypeImpl::QUOTE]           = QString("'");
+  specialSymbolsMap[PascalTokenTypeImpl::EQUALS]          = QString("=");
+  specialSymbolsMap[PascalTokenTypeImpl::NOT_EQUALS]      = QString("<>");
+  specialSymbolsMap[PascalTokenTypeImpl::LESS_THAN]       = QString("<");
+  specialSymbolsMap[PascalTokenTypeImpl::LESS_EQUALS]     = QString("<=");
+  specialSymbolsMap[PascalTokenTypeImpl::GREATER_EQUALS]  = QString(">=");
+  specialSymbolsMap[PascalTokenTypeImpl::GREATER_THAN]    = QString(">");
+  specialSymbolsMap[PascalTokenTypeImpl::LEFT_PAREN]      = QString("(");
+  specialSymbolsMap[PascalTokenTypeImpl::RIGHT_PAREN]     = QString(")");
+  specialSymbolsMap[PascalTokenTypeImpl::LEFT_BRACKET]    = QString("[");
+  specialSymbolsMap[PascalTokenTypeImpl::RIGHT_BRACKET]   = QString("]");
+  specialSymbolsMap[PascalTokenTypeImpl::LEFT_BRACE]      = QString("{");
+  specialSymbolsMap[PascalTokenTypeImpl::RIGHT_BRACE]     = QString("}");
+  specialSymbolsMap[PascalTokenTypeImpl::UP_ARROW]        = QString("^");
+  specialSymbolsMap[PascalTokenTypeImpl::DOT_DOT]         = QString("..");
+  return specialSymbolsMap;
+}
+
+std::map<PascalTokenTypeImpl, QString> initSpecialWordsMap() {
+  std::map<PascalTokenTypeImpl, QString> specialWordsMap;
+  // split this
+  specialWordsMap[PascalTokenTypeImpl::IDENTIFIER] = QString("identifier");
+  specialWordsMap[PascalTokenTypeImpl::INTEGER] = QString("integer");
+  specialWordsMap[PascalTokenTypeImpl::REAL] = QString("real");
+  specialWordsMap[PascalTokenTypeImpl::STRING] = QString("string");
+  specialWordsMap[PascalTokenTypeImpl::ERROR] = QString("error");
+  specialWordsMap[PascalTokenTypeImpl::END_OF_FILE] = QString("end_of_file");
+  return specialWordsMap;
+}
+
+std::map<PascalTokenTypeImpl, QString> mReservedWordsMap = initReservedWordsMap();
+std::map<PascalTokenTypeImpl, QString> mSpecialSymbolsMap = initSpecialSymbolsMap();
+std::map<PascalTokenTypeImpl, QString> mSpecialWordsMap = initSpecialWordsMap();
+std::map<QString, PascalTokenTypeImpl> mReservedWordsMapRev = reverse_map(mReservedWordsMap);
+std::map<QString, PascalTokenTypeImpl> mSpecialSymbolsMapRev = reverse_map(mSpecialSymbolsMap);
+std::map<QString, PascalTokenTypeImpl> mSpecialWordsMapRev = reverse_map(mSpecialWordsMap);
+
 PascalParserTopDown::PascalParserTopDown(std::shared_ptr<PascalScanner> scanner)
     : Parser(scanner), mErrorHandler(nullptr) {
   mErrorHandler = new PascalErrorHandler();
@@ -24,10 +115,9 @@ void PascalParserTopDown::parse() {
   const int startTime = QTime::currentTime().msec();
   mICode = createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>();
   auto token = nextToken();
-  auto pascal_token = dynamic_cast<PascalToken*>(token.get());
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node = nullptr;
   while (!token->isEof()) {
-    if (pascal_token->type() != PascalTokenType::ERROR) {
+    if (token->type() != PascalTokenTypeImpl::ERROR) {
 //      if (pascal_token->type() == PascalTokenType::BEGIN) {
 //        StatementParser statement_parser(*this);
 //        root_node = statement_parser.parse(token);
@@ -42,8 +132,8 @@ void PascalParserTopDown::parse() {
 //      if (root_node != nullptr) {
 //        mICode->setRoot(std::move(root_node));
 //      }
-      if (pascal_token->type() == PascalTokenType::IDENTIFIER) {
-        const QString name = pascal_token->text().toLower();
+      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
+        const QString name = token->text().toLower();
         auto symbol_table_stack = dynamic_cast<SymbolTableStackImpl*>(mSymbolTableStack.get());
         auto entry = symbol_table_stack->lookup(name);
         if (entry == nullptr) {
@@ -52,12 +142,11 @@ void PascalParserTopDown::parse() {
         entry->appendLineNumber(token->lineNum());
       }
       pascalTokenMessage(token->lineNum(), token->position(),
-                         pascal_token->type(), token->text(), token->value());
+                         token->type(), token->text(), token->value());
     } else {
       mErrorHandler->flag(token, PascalErrorCode(token->value().toInt()), this);
     }
     token = nextToken();
-    pascal_token = dynamic_cast<PascalToken*>(token.get());
   }
   const int endTime = QTime::currentTime().msec();
   const float elapsedTime = (endTime - startTime) / 1000.0;
@@ -79,22 +168,23 @@ PascalScanner::~PascalScanner() {
 #endif
 }
 
-std::shared_ptr<Token> PascalScanner::extractToken() {
+std::shared_ptr<PascalToken> PascalScanner::extractToken() {
   skipWhiteSpace();
-  unique_ptr<Token> token = nullptr;
+  unique_ptr<PascalToken> token = nullptr;
   auto current_char = currentChar();
   // Construct the next token
   // The current character determines the token type.
   if (current_char == EOF) {
-    token = std::make_unique<EofToken>(mSource);
+    token = std::make_unique<PascalEofToken>(mSource);
+    qDebug() << "Reach EOF\n";
   } else if (std::isalpha(current_char)) {
     token = std::make_unique<PascalWordToken>(mSource);
   } else if (std::isdigit(current_char)) {
     token = std::make_unique<PascalNumberToken>(mSource);
   } else if (current_char == '\'') {
     token = std::make_unique<PascalStringToken>(mSource);
-  } else if (PascalToken::mSpecialSymbolsMapRev.find(QString{current_char}) !=
-             PascalToken::mSpecialSymbolsMapRev.end()) {
+  } else if (mSpecialSymbolsMapRev.find(QString{current_char}) !=
+             mSpecialSymbolsMapRev.end()) {
     token = std::make_unique<PascalSpecialSymbolToken>(mSource);
   } else {
     token = std::make_unique<PascalErrorToken>(
@@ -148,7 +238,7 @@ PascalErrorHandler::~PascalErrorHandler() {
 #endif
 }
 
-void PascalErrorHandler::flag(const std::shared_ptr<Token> &token,
+void PascalErrorHandler::flag(const std::shared_ptr<PascalToken> &token,
                               PascalErrorCode errorCode, PascalParserTopDown *parser) {
   parser->syntaxErrorMessage(
       token->lineNum(), token->position(), token->text(), errorMessageMap[errorCode]);
@@ -251,30 +341,24 @@ std::map<PascalErrorCode, QString> initErrorMessageMap() {
 std::map<PascalErrorCode, QString>
     PascalErrorHandler::errorMessageMap = initErrorMessageMap();
 
-PascalToken::PascalToken() : Token() { mType = PascalTokenType::ERROR; }
-
-PascalToken::PascalToken(std::shared_ptr<Source> source) : Token(source) {
-  mType = PascalTokenType::ERROR;
-}
-
-QString PascalToken::typeToStr(const PascalTokenType &tokenType, bool *ok)
+QString typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok)
 {
-  const auto s1 = PascalToken::mReservedWordsMap.find(tokenType);
-  if (s1 != PascalToken::mReservedWordsMap.end()) {
+  const auto s1 = mReservedWordsMap.find(tokenType);
+  if (s1 != mReservedWordsMap.end()) {
     if (ok != nullptr) {
       *ok = true;
     }
     return s1->second;
   }
-  const auto s2 = PascalToken::mSpecialSymbolsMap.find(tokenType);
-  if (s2 != PascalToken::mSpecialSymbolsMap.end()) {
+  const auto s2 = mSpecialSymbolsMap.find(tokenType);
+  if (s2 != mSpecialSymbolsMap.end()) {
     if (ok != nullptr) {
       *ok = true;
     }
     return s2->second;
   }
-  const auto s3 = PascalToken::mSpecialWordsMap.find(tokenType);
-  if (s3 != PascalToken::mSpecialSymbolsMap.end()) {
+  const auto s3 = mSpecialWordsMap.find(tokenType);
+  if (s3 != mSpecialSymbolsMap.end()) {
     if (ok != nullptr) {
       *ok = true;
     }
@@ -286,24 +370,24 @@ QString PascalToken::typeToStr(const PascalTokenType &tokenType, bool *ok)
   return "UNKNOWN";
 }
 
-PascalTokenType PascalToken::strToType(const QString &str, bool *ok)
+PascalTokenTypeImpl strToType(const QString &str, bool *ok)
 {
-  const auto s1 = PascalToken::mReservedWordsMapRev.find(str.toLower());
-  if (s1 != PascalToken::mReservedWordsMapRev.end()) {
+  const auto s1 = mReservedWordsMapRev.find(str.toLower());
+  if (s1 != mReservedWordsMapRev.end()) {
     if (ok != nullptr) {
       *ok = true;
     }
     return s1->second;
   }
-  const auto s2 = PascalToken::mSpecialSymbolsMapRev.find(str.toLower());
-  if (s2 != PascalToken::mSpecialSymbolsMapRev.end()) {
+  const auto s2 = mSpecialSymbolsMapRev.find(str.toLower());
+  if (s2 != mSpecialSymbolsMapRev.end()) {
     if (ok != nullptr) {
       *ok = true;
     }
     return s2->second;
   }
-  const auto s3 = PascalToken::mSpecialWordsMapRev.find(str.toLower());
-  if (s3 != PascalToken::mSpecialWordsMapRev.end()) {
+  const auto s3 = mSpecialWordsMapRev.find(str.toLower());
+  if (s3 != mSpecialWordsMapRev.end()) {
     if (ok != nullptr) {
       *ok = true;
     }
@@ -312,106 +396,12 @@ PascalTokenType PascalToken::strToType(const QString &str, bool *ok)
   if (ok != nullptr) {
     *ok = false;
   }
-  return PascalTokenType::ERROR;
+  return PascalTokenTypeImpl::ERROR;
 }
 
-PascalTokenType PascalToken::type() const
-{
-  return mType;
-}
-
-std::map<PascalTokenType, QString> initReservedWordsMap() {
-  std::map<PascalTokenType, QString> reservedWordsMap;
-  // reserved words
-  reservedWordsMap[PascalTokenType::AND] = QString("and");
-  reservedWordsMap[PascalTokenType::ARRAY] = QString("array");
-  reservedWordsMap[PascalTokenType::BEGIN] = QString("begin");
-  reservedWordsMap[PascalTokenType::CASE] = QString("case");
-  reservedWordsMap[PascalTokenType::CONST] = QString("const");
-  reservedWordsMap[PascalTokenType::DIV] = QString("div");
-  reservedWordsMap[PascalTokenType::DO] = QString("do");
-  reservedWordsMap[PascalTokenType::DOWNTO] = QString("downto");
-  reservedWordsMap[PascalTokenType::ELSE] = QString("else");
-  reservedWordsMap[PascalTokenType::END] = QString("end");
-  reservedWordsMap[PascalTokenType::FILE] = QString("file");
-  reservedWordsMap[PascalTokenType::FOR] = QString("for");
-  reservedWordsMap[PascalTokenType::FUNCTION] = QString("function");
-  reservedWordsMap[PascalTokenType::GOTO] = QString("goto");
-  reservedWordsMap[PascalTokenType::IF] = QString("if");
-  reservedWordsMap[PascalTokenType::IN] = QString("in");
-  reservedWordsMap[PascalTokenType::LABEL] = QString("label");
-  reservedWordsMap[PascalTokenType::MOD] = QString("mod");
-  reservedWordsMap[PascalTokenType::NIL] = QString("nil");
-  reservedWordsMap[PascalTokenType::NOT] = QString("not");
-  reservedWordsMap[PascalTokenType::OF] = QString("of");
-  reservedWordsMap[PascalTokenType::OR] = QString("or");
-  reservedWordsMap[PascalTokenType::PACKED] = QString("packed");
-  reservedWordsMap[PascalTokenType::PROCEDURE] = QString("procedure");
-  reservedWordsMap[PascalTokenType::PROGRAM] = QString("program");
-  reservedWordsMap[PascalTokenType::RECORD] = QString("record");
-  reservedWordsMap[PascalTokenType::REPEAT] = QString("repeat");
-  reservedWordsMap[PascalTokenType::SET] = QString("set");
-  reservedWordsMap[PascalTokenType::THEN] = QString("then");
-  reservedWordsMap[PascalTokenType::TO] = QString("to");
-  reservedWordsMap[PascalTokenType::TYPE] = QString("type");
-  reservedWordsMap[PascalTokenType::UNTIL] = QString("until");
-  reservedWordsMap[PascalTokenType::VAR] = QString("var");
-  reservedWordsMap[PascalTokenType::WHILE] = QString("while");
-  reservedWordsMap[PascalTokenType::WITH] = QString("with");
-  return reservedWordsMap;
-}
-
-std::map<PascalTokenType, QString> initSpecialSymbolsMap() {
-  std::map<PascalTokenType, QString> specialSymbolsMap;
-  // special symbols
-  specialSymbolsMap[PascalTokenType::PLUS]            = QString("+");
-  specialSymbolsMap[PascalTokenType::MINUS]           = QString("-");
-  specialSymbolsMap[PascalTokenType::STAR]            = QString("*");
-  specialSymbolsMap[PascalTokenType::SLASH]           = QString("/");
-  specialSymbolsMap[PascalTokenType::COLON_EQUALS]    = QString(":=");
-  specialSymbolsMap[PascalTokenType::DOT]             = QString(".");
-  specialSymbolsMap[PascalTokenType::COMMA]           = QString(",");
-  specialSymbolsMap[PascalTokenType::SEMICOLON]       = QString(";");
-  specialSymbolsMap[PascalTokenType::COLON]           = QString(":");
-  specialSymbolsMap[PascalTokenType::QUOTE]           = QString("'");
-  specialSymbolsMap[PascalTokenType::EQUALS]          = QString("=");
-  specialSymbolsMap[PascalTokenType::NOT_EQUALS]      = QString("<>");
-  specialSymbolsMap[PascalTokenType::LESS_THAN]       = QString("<");
-  specialSymbolsMap[PascalTokenType::LESS_EQUALS]     = QString("<=");
-  specialSymbolsMap[PascalTokenType::GREATER_EQUALS]  = QString(">=");
-  specialSymbolsMap[PascalTokenType::GREATER_THAN]    = QString(">");
-  specialSymbolsMap[PascalTokenType::LEFT_PAREN]      = QString("(");
-  specialSymbolsMap[PascalTokenType::RIGHT_PAREN]     = QString(")");
-  specialSymbolsMap[PascalTokenType::LEFT_BRACKET]    = QString("[");
-  specialSymbolsMap[PascalTokenType::RIGHT_BRACKET]   = QString("]");
-  specialSymbolsMap[PascalTokenType::LEFT_BRACE]      = QString("{");
-  specialSymbolsMap[PascalTokenType::RIGHT_BRACE]     = QString("}");
-  specialSymbolsMap[PascalTokenType::UP_ARROW]        = QString("^");
-  specialSymbolsMap[PascalTokenType::DOT_DOT]         = QString("..");
-  return specialSymbolsMap;
-}
-
-std::map<PascalTokenType, QString> initSpecialWordsMap() {
-  std::map<PascalTokenType, QString> specialWordsMap;
-  // split this
-  specialWordsMap[PascalTokenType::IDENTIFIER] = QString("identifier");
-  specialWordsMap[PascalTokenType::INTEGER] = QString("integer");
-  specialWordsMap[PascalTokenType::REAL] = QString("real");
-  specialWordsMap[PascalTokenType::STRING] = QString("string");
-  specialWordsMap[PascalTokenType::ERROR] = QString("error");
-  specialWordsMap[PascalTokenType::END_OF_FILE] = QString("end_of_file");
-  return specialWordsMap;
-}
-
-std::map<PascalTokenType, QString> PascalToken::mReservedWordsMap = initReservedWordsMap();
-std::map<PascalTokenType, QString> PascalToken::mSpecialSymbolsMap = initSpecialSymbolsMap();
-std::map<PascalTokenType, QString> PascalToken::mSpecialWordsMap = initSpecialWordsMap();
-std::map<QString, PascalTokenType> PascalToken::mReservedWordsMapRev = reverse_map(PascalToken::mReservedWordsMap);
-std::map<QString, PascalTokenType> PascalToken::mSpecialSymbolsMapRev = reverse_map(PascalToken::mSpecialSymbolsMap);
-std::map<QString, PascalTokenType> PascalToken::mSpecialWordsMapRev = reverse_map(PascalToken::mSpecialWordsMap);
 
 PascalErrorToken::PascalErrorToken() : PascalToken() {
-  mType = PascalTokenType::ERROR;
+  mType = PascalTokenTypeImpl::ERROR;
 }
 
 PascalErrorToken::PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCode errorCode,
@@ -420,13 +410,13 @@ PascalErrorToken::PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCo
   mLineNum = mSource->lineNum();
   mPosition = mSource->currentPos();
   // NOTE: C++ code should call extract() explicitly in the derived class
-  this->mType = PascalTokenType::ERROR;
+  this->mType = PascalTokenTypeImpl::ERROR;
   this->mValue = int(errorCode);
   this->mText = tokenText;
   PascalErrorToken::extract();
 }
 
-unique_ptr<Token> PascalErrorToken::clone() const {
+unique_ptr<PascalToken> PascalErrorToken::clone() const {
   return std::make_unique<PascalErrorToken>(*this);
 }
 
@@ -440,7 +430,7 @@ PascalWordToken::PascalWordToken(std::shared_ptr<Source> source) {
   // mValue is uninitialized!
 }
 
-unique_ptr<Token> PascalWordToken::clone() const {
+unique_ptr<PascalToken> PascalWordToken::clone() const {
   return std::make_unique<PascalWordToken>(*this);
 }
 
@@ -452,11 +442,11 @@ void PascalWordToken::extract() {
     current_char = nextChar();
   }
   mText = s;
-  if (PascalToken::mReservedWordsMapRev.find(mText.toLower()) !=
-      PascalToken::mReservedWordsMapRev.end()) {
+  if (mReservedWordsMapRev.find(mText.toLower()) !=
+      mReservedWordsMapRev.end()) {
     mType = mReservedWordsMapRev[mText.toLower()];
   } else {
-    mType = PascalTokenType::IDENTIFIER;
+    mType = PascalTokenTypeImpl::IDENTIFIER;
   }
 }
 
@@ -467,7 +457,7 @@ PascalStringToken::PascalStringToken(std::shared_ptr<Source> source) {
   PascalStringToken::extract();
 }
 
-unique_ptr<Token> PascalStringToken::clone() const {
+unique_ptr<PascalToken> PascalStringToken::clone() const {
   return std::make_unique<PascalStringToken>(*this);
 }
 
@@ -498,10 +488,10 @@ void PascalStringToken::extract() {
   if (current_char == '\'') {
     nextChar(); // consume the final quote
     text += '\'';
-    mType = PascalTokenType::STRING;
+    mType = PascalTokenTypeImpl::STRING;
     mValue = value;
   } else {
-    mType = PascalTokenType::ERROR;
+    mType = PascalTokenTypeImpl::ERROR;
     mValue = int(PascalErrorCode::UNEXPECTED_EOF);
   }
   mText = text;
@@ -514,7 +504,7 @@ PascalSpecialSymbolToken::PascalSpecialSymbolToken(std::shared_ptr<Source> sourc
   PascalSpecialSymbolToken::extract();
 }
 
-unique_ptr<Token> PascalSpecialSymbolToken::clone() const {
+unique_ptr<PascalToken> PascalSpecialSymbolToken::clone() const {
   return std::make_unique<PascalSpecialSymbolToken>(*this);
 }
 
@@ -572,14 +562,14 @@ void PascalSpecialSymbolToken::extract() {
   default: {
     nextChar(); // consume bad character
     invalid_type = true;
-    mType = PascalTokenType::ERROR;
+    mType = PascalTokenTypeImpl::ERROR;
     mValue = int(PascalErrorCode::INVALID_CHARACTER);
   }
   }
   if (!invalid_type) {
-    if (PascalToken::mSpecialSymbolsMapRev.find(mText) !=
-        PascalToken::mSpecialSymbolsMapRev.end()) {
-      mType = PascalToken::mSpecialSymbolsMapRev[mText];
+    if (mSpecialSymbolsMapRev.find(mText) !=
+        mSpecialSymbolsMapRev.end()) {
+      mType = mSpecialSymbolsMapRev[mText];
     }
   }
 }
@@ -592,7 +582,7 @@ PascalNumberToken::PascalNumberToken(std::shared_ptr<Source> source)
   PascalNumberToken::extract();
 }
 
-unique_ptr<Token> PascalNumberToken::clone() const
+unique_ptr<PascalToken> PascalNumberToken::clone() const
 {
   return std::make_unique<PascalNumberToken>(*this);
 }
@@ -611,9 +601,9 @@ void PascalNumberToken::extractNumber(QString &text)
   char exponent_sign = '+';
   bool dot_dot = false;
   char current_char;
-  mType = PascalTokenType::INTEGER;
+  mType = PascalTokenTypeImpl::INTEGER;
   whole_digits = PascalNumberToken::unsignedIntegerDigits(text);
-  if (mType == PascalTokenType::ERROR) {
+  if (mType == PascalTokenTypeImpl::ERROR) {
     return;
   }
   current_char = currentChar();
@@ -621,20 +611,20 @@ void PascalNumberToken::extractNumber(QString &text)
     if (peekChar() == '.') {
       dot_dot = true;
     } else {
-      mType = PascalTokenType::REAL;
+      mType = PascalTokenTypeImpl::REAL;
       text += current_char;
       current_char = nextChar();
       if (!(std::isspace(peekChar()))) {
         fraction_digits = PascalNumberToken::unsignedIntegerDigits(text);
       }
-      if (mType == PascalTokenType::ERROR) {
+      if (mType == PascalTokenTypeImpl::ERROR) {
         return;
       }
     }
   }
   current_char = currentChar();
   if (!dot_dot && (current_char == 'E' || current_char == 'e')) {
-    mType = PascalTokenType::REAL;
+    mType = PascalTokenTypeImpl::REAL;
     text += current_char;
     current_char = nextChar();
     if (current_char == '+' ||
@@ -645,15 +635,15 @@ void PascalNumberToken::extractNumber(QString &text)
     }
     exponent_digits = PascalNumberToken::unsignedIntegerDigits(text);
   }
-  if (mType == PascalTokenType::INTEGER) {
+  if (mType == PascalTokenTypeImpl::INTEGER) {
     const qulonglong integer_value = computeIntegerValue(whole_digits);
-    if (mType != PascalTokenType::ERROR) {
+    if (mType != PascalTokenTypeImpl::ERROR) {
       mValue = integer_value;
     }
   } else {
     const double float_value = computeFloatValue(whole_digits, fraction_digits,
                                                  exponent_digits, exponent_sign);
-    if (mType != PascalTokenType::ERROR) {
+    if (mType != PascalTokenTypeImpl::ERROR) {
       mValue = float_value;
     }
   }
@@ -663,7 +653,7 @@ QString PascalNumberToken::unsignedIntegerDigits(QString &text)
 {
   char current_char = currentChar();
   if (!std::isdigit(current_char)) {
-    mType = PascalTokenType::ERROR;
+    mType = PascalTokenTypeImpl::ERROR;
     mValue = int(PascalErrorCode::INVALID_NUMBER);
     return "null";
   }
@@ -685,7 +675,7 @@ qulonglong PascalNumberToken::computeIntegerValue(QString &digits)
   if (ok) {
     return result;
   } else {
-    mType = PascalTokenType::ERROR;
+    mType = PascalTokenTypeImpl::ERROR;
     // TODO: check if integer out of range
     mValue = int(PascalErrorCode::INVALID_NUMBER);
     return 0;
@@ -708,7 +698,7 @@ double PascalNumberToken::computeFloatValue(QString &whole_digits, QString &frac
   if (ok) {
     return result;
   } else {
-    mType = PascalTokenType::ERROR;
+    mType = PascalTokenTypeImpl::ERROR;
     // TODO: check if integer out of range
     mValue = int(PascalErrorCode::INVALID_NUMBER);
     return 0;
@@ -725,12 +715,12 @@ PascalSubparserTopDownBase::~PascalSubparserTopDownBase()
 
 }
 
-std::shared_ptr<Token> PascalSubparserTopDownBase::currentToken() const
+std::shared_ptr<PascalToken> PascalSubparserTopDownBase::currentToken() const
 {
   return mPascalParser.currentToken();
 }
 
-std::shared_ptr<Token> PascalSubparserTopDownBase::nextToken()
+std::shared_ptr<PascalToken> PascalSubparserTopDownBase::nextToken()
 {
   return mPascalParser.nextToken();
 }

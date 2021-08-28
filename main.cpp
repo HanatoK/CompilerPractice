@@ -6,7 +6,7 @@
 #include <QObject>
 
 void initMetaTypes() {
-  qRegisterMetaType<PascalTokenType>("PascalTokenType");
+  qRegisterMetaType<PascalTokenTypeImpl>("PascalTokenTypeImpl");
   qRegisterMetaType<PascalErrorCode>("PascalErrorCode");
 }
 

@@ -8,7 +8,7 @@ class AssignmentStatementParser : public PascalSubparserTopDownBase
 public:
   explicit AssignmentStatementParser(PascalParserTopDown& parent);
   virtual ~AssignmentStatementParser();
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<Token> token);
+  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token);
 };
 
 #endif // ASSIGNMENTSTATEMENTPARSER_H

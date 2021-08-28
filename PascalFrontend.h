@@ -11,54 +11,25 @@
 class PascalErrorHandler;
 class PascalSubparserTopDownBase;
 
-class PascalScanner: public Scanner {
+typedef Token<PascalTokenTypeImpl> PascalToken;
+typedef EofToken<PascalTokenTypeImpl> PascalEofToken;
+
+QString typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
+PascalTokenTypeImpl strToType(const QString &str, bool *ok = nullptr);
+
+class PascalScanner: public Scanner<PascalTokenTypeImpl> {
 public:
   PascalScanner();
   PascalScanner(std::shared_ptr<Source> source);
   virtual ~PascalScanner();
-  virtual std::shared_ptr<Token> extractToken();
+  virtual std::shared_ptr<PascalToken> extractToken();
 private:
   void skipWhiteSpace();
 };
 
-enum class PascalTokenType {
-  // reserved words
-  AND, ARRAY, BEGIN, CASE, CONST, DIV, DO, DOWNTO, ELSE, END,
-  FILE, FOR, FUNCTION, GOTO, IF, IN, LABEL, MOD, NIL, NOT,
-  OF, OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET,
-  THEN, TO, TYPE, UNTIL, VAR, WHILE, WITH, IDENTIFIER, INTEGER,
-  REAL, STRING, ERROR, END_OF_FILE,
-  // special symbols
-  PLUS, MINUS, STAR, SLASH, COLON_EQUALS, DOT, COMMA, SEMICOLON,
-  COLON, QUOTE, EQUALS, NOT_EQUALS, LESS_THAN, LESS_EQUALS,
-  GREATER_EQUALS, GREATER_THAN, LEFT_PAREN, RIGHT_PAREN,
-  LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE,
-  UP_ARROW, DOT_DOT,
-  // unknown type
-  UNKNOWN
-};
-
-class PascalToken: public Token {
-public:
-  PascalToken();
-  PascalToken(std::shared_ptr<Source> source);
-  static QString typeToStr(const PascalTokenType& tokenType, bool* ok = nullptr);
-  static PascalTokenType strToType(const QString& str, bool* ok = nullptr);
-  // maybe I need boost::bimap
-  static std::map<PascalTokenType, QString> mReservedWordsMap;
-  static std::map<QString, PascalTokenType> mReservedWordsMapRev;
-  static std::map<PascalTokenType, QString> mSpecialSymbolsMap;
-  static std::map<QString, PascalTokenType> mSpecialSymbolsMapRev;
-  static std::map<PascalTokenType, QString> mSpecialWordsMap;
-  static std::map<QString, PascalTokenType> mSpecialWordsMapRev;
-  PascalTokenType type() const;
-protected:
-  PascalTokenType mType;
-};
-
 class PascalParserTopDown:
   public Parser<SymbolTableKeyTypeImpl, ICodeNodeTypeImpl,
-                ICodeKeyTypeImpl,  PascalScanner> {
+                ICodeKeyTypeImpl, PascalTokenTypeImpl, PascalScanner> {
 public:
   PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
   virtual ~PascalParserTopDown();
@@ -66,7 +37,7 @@ public:
   virtual int errorCount();
   //  void pascalTokenMessage(int lineNumber, int position, PascalTokenType tokenType,
   //    QString text, QVariant value);
-  boost::signals2::signal<void(int, int, PascalTokenType, QString, QVariant)> pascalTokenMessage;
+  boost::signals2::signal<void(int, int, PascalTokenTypeImpl, QString, QVariant)> pascalTokenMessage;
   //  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   boost::signals2::signal<void(int, int, float)> parserSummary;
   //  void tokenMessage(int lineNumber, int position, QString tokenType,
@@ -84,8 +55,8 @@ class PascalSubparserTopDownBase {
 public:
   explicit PascalSubparserTopDownBase(PascalParserTopDown& pascal_parser);
   virtual ~PascalSubparserTopDownBase();
-  std::shared_ptr<Token> currentToken() const;
-  std::shared_ptr<Token> nextToken();
+  std::shared_ptr<PascalToken> currentToken() const;
+  std::shared_ptr<PascalToken> nextToken();
   std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> getSymbolTableStack() const;
   std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> getICode() const;
   std::shared_ptr<PascalScanner> scanner() const;
@@ -162,7 +133,7 @@ class PascalErrorHandler {
 public:
   PascalErrorHandler();
   virtual ~PascalErrorHandler();
-  void flag(const std::shared_ptr<Token>& token, PascalErrorCode errorCode, PascalParserTopDown *parser);
+  void flag(const std::shared_ptr<PascalToken> &token, PascalErrorCode errorCode, PascalParserTopDown *parser);
   void abortTranslation(PascalErrorCode errorCode, PascalParserTopDown *parser);
   int errorCount() const;
 private:
@@ -176,35 +147,35 @@ public:
   PascalErrorToken();
   PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCode errorCode,
                    const QString& tokenText);
-  virtual unique_ptr<Token> clone() const;
+  virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalWordToken: public PascalToken {
 public:
   PascalWordToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<Token> clone() const;
+  virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalStringToken: public PascalToken {
 public:
   PascalStringToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<Token> clone() const;
+  virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalSpecialSymbolToken: public PascalToken {
 public:
   PascalSpecialSymbolToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<Token> clone() const;
+  virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalNumberToken: public PascalToken {
 public:
   PascalNumberToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<Token> clone() const;
+  virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
   virtual void extractNumber(QString& text);
 private:
