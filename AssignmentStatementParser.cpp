@@ -16,7 +16,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
 {
   auto assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::ASSIGN);
   // lookup the target identifier in the symbol table stack
-  const QString target_name = token->text().toLower();
+  const std::string target_name = boost::algorithm::to_lower_copy(token->text());
   auto target_id = getSymbolTableStack()->lookup(target_name);
   // enter the identifier into the table if not found
   if (target_id == nullptr) {

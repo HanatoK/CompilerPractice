@@ -16,10 +16,10 @@ void Interpreter::Executor::process(
   summary(executionCount, runtimeErrors, elapsedTime);
 }
 
-std::unique_ptr<Backend> createBackend(const QString& operation) {
-  if (operation.compare("compile", Qt::CaseInsensitive) == 0) {
+std::unique_ptr<Backend> createBackend(const std::string& operation) {
+  if (boost::iequals(operation, "compile")) {
     return std::make_unique<Compiler::CodeGenerator>();
-  } else if (operation.compare("interpret", Qt::CaseInsensitive) == 0) {
+  } else if (boost::iequals(operation, "interpret")) {
     return std::make_unique<Interpreter::Executor>();
   } else {
     return nullptr;

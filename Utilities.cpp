@@ -19,7 +19,7 @@ void CrossReferencer::printSymbolTable(
   auto sorted_list = symbol_table->sortedEntries();
   for (const auto &elem : sorted_list) {
     const auto line_numbers = elem->lineNumbers();
-    fmt::print("{: >{}}", elem->name().toStdString(), NAME_WIDTH);
+    fmt::print("{: >{}}", elem->name(), NAME_WIDTH);
     std::string numbers;
     for (const auto &line_number : line_numbers) {
       numbers += fmt::format("{:0>3d} ", line_number);

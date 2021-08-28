@@ -1,6 +1,7 @@
 #include "Frontend.h"
 
 #include <QDebug>
+#include <QString>
 #include <QTime>
 
 Source::Source(QTextStream &ifs): mStream(ifs)
@@ -26,7 +27,7 @@ char Source::currentChar()
     readLine();
     return nextChar();
   } else {
-    return mLine.at(mCurrentPos).toLatin1();
+    return mLine.at(mCurrentPos);
   }
 }
 
@@ -44,7 +45,7 @@ char Source::peekChar()
   }
   const int nextPos = mCurrentPos + 1;
   if (nextPos < mLine.size()) {
-    return mLine.at(nextPos).toLatin1();
+    return mLine.at(nextPos);
   } else {
     return EOL;
   }
@@ -52,12 +53,14 @@ char Source::peekChar()
 
 void Source::readLine()
 {
-  const bool read_ok = mStream.readLineInto(&mLine);
+  QString s;
+  const bool read_ok = mStream.readLineInto(&s);
+  mLine = s.toStdString();
   mCurrentPos = -1;
   if (read_ok) {
     // not EOF or error
     ++mLineNum;
-    sendMessage(mLineNum, mLine);
+    sendMessage(mLineNum, s.toStdString());
   }
 }
 

@@ -20,7 +20,7 @@ public:
   }
   virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
                        std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack) = 0;
-  virtual QString getType() const {
+  virtual std::string getType() const {
     return "unknown";
   }
 protected:
@@ -36,7 +36,7 @@ public:
   virtual ~CodeGenerator() {}
   virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
                        std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
-  virtual QString getType() const {
+  virtual std::string getType() const {
     return "compiler";
   }
   //  void summary(int instructionCount, float elapsedTime);
@@ -53,7 +53,7 @@ public:
   virtual ~Executor() {}
   virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
                        std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
-  virtual QString getType() const {
+  virtual std::string getType() const {
     return "interpreter";
   }
 signals:
@@ -63,6 +63,6 @@ signals:
 
 }
 
-std::unique_ptr<Backend> createBackend(const QString& operation);
+std::unique_ptr<Backend> createBackend(const std::string& operation);
 
 #endif // BACKEND_H

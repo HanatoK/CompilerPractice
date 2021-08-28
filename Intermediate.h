@@ -3,10 +3,7 @@
 
 #include "Common.h"
 
-#include <QList>
-#include <QString>
 #include <memory>
-#include <QHash>
 #include <any>
 
 template <typename SymbolTableKeyType>
@@ -24,7 +21,7 @@ public:
   virtual void setAttribute(const ICodeKeyType& key, const std::any& value) = 0;
   virtual std::any getAttribute(const ICodeKeyType& key) const = 0;
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
-  virtual QString toString() const = 0;
+  virtual std::string toString() const = 0;
 };
 
 template <typename ICodeNodeType, typename ICodeKeyType>
@@ -39,12 +36,12 @@ public:
 template <typename SymbolTableKeyType>
 class SymbolTableEntry {
 public:
-  SymbolTableEntry(const QString& name, SymbolTable<SymbolTableKeyType>* symbol_table) {}
+  SymbolTableEntry(const std::string& name, SymbolTable<SymbolTableKeyType>* symbol_table) {}
   virtual ~SymbolTableEntry() {}
-  virtual QString name() const = 0;
+  virtual std::string name() const = 0;
   virtual SymbolTable<SymbolTableKeyType>* symbolTable() const = 0;
   virtual void appendLineNumber(int line_number) = 0;
-  virtual QList<int> lineNumbers() const = 0;
+  virtual std::vector<int> lineNumbers() const = 0;
   virtual void setAttribute(const SymbolTableKeyType& key, const std::any& value) = 0;
   virtual std::any getAttribute(const SymbolTableKeyType& key, bool* ok = nullptr) = 0;
 };
@@ -55,9 +52,9 @@ public:
   SymbolTable(int nestingLevel) {}
   virtual ~SymbolTable() {}
   virtual int nestingLevel() const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const QString& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enter(const QString& name) = 0;
-  virtual QList<std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>>> sortedEntries() = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enter(const std::string& name) = 0;
+  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>>> sortedEntries() = 0;
 };
 
 template <typename SymbolTableKeyType>
@@ -67,13 +64,13 @@ public:
   virtual ~SymbolTableStack() {}
   virtual int currentNestingLevel() const = 0;
   virtual std::shared_ptr<SymbolTable<SymbolTableKeyType>> localSymbolTable() const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enterLocal(const QString& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookupLocal(const QString& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const QString& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enterLocal(const std::string& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookupLocal(const std::string& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) = 0;
 };
 
 template <typename SymbolTableKeyType>
-std::unique_ptr<SymbolTableEntry<SymbolTableKeyType>> createSymbolTableEntry(const QString& name, SymbolTable<SymbolTableKeyType>* symbolTable);
+std::unique_ptr<SymbolTableEntry<SymbolTableKeyType>> createSymbolTableEntry(const std::string& name, SymbolTable<SymbolTableKeyType>* symbolTable);
 
 template <typename SymbolTableKeyType>
 std::unique_ptr<SymbolTable<SymbolTableKeyType>> createSymbolTable(int nestingLevel);

@@ -14,8 +14,8 @@ class PascalSubparserTopDownBase;
 typedef Token<PascalTokenTypeImpl> PascalToken;
 typedef EofToken<PascalTokenTypeImpl> PascalEofToken;
 
-QString typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
-PascalTokenTypeImpl strToType(const QString &str, bool *ok = nullptr);
+std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
+PascalTokenTypeImpl strToType(const std::string &str, bool *ok = nullptr);
 
 class PascalScanner: public Scanner<PascalTokenTypeImpl> {
 public:
@@ -36,16 +36,16 @@ public:
   virtual void parse();
   virtual int errorCount();
   //  void pascalTokenMessage(int lineNumber, int position, PascalTokenType tokenType,
-  //    QString text, std::any value);
-  boost::signals2::signal<void(int, int, PascalTokenTypeImpl, QString, std::any)> pascalTokenMessage;
+  //    std::string text, std::any value);
+  boost::signals2::signal<void(int, int, PascalTokenTypeImpl, std::string, std::any)> pascalTokenMessage;
   //  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   boost::signals2::signal<void(int, int, float)> parserSummary;
-  //  void tokenMessage(int lineNumber, int position, QString tokenType,
-  //                    QString text, std::any value);
-  boost::signals2::signal<void(int, int, QString, QString, std::any)> tokenMessage;
-  //  void syntaxErrorMessage(int lineNumber, int position, QString text,
-  //                          QString error);
-  boost::signals2::signal<void(int, int, QString, QString)> syntaxErrorMessage;
+  //  void tokenMessage(int lineNumber, int position, std::string tokenType,
+  //                    std::string text, std::any value);
+  boost::signals2::signal<void(int, int, std::string, std::string, std::any)> tokenMessage;
+  //  void syntaxErrorMessage(int lineNumber, int position, std::string text,
+  //                          std::string error);
+  boost::signals2::signal<void(int, int, std::string, std::string)> syntaxErrorMessage;
   friend class PascalSubparserTopDownBase;
 protected:
   PascalErrorHandler* mErrorHandler;
@@ -138,7 +138,7 @@ public:
   int errorCount() const;
 private:
   static const int maxError = 25;
-  static std::map<PascalErrorCode, QString> errorMessageMap;
+  static std::map<PascalErrorCode, std::string> errorMessageMap;
   int mErrorCount;
 };
 
@@ -146,7 +146,7 @@ class PascalErrorToken: public PascalToken {
 public:
   PascalErrorToken();
   PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCode errorCode,
-                   const QString& tokenText);
+                   const std::string& tokenText);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
@@ -177,15 +177,15 @@ public:
   PascalNumberToken(std::shared_ptr<Source> source);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
-  virtual void extractNumber(QString& text);
+  virtual void extractNumber(std::string& text);
 private:
-  QString unsignedIntegerDigits(QString& text);
-  qulonglong computeIntegerValue(QString& digits);
-  double computeFloatValue(QString& whole_digits, QString& fraction_digits,
-                           QString& exponent_digits, char exponent_sign);
+  std::string unsignedIntegerDigits(std::string& text);
+  qulonglong computeIntegerValue(std::string& digits);
+  double computeFloatValue(std::string& whole_digits, std::string& fraction_digits,
+                           std::string& exponent_digits, char exponent_sign);
 };
 
-std::unique_ptr<PascalParserTopDown> createPascalParser(const QString& language, const QString& type,
+std::unique_ptr<PascalParserTopDown> createPascalParser(const std::string& language, const std::string& type,
   std::shared_ptr<Source> source);
 
 #endif // PASCALFRONTEND_H

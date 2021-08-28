@@ -5,7 +5,7 @@
 SymbolTableStackImpl::SymbolTableStackImpl(): SymbolTableStack()
 {
   mCurrentNestingLevel = 0;
-  mStack.append(createSymbolTable<SymbolTableKeyTypeImpl>(mCurrentNestingLevel));
+  mStack.push_back(createSymbolTable<SymbolTableKeyTypeImpl>(mCurrentNestingLevel));
 }
 
 SymbolTableStackImpl::~SymbolTableStackImpl()
@@ -25,17 +25,17 @@ std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::local
   return mStack[mCurrentNestingLevel];
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::enterLocal(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::enterLocal(const std::string &name)
 {
   return mStack[mCurrentNestingLevel]->enter(name);
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookupLocal(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookupLocal(const std::string &name)
 {
   return mStack[mCurrentNestingLevel]->lookup(name);
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookup(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookup(const std::string &name)
 {
   return lookupLocal(name);
 }
@@ -57,7 +57,7 @@ int SymbolTableImpl::nestingLevel() const
   return mNestingLevel;
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > SymbolTableImpl::lookup(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > SymbolTableImpl::lookup(const std::string &name)
 {
   auto search = mSymbolMap.find(name);
   if (search != mSymbolMap.end()) {
@@ -67,23 +67,23 @@ std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > SymbolTableImpl::look
   }
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableImpl::enter(const QString &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableImpl::enter(const std::string &name)
 {
   mSymbolMap[name] = createSymbolTableEntry(name, this);
   return mSymbolMap[name];
 }
 
-QList<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > > SymbolTableImpl::sortedEntries()
+std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > > SymbolTableImpl::sortedEntries()
 {
   // std::map is already sorted
-  QList<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>> result;
+  std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>> result;
   for (auto it = mSymbolMap.begin(); it != mSymbolMap.end(); ++it) {
     result.push_back(it->second);
   }
   return result;
 }
 
-SymbolTableEntryImpl::SymbolTableEntryImpl(const QString &name, SymbolTable<SymbolTableKeyTypeImpl> *symbol_table):
+SymbolTableEntryImpl::SymbolTableEntryImpl(const std::string &name, SymbolTable<SymbolTableKeyTypeImpl> *symbol_table):
   SymbolTableEntry(name, symbol_table)
 {
   mName = name;
@@ -97,7 +97,7 @@ SymbolTableEntryImpl::~SymbolTableEntryImpl()
 //#endif
 }
 
-QString SymbolTableEntryImpl::name() const
+std::string SymbolTableEntryImpl::name() const
 {
   return mName;
 }
@@ -109,10 +109,10 @@ SymbolTable<SymbolTableKeyTypeImpl> *SymbolTableEntryImpl::symbolTable() const
 
 void SymbolTableEntryImpl::appendLineNumber(int line_number)
 {
-  mLineNumbers.append(line_number);
+  mLineNumbers.push_back(line_number);
 }
 
-QList<int> SymbolTableEntryImpl::lineNumbers() const
+std::vector<int> SymbolTableEntryImpl::lineNumbers() const
 {
   return mLineNumbers;
 }
@@ -226,47 +226,47 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeNodeImpl::c
   return std::move(new_node);
 }
 
-QString ICodeNodeImpl::toString() const
+std::string ICodeNodeImpl::toString() const
 {
   switch (mType) {
-    case ICodeNodeTypeImpl::PROGRAM: return QString("PROGRAM");
-    case ICodeNodeTypeImpl::PROCEDURE: return QString("PROCEDURE");
-    case ICodeNodeTypeImpl::FUNCTION: return QString("FUNCTION");
-    case ICodeNodeTypeImpl::COMPOUND: return QString("COMPOUND");
-    case ICodeNodeTypeImpl::ASSIGN: return QString("ASSIGN");
-    case ICodeNodeTypeImpl::LOOP: return QString("LOOP");
-    case ICodeNodeTypeImpl::TEST: return QString("TEST");
-    case ICodeNodeTypeImpl::CALL: return QString("CALL");
-    case ICodeNodeTypeImpl::PARAMETERS: return QString("PARAMETERS");
-    case ICodeNodeTypeImpl::IF: return QString("IF");
-    case ICodeNodeTypeImpl::SELECT: return QString("SELECT");
-    case ICodeNodeTypeImpl::SELECT_BRANCH: return QString("SELECT_BRANCH");
-    case ICodeNodeTypeImpl::SELECT_CONSTANTS: return QString("SELECT_CONSTANTS");
-    case ICodeNodeTypeImpl::NO_OP: return QString("NO_OP");
-    case ICodeNodeTypeImpl::EQ: return QString("EQ");
-    case ICodeNodeTypeImpl::NE: return QString("NE");
-    case ICodeNodeTypeImpl::LT: return QString("LT");
-    case ICodeNodeTypeImpl::LE: return QString("LE");
-    case ICodeNodeTypeImpl::GT: return QString("GT");
-    case ICodeNodeTypeImpl::GE: return QString("GE");
-    case ICodeNodeTypeImpl::NOT: return QString("NOT");
-    case ICodeNodeTypeImpl::ADD: return QString("ADD");
-    case ICodeNodeTypeImpl::SUBTRACT: return QString("SUBTRACT");
-    case ICodeNodeTypeImpl::OR: return QString("OR");
-    case ICodeNodeTypeImpl::NEGATE: return QString("NEGATE");
-    case ICodeNodeTypeImpl::MULTIPLY: return QString("MULTIPLY");
-    case ICodeNodeTypeImpl::INTEGER_DIVIDE: return QString("INTEGER_DIVIDE");
-    case ICodeNodeTypeImpl::FLOAT_DIVIDE: return QString("FLOAT_DIVIDE");
-    case ICodeNodeTypeImpl::MOD: return QString("MOD");
-    case ICodeNodeTypeImpl::AND: return QString("AND");
-    case ICodeNodeTypeImpl::VARIABLE: return QString("VARIABLE");
-    case ICodeNodeTypeImpl::SUBSCRIPTS: return QString("SUBSCRIPTS");
-    case ICodeNodeTypeImpl::FIELD: return QString("FIELD");
-    case ICodeNodeTypeImpl::INTEGER_CONSTANT: return QString("INTEGER_CONSTANT");
-    case ICodeNodeTypeImpl::REAL_CONSTANT: return QString("REAL_CONSTANT");
-    case ICodeNodeTypeImpl::STRING_CONSTANT: return QString("STRING_CONSTANT");
-    case ICodeNodeTypeImpl::BOOLEAN_CONSTANT: return QString("BOOLEAN_CONSTANT");
-    default: return QString("");
+    case ICodeNodeTypeImpl::PROGRAM: return std::string("PROGRAM");
+    case ICodeNodeTypeImpl::PROCEDURE: return std::string("PROCEDURE");
+    case ICodeNodeTypeImpl::FUNCTION: return std::string("FUNCTION");
+    case ICodeNodeTypeImpl::COMPOUND: return std::string("COMPOUND");
+    case ICodeNodeTypeImpl::ASSIGN: return std::string("ASSIGN");
+    case ICodeNodeTypeImpl::LOOP: return std::string("LOOP");
+    case ICodeNodeTypeImpl::TEST: return std::string("TEST");
+    case ICodeNodeTypeImpl::CALL: return std::string("CALL");
+    case ICodeNodeTypeImpl::PARAMETERS: return std::string("PARAMETERS");
+    case ICodeNodeTypeImpl::IF: return std::string("IF");
+    case ICodeNodeTypeImpl::SELECT: return std::string("SELECT");
+    case ICodeNodeTypeImpl::SELECT_BRANCH: return std::string("SELECT_BRANCH");
+    case ICodeNodeTypeImpl::SELECT_CONSTANTS: return std::string("SELECT_CONSTANTS");
+    case ICodeNodeTypeImpl::NO_OP: return std::string("NO_OP");
+    case ICodeNodeTypeImpl::EQ: return std::string("EQ");
+    case ICodeNodeTypeImpl::NE: return std::string("NE");
+    case ICodeNodeTypeImpl::LT: return std::string("LT");
+    case ICodeNodeTypeImpl::LE: return std::string("LE");
+    case ICodeNodeTypeImpl::GT: return std::string("GT");
+    case ICodeNodeTypeImpl::GE: return std::string("GE");
+    case ICodeNodeTypeImpl::NOT: return std::string("NOT");
+    case ICodeNodeTypeImpl::ADD: return std::string("ADD");
+    case ICodeNodeTypeImpl::SUBTRACT: return std::string("SUBTRACT");
+    case ICodeNodeTypeImpl::OR: return std::string("OR");
+    case ICodeNodeTypeImpl::NEGATE: return std::string("NEGATE");
+    case ICodeNodeTypeImpl::MULTIPLY: return std::string("MULTIPLY");
+    case ICodeNodeTypeImpl::INTEGER_DIVIDE: return std::string("INTEGER_DIVIDE");
+    case ICodeNodeTypeImpl::FLOAT_DIVIDE: return std::string("FLOAT_DIVIDE");
+    case ICodeNodeTypeImpl::MOD: return std::string("MOD");
+    case ICodeNodeTypeImpl::AND: return std::string("AND");
+    case ICodeNodeTypeImpl::VARIABLE: return std::string("VARIABLE");
+    case ICodeNodeTypeImpl::SUBSCRIPTS: return std::string("SUBSCRIPTS");
+    case ICodeNodeTypeImpl::FIELD: return std::string("FIELD");
+    case ICodeNodeTypeImpl::INTEGER_CONSTANT: return std::string("INTEGER_CONSTANT");
+    case ICodeNodeTypeImpl::REAL_CONSTANT: return std::string("REAL_CONSTANT");
+    case ICodeNodeTypeImpl::STRING_CONSTANT: return std::string("STRING_CONSTANT");
+    case ICodeNodeTypeImpl::BOOLEAN_CONSTANT: return std::string("BOOLEAN_CONSTANT");
+    default: return std::string("");
   }
 }
 
@@ -282,7 +282,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> createICodeNode(
 
 template <>
 std::unique_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> createSymbolTableEntry(
-  const QString &name, SymbolTable<SymbolTableKeyTypeImpl> *symbolTable)
+  const std::string &name, SymbolTable<SymbolTableKeyTypeImpl> *symbolTable)
 {
   return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
 }

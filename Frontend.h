@@ -5,7 +5,6 @@
 
 #include <QDebug>
 #include <QObject>
-#include <QString>
 #include <QTextStream>
 #include <boost/signals2.hpp>
 #include <cstdio>
@@ -32,7 +31,7 @@ public:
   int lineNum() const;
   int currentPos() const;
   virtual ~Source();
-  boost::signals2::signal<void(int, QString)> sendMessage;
+  boost::signals2::signal<void(int, std::string)> sendMessage;
 
 private:
   // read the next source line
@@ -41,7 +40,7 @@ private:
 private:
   static const char EOL = '\n';
   QTextStream &mStream; // input stream of the source program
-  QString mLine;        // source line
+  std::string mLine;        // source line
   int mLineNum;         // current source line number
   int mCurrentPos;      // current source line position
 };
@@ -54,7 +53,7 @@ public:
   int lineNum() const;
   int position() const;
   const std::any &value() const;
-  const QString &text() const;
+  const std::string &text() const;
   virtual bool isEof() const;
   virtual T type() const;
 
@@ -68,7 +67,7 @@ protected:
 
 protected:
   std::shared_ptr<Source> mSource;
-  QString mText;
+  std::string mText;
   std::any mValue;
   int mLineNum;
   int mPosition;
@@ -98,7 +97,7 @@ template <typename T> Token<T>::~Token() {
 }
 
 template <typename T> void Token<T>::extract() {
-  mText = QString{currentChar()};
+  mText = std::string{currentChar()};
   mValue.reset();
   nextChar();
 }
@@ -111,7 +110,7 @@ template <typename T> char Token<T>::nextChar() { return mSource->nextChar(); }
 
 template <typename T> char Token<T>::peekChar() { return mSource->peekChar(); }
 
-template <typename T> const QString &Token<T>::text() const { return mText; }
+template <typename T> const std::string &Token<T>::text() const { return mText; }
 
 template <typename T> bool Token<T>::isEof() const { return false; }
 

@@ -4,16 +4,18 @@
 #include <QDebug>
 #include <fmt/format.h>
 
-Pascal::Pascal(const QString &operation, const QString &filePath,
-               const QString &flags, QObject *parent)
+Pascal::Pascal(const std::string &operation, const std::string &filePath,
+               const std::string &flags, QObject *parent)
     : mParser(nullptr),
       mSource(nullptr), mICode(nullptr), mSymbolTableStack(nullptr),
       mBackend(nullptr), mSourceFile(nullptr), mTextStream(nullptr),
       QObject(parent) {
   // what are these flags??
   //  const bool intermediate = flags.indexOf('i') > -1;
-  const bool xref = flags.indexOf('x') > -1;
-  mSourceFile = new QFile(filePath, nullptr);
+//  const bool xref = flags.indexOf('x') > -1;
+  auto search_xref = flags.find('x');
+  const bool xref = (search_xref == std::string::npos) ? false : true;
+  mSourceFile = new QFile(filePath.c_str(), nullptr);
   mSourceFile->open(QIODevice::ReadOnly);
   mTextStream = new QTextStream(mSourceFile);
   mSource = std::make_shared<Source>(*mTextStream);
@@ -31,13 +33,13 @@ Pascal::Pascal(const QString &operation, const QString &filePath,
       &Pascal::syntaxErrorMessage, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
   mBackend = createBackend(operation);
-  const QString backend_type = mBackend->getType();
-  if (backend_type.compare("compiler", Qt::CaseInsensitive) == 0) {
+  const std::string backend_type = mBackend->getType();
+  if (boost::iequals(backend_type, "compiler")) {
     auto backend_ptr = dynamic_cast<Compiler::CodeGenerator *>(mBackend.get());
     backend_ptr->summary.connect(std::bind(&Pascal::compilerSummary, this,
                                            std::placeholders::_1,
                                            std::placeholders::_2));
-  } else if (backend_type.compare("interpreter", Qt::CaseInsensitive) == 0) {
+  } else if (boost::iequals(backend_type, "interpreter")) {
     auto backend_ptr = dynamic_cast<Interpreter::Executor *>(mBackend.get());
     backend_ptr->summary.connect(
         std::bind(&Pascal::interpreterSummary, this, std::placeholders::_1,
@@ -75,8 +77,8 @@ Pascal::~Pascal() {
   //  }
 }
 
-void Pascal::sourceMessage(int lineNumber, QString line) {
-  fmt::print("{:03d} {}\n", lineNumber, line.toStdString());
+void Pascal::sourceMessage(int lineNumber, std::string line) {
+  fmt::print("{:03d} {}\n", lineNumber, line);
 }
 
 void Pascal::parserSummary(int lineNumber, int errorCount, float elapsedTime) {
@@ -98,21 +100,21 @@ void Pascal::interpreterSummary(int executionCount, int runtimeErrors,
 }
 
 void Pascal::tokenMessage(int lineNumber, int position,
-                          PascalTokenTypeImpl tokenType, QString text,
+                          PascalTokenTypeImpl tokenType, std::string text,
                           std::any value) {
-  const QString type_str = typeToStr(tokenType);
+  const auto type_str = typeToStr(tokenType);
   fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
-             type_str.toStdString(), lineNumber, position, text.toStdString());
+             type_str, lineNumber, position, text);
   if (value.has_value()) {
     fmt::print(", value = {}", any_to_string(value));
   }
   fmt::print("\n");
 }
 
-void Pascal::syntaxErrorMessage(int lineNumber, int position, QString text,
-                                QString error) {
+void Pascal::syntaxErrorMessage(int lineNumber, int position, std::string text,
+                                std::string error) {
   const int prefix_width = 4;
   const int space_count = prefix_width + position;
   fmt::print("{: >{}}^\n", "", space_count);
-  fmt::print("***{} [at \"{}\"]\n", error.toStdString(), text.toStdString());
+  fmt::print("***{} [at \"{}\"]\n", error, text);
 }

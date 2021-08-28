@@ -20,7 +20,7 @@ public:
   virtual std::any getAttribute(const ICodeKeyTypeImpl &key) const;
   // only copy this node itself, not the parent and children!
   virtual std::unique_ptr<ICodeNode> copy() const;
-  virtual QString toString() const;
+  virtual std::string toString() const;
 
 private:
   ICodeNodeTypeImpl mType;
@@ -44,13 +44,13 @@ private:
 
 class SymbolTableEntryImpl : public SymbolTableEntry<SymbolTableKeyTypeImpl> {
 public:
-  SymbolTableEntryImpl(const QString &name,
+  SymbolTableEntryImpl(const std::string &name,
                        SymbolTable<SymbolTableKeyTypeImpl> *symbol_table);
   virtual ~SymbolTableEntryImpl();
-  virtual QString name() const;
+  virtual std::string name() const;
   virtual SymbolTable<SymbolTableKeyTypeImpl> *symbolTable() const;
   virtual void appendLineNumber(int line_number);
-  virtual QList<int> lineNumbers() const;
+  virtual std::vector<int> lineNumbers() const;
   virtual void setAttribute(const SymbolTableKeyTypeImpl &key,
                             const std::any &value);
   virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key,
@@ -58,8 +58,8 @@ public:
 
 private:
   SymbolTable<SymbolTableKeyTypeImpl> *mSymbolTable;
-  QList<int> mLineNumbers;
-  QString mName;
+  std::vector<int> mLineNumbers;
+  std::string mName;
   std::unordered_map<SymbolTableKeyTypeImpl, std::any> mEntryMap;
 };
 
@@ -69,15 +69,15 @@ public:
   virtual ~SymbolTableImpl();
   virtual int nestingLevel() const;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookup(const QString &name);
+  lookup(const std::string &name);
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  enter(const QString &name);
-  virtual QList<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
+  enter(const std::string &name);
+  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
   sortedEntries();
 
 private:
   int mNestingLevel;
-  std::map<QString, std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
+  std::map<std::string, std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
       mSymbolMap;
 };
 
@@ -89,20 +89,20 @@ public:
   virtual std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>>
   localSymbolTable() const;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  enterLocal(const QString &name);
+  enterLocal(const std::string &name);
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookupLocal(const QString &name);
+  lookupLocal(const std::string &name);
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookup(const QString &name);
+  lookup(const std::string &name);
 
 private:
   int mCurrentNestingLevel;
-  QList<std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>>> mStack;
+  std::vector<std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>>> mStack;
 };
 
 template <>
 std::unique_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-createSymbolTableEntry(const QString &name,
+createSymbolTableEntry(const std::string &name,
                        SymbolTable<SymbolTableKeyTypeImpl> *symbolTable);
 
 template <>

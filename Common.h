@@ -4,7 +4,7 @@
 #include <map>
 #include <any>
 #include <string>
-#include <QString>
+#include <boost/algorithm/string.hpp>
 
 enum class PascalTokenTypeImpl {
   // reserved words
@@ -55,12 +55,12 @@ enum class ICodeNodeTypeImpl {
   STRING_CONSTANT, BOOLEAN_CONSTANT
 };
 
-extern std::map<PascalTokenTypeImpl, QString> reservedWordsMap;
-extern std::map<QString, PascalTokenTypeImpl> reservedWordsMapRev;
-extern std::map<PascalTokenTypeImpl, QString> specialSymbolsMap;
-extern std::map<QString, PascalTokenTypeImpl> specialSymbolsMapRev;
-extern std::map<PascalTokenTypeImpl, QString> specialWordsMap;
-extern std::map<QString, PascalTokenTypeImpl> specialWordsMapRev;
+extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
+extern std::map<std::string, PascalTokenTypeImpl> reservedWordsMapRev;
+extern std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap;
+extern std::map<std::string, PascalTokenTypeImpl> specialSymbolsMapRev;
+extern std::map<PascalTokenTypeImpl, std::string> specialWordsMap;
+extern std::map<std::string, PascalTokenTypeImpl> specialWordsMapRev;
 
 // assume no key shares a same value
 template <typename T1, typename T2>

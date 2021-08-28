@@ -13,18 +13,18 @@
 class Pascal: public QObject {
   Q_OBJECT
 public:
-  Pascal(const QString& operation, const QString& filePath,
-         const QString& flags, QObject* parent = nullptr);
+  Pascal(const std::string& operation, const std::string& filePath,
+         const std::string& flags, QObject* parent = nullptr);
   ~Pascal();
 public slots:
-  void sourceMessage(int lineNumber, QString line);
+  void sourceMessage(int lineNumber, std::string line);
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   void compilerSummary(int instructionCount, float elapsedTime);
   void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime);
   void tokenMessage(int lineNumber, int position, PascalTokenTypeImpl tokenType,
-                    QString text, std::any value);
-  void syntaxErrorMessage(int lineNumber, int position, QString text,
-                          QString error);
+                    std::string text, std::any value);
+  void syntaxErrorMessage(int lineNumber, int position, std::string text,
+                          std::string error);
 signals:
   void exit(int exitCode);
 private:

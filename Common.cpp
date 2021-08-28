@@ -12,6 +12,10 @@ std::string any_to_string(const std::any &a)
     return std::to_string(std::any_cast<double>(a));
   } else if (a.type() == typeid(std::string)) {
     return std::any_cast<std::string>(a);
+  } else if (a.type() == typeid(unsigned long long)) {
+    return std::to_string(std::any_cast<unsigned long long>(a));
+  } else if (a.type() == typeid(unsigned long)) {
+    return std::to_string(std::any_cast<unsigned long>(a));
   } else {
     return "Failed to cast std::any!";
   }

@@ -40,12 +40,12 @@ int main(int argc, char *argv[])
   }
   const QString& filePath = files.first();
   if (parser.isSet(compile_option)) {
-    pascal = new Pascal("compile", filePath, flags, &a);
+    pascal = new Pascal("compile", filePath.toStdString(), flags.toStdString(), &a);
     QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
     emit pascal->exit(0);
     return 0;
   } else if (parser.isSet(interpret_option)) {
-    pascal = new Pascal("interpret", filePath, flags, &a);
+    pascal = new Pascal("interpret", filePath.toStdString(), flags.toStdString(), &a);
     QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
     emit pascal->exit(0);
     return 0;
