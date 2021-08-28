@@ -2,6 +2,8 @@
 #define COMMON_H
 
 #include <map>
+#include <any>
+#include <string>
 #include <QString>
 
 enum class PascalTokenTypeImpl {
@@ -53,12 +55,12 @@ enum class ICodeNodeTypeImpl {
   STRING_CONSTANT, BOOLEAN_CONSTANT
 };
 
-extern std::map<PascalTokenTypeImpl, QString> mReservedWordsMap;
-extern std::map<QString, PascalTokenTypeImpl> mReservedWordsMapRev;
-extern std::map<PascalTokenTypeImpl, QString> mSpecialSymbolsMap;
-extern std::map<QString, PascalTokenTypeImpl> mSpecialSymbolsMapRev;
-extern std::map<PascalTokenTypeImpl, QString> mSpecialWordsMap;
-extern std::map<QString, PascalTokenTypeImpl> mSpecialWordsMapRev;
+extern std::map<PascalTokenTypeImpl, QString> reservedWordsMap;
+extern std::map<QString, PascalTokenTypeImpl> reservedWordsMapRev;
+extern std::map<PascalTokenTypeImpl, QString> specialSymbolsMap;
+extern std::map<QString, PascalTokenTypeImpl> specialSymbolsMapRev;
+extern std::map<PascalTokenTypeImpl, QString> specialWordsMap;
+extern std::map<QString, PascalTokenTypeImpl> specialWordsMapRev;
 
 // assume no key shares a same value
 template <typename T1, typename T2>
@@ -69,5 +71,7 @@ std::map<T2, T1> reverse_map(const std::map<T1, T2>& map_in) {
   }
   return map_out;
 }
+
+std::string any_to_string(const std::any& a);
 
 #endif // COMMON_H

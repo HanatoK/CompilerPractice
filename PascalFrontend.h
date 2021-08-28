@@ -36,13 +36,13 @@ public:
   virtual void parse();
   virtual int errorCount();
   //  void pascalTokenMessage(int lineNumber, int position, PascalTokenType tokenType,
-  //    QString text, QVariant value);
-  boost::signals2::signal<void(int, int, PascalTokenTypeImpl, QString, QVariant)> pascalTokenMessage;
+  //    QString text, std::any value);
+  boost::signals2::signal<void(int, int, PascalTokenTypeImpl, QString, std::any)> pascalTokenMessage;
   //  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   boost::signals2::signal<void(int, int, float)> parserSummary;
   //  void tokenMessage(int lineNumber, int position, QString tokenType,
-  //                    QString text, QVariant value);
-  boost::signals2::signal<void(int, int, QString, QString, QVariant)> tokenMessage;
+  //                    QString text, std::any value);
+  boost::signals2::signal<void(int, int, QString, QString, std::any)> tokenMessage;
   //  void syntaxErrorMessage(int lineNumber, int position, QString text,
   //                          QString error);
   boost::signals2::signal<void(int, int, QString, QString)> syntaxErrorMessage;

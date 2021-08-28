@@ -22,7 +22,7 @@ public slots:
   void compilerSummary(int instructionCount, float elapsedTime);
   void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime);
   void tokenMessage(int lineNumber, int position, PascalTokenTypeImpl tokenType,
-                    QString text, QVariant value);
+                    QString text, std::any value);
   void syntaxErrorMessage(int lineNumber, int position, QString text,
                           QString error);
 signals:

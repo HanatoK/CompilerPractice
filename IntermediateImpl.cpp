@@ -136,7 +136,7 @@ std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, b
     if (ok) {
       *ok = false;
     }
-    return QVariant();
+    return std::any();
   }
 }
 
@@ -211,7 +211,7 @@ std::any ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl& key) const
   if (search != mHashTable.end()) {
     return search->second;
   } else {
-    return QVariant();
+    return std::any();
   }
 }
 

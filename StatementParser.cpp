@@ -52,7 +52,6 @@ void StatementParser::parseList(
     std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
         &parent_node,
     PascalTokenTypeImpl terminator, PascalErrorCode error_code) {
-//  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> statement_node = nullptr;
   while (!token->isEof() && token->type() != terminator) {
     auto statement_node = parse(token);
     parent_node->addChild(std::move(statement_node));
@@ -78,7 +77,6 @@ void StatementParser::parseList(
   }
   if (token->type() == terminator) {
     token = nextToken();
-//    pascal_token = dynamic_cast<PascalToken*>(token.get());
   } else {
     errorHandler()->flag(token, error_code, currentParser());
   }

@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <memory>
 #include <utility>
+#include <any>
 
 using std::unique_ptr;
 
@@ -52,7 +53,7 @@ public:
   virtual ~Token();
   int lineNum() const;
   int position() const;
-  const QVariant &value() const;
+  const std::any &value() const;
   const QString &text() const;
   virtual bool isEof() const;
   virtual T type() const;
@@ -68,7 +69,7 @@ protected:
 protected:
   std::shared_ptr<Source> mSource;
   QString mText;
-  QVariant mValue;
+  std::any mValue;
   int mLineNum;
   int mPosition;
   T mType;
@@ -98,7 +99,7 @@ template <typename T> Token<T>::~Token() {
 
 template <typename T> void Token<T>::extract() {
   mText = QString{currentChar()};
-  mValue = QVariant();
+  mValue.reset();
   nextChar();
 }
 
@@ -116,7 +117,7 @@ template <typename T> bool Token<T>::isEof() const { return false; }
 
 template <typename T> T Token<T>::type() const { return mType; }
 
-template <typename T> const QVariant &Token<T>::value() const { return mValue; }
+template <typename T> const std::any &Token<T>::value() const { return mValue; }
 
 template <typename T> int Token<T>::position() const { return mPosition; }
 

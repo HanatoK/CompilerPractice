@@ -40,7 +40,8 @@ set(SOURCES
     StatementParser.cpp
     CompoundStatementParser.cpp
     AssignmentStatementParser.cpp
-    ExpressionParser.cpp)
+    ExpressionParser.cpp
+    Common.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

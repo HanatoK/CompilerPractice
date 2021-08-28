@@ -99,12 +99,12 @@ void Pascal::interpreterSummary(int executionCount, int runtimeErrors,
 
 void Pascal::tokenMessage(int lineNumber, int position,
                           PascalTokenTypeImpl tokenType, QString text,
-                          QVariant value) {
+                          std::any value) {
   const QString type_str = typeToStr(tokenType);
   fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
              type_str.toStdString(), lineNumber, position, text.toStdString());
-  if (!value.isNull()) {
-    fmt::print(", value = {}", value.toString().toStdString());
+  if (value.has_value()) {
+    fmt::print(", value = {}", any_to_string(value));
   }
   fmt::print("\n");
 }
