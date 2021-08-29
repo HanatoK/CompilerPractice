@@ -376,35 +376,6 @@ std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok) {
   return "UNKNOWN";
 }
 
-PascalTokenTypeImpl strToType(const std::string &str, bool *ok) {
-  const auto lower_str = boost::algorithm::to_lower_copy(str);
-  const auto s1 = reservedWordsMapRev.find(lower_str);
-  if (s1 != reservedWordsMapRev.end()) {
-    if (ok != nullptr) {
-      *ok = true;
-    }
-    return s1->second;
-  }
-  const auto s2 = specialSymbolsMapRev.find(lower_str);
-  if (s2 != specialSymbolsMapRev.end()) {
-    if (ok != nullptr) {
-      *ok = true;
-    }
-    return s2->second;
-  }
-  const auto s3 = specialWordsMapRev.find(lower_str);
-  if (s3 != specialWordsMapRev.end()) {
-    if (ok != nullptr) {
-      *ok = true;
-    }
-    return s3->second;
-  }
-  if (ok != nullptr) {
-    *ok = false;
-  }
-  return PascalTokenTypeImpl::ERROR;
-}
-
 PascalErrorToken::PascalErrorToken() : PascalToken() {
   mType = PascalTokenTypeImpl::ERROR;
 }

@@ -15,7 +15,6 @@ typedef Token<PascalTokenTypeImpl> PascalToken;
 typedef EofToken<PascalTokenTypeImpl> PascalEofToken;
 
 std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
-PascalTokenTypeImpl strToType(const std::string &str, bool *ok = nullptr);
 
 class PascalScanner: public Scanner<PascalTokenTypeImpl> {
 public:
