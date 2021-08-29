@@ -2,9 +2,9 @@
 #define FRONTEND_H
 
 #include "Intermediate.h"
+#include "Common.h"
 
-#include <QDebug>
-#include <QObject>
+#include <iostream>
 #include <QTextStream>
 #include <boost/signals2.hpp>
 #include <cstdio>
@@ -91,9 +91,9 @@ Token<T>::Token(std::shared_ptr<Source> source, bool use_default_extract)
 }
 
 template <typename T> Token<T>::~Token() {
-  //#ifdef DEBUG_DESTRUCTOR
-  //  qDebug() << "Destructor: " << Q_FUNC_INFO;
-  //#endif
+//#ifdef DEBUG_DESTRUCTOR
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+//#endif
 }
 
 template <typename T> void Token<T>::extract() {
@@ -143,7 +143,7 @@ template <typename T> void EofToken<T>::extract() {}
 
 template <typename T> EofToken<T>::~EofToken() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
@@ -176,7 +176,7 @@ Scanner<TokenT>::Scanner(std::shared_ptr<Source> source)
 
 template <typename TokenT> Scanner<TokenT>::~Scanner() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
@@ -233,7 +233,7 @@ template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::~Parser() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 

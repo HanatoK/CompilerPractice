@@ -5,6 +5,7 @@
 #include <any>
 #include <string>
 #include <boost/algorithm/string.hpp>
+#include <boost/current_function.hpp>
 
 enum class PascalTokenTypeImpl {
   // reserved words

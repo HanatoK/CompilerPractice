@@ -1,8 +1,6 @@
 #include "Frontend.h"
 
-#include <QDebug>
 #include <QString>
-#include <QTime>
 
 Source::Source(QTextStream &ifs): mStream(ifs)
 {
@@ -72,7 +70,7 @@ int Source::currentPos() const
 Source::~Source()
 {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 

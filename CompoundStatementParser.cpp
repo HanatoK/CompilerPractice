@@ -8,7 +8,7 @@ CompoundStatementParser::CompoundStatementParser(PascalParserTopDown &parent)
 CompoundStatementParser::~CompoundStatementParser()
 {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 

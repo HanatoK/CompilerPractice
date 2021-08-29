@@ -1,7 +1,7 @@
 #include "Pascal.h"
 #include "Utilities.h"
 
-#include <QDebug>
+#include <iostream>
 #include <fmt/format.h>
 
 Pascal::Pascal(const std::string &operation, const std::string &filePath,
@@ -56,7 +56,7 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
 
 Pascal::~Pascal() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
   if (mTextStream != nullptr) {
     delete mTextStream;

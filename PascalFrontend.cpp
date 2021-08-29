@@ -4,8 +4,9 @@
 #include "StatementParser.h"
 
 #include <QCoreApplication>
-#include <QDebug>
-#include <QTime>
+#include <iostream>
+#include <chrono>
+#include <ratio>
 #include <cctype>
 #include <fmt/format.h>
 
@@ -111,12 +112,12 @@ PascalParserTopDown::PascalParserTopDown(std::shared_ptr<PascalScanner> scanner)
 
 PascalParserTopDown::~PascalParserTopDown() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
 void PascalParserTopDown::parse() {
-  const int startTime = QTime::currentTime().msec();
+  const auto start_time = std::chrono::high_resolution_clock::now();
   mICode = createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>();
   auto token = nextToken();
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node =
@@ -156,9 +157,9 @@ void PascalParserTopDown::parse() {
     }
     token = nextToken();
   }
-  const int endTime = QTime::currentTime().msec();
-  const float elapsedTime = (endTime - startTime) / 1000.0;
-  parserSummary(token->lineNum(), errorCount(), elapsedTime);
+  const auto end_time = std::chrono::high_resolution_clock::now();
+  const std::chrono::duration<double> elapsed_time_sec = end_time - start_time;
+  parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());
 }
 
 int PascalParserTopDown::errorCount() { return mErrorHandler->errorCount(); }
@@ -170,7 +171,7 @@ PascalScanner::PascalScanner(std::shared_ptr<Source> source)
 
 PascalScanner::~PascalScanner() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
@@ -182,7 +183,7 @@ std::shared_ptr<PascalToken> PascalScanner::extractToken() {
   // The current character determines the token type.
   if (current_char == EOF) {
     token = std::make_unique<PascalEofToken>(mSource);
-    qDebug() << "Reach EOF\n";
+    std::cerr << "Reach EOF\n";
   } else if (std::isalpha(current_char)) {
     token = std::make_unique<PascalWordToken>(mSource);
   } else if (std::isdigit(current_char)) {
@@ -227,10 +228,10 @@ createPascalParser(const std::string &language, const std::string &type,
         std::make_unique<PascalScanner>(source);
     return std::make_unique<PascalParserTopDown>(std::move(scanner));
   } else if (boost::iequals(language, "Pascal") == false) {
-    qDebug() << "Invalid language: " << language.c_str();
+    std::cerr << "Invalid language: " << language.c_str();
     return nullptr;
   } else {
-    qDebug() << "Invalid type: " << type.c_str();
+    std::cerr << "Invalid type: " << type.c_str();
     return nullptr;
   }
 }
@@ -239,7 +240,7 @@ PascalErrorHandler::PascalErrorHandler() { mErrorCount = 0; }
 
 PascalErrorHandler::~PascalErrorHandler() {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 

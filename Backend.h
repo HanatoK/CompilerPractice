@@ -7,15 +7,14 @@
 #include <boost/signals2.hpp>
 #include <utility>
 #include <memory>
-#include <QTime>
-#include <QDebug>
+#include <iostream>
 
 class Backend {
 public:
   Backend() {}
   virtual ~Backend() {
 #ifdef DEBUG_DESTRUCTOR
-    qDebug() << "Destructor: " << Q_FUNC_INFO;
+    std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
   }
   virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
@@ -56,7 +55,6 @@ public:
   virtual std::string getType() const {
     return "interpreter";
   }
-signals:
   //  void summary(int executionCount, int runtimeErrors, float elapsedTime);
   boost::signals2::signal<void(int, int, float)> summary;
 };

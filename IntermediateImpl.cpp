@@ -1,6 +1,6 @@
 #include "IntermediateImpl.h"
 
-#include <QDebug>
+#include <iostream>
 
 SymbolTableStackImpl::SymbolTableStackImpl(): SymbolTableStack()
 {
@@ -11,7 +11,7 @@ SymbolTableStackImpl::SymbolTableStackImpl(): SymbolTableStack()
 SymbolTableStackImpl::~SymbolTableStackImpl()
 {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
@@ -48,7 +48,7 @@ SymbolTableImpl::SymbolTableImpl(int nesting_level): SymbolTable(nesting_level)
 SymbolTableImpl::~SymbolTableImpl()
 {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
@@ -93,7 +93,7 @@ SymbolTableEntryImpl::SymbolTableEntryImpl(const std::string &name, SymbolTable<
 SymbolTableEntryImpl::~SymbolTableEntryImpl()
 {
 //#ifdef DEBUG_DESTRUCTOR
-//  qDebug() << "Destructor: " << Q_FUNC_INFO;
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 //#endif
 }
 
@@ -148,7 +148,7 @@ ICodeImpl::ICodeImpl(): ICode()
 ICodeImpl::~ICodeImpl()
 {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
@@ -172,7 +172,7 @@ ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType): ICodeNode()
 ICodeNodeImpl::~ICodeNodeImpl()
 {
 #ifdef DEBUG_DESTRUCTOR
-  qDebug() << "Destructor: " << Q_FUNC_INFO;
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
