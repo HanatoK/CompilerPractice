@@ -686,7 +686,7 @@ std::shared_ptr<PascalToken> PascalSubparserTopDownBase::nextToken() {
 }
 
 std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
-PascalSubparserTopDownBase::getSymbolTableStack() const {
+PascalSubparserTopDownBase::getSymbolTableStack() {
   return mPascalParser.getSymbolTableStack();
 }
 

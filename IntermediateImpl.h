@@ -12,21 +12,7 @@ class ICodeNodeImpl : public ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> {
 public:
   ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
-  virtual const ICodeNode *&parent();
-  virtual ICodeNodeTypeImpl type() const;
-  virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node);
-  virtual std::vector<std::shared_ptr<ICodeNode>> children() const;
-  virtual void setAttribute(const ICodeKeyTypeImpl &key, const std::any &value);
-  virtual std::any getAttribute(const ICodeKeyTypeImpl &key) const;
-  // only copy this node itself, not the parent and children!
-  virtual std::unique_ptr<ICodeNode> copy() const;
   virtual std::string toString() const;
-
-private:
-  ICodeNodeTypeImpl mType;
-  const ICodeNode *mParent;
-  std::vector<std::shared_ptr<ICodeNode>> mChildren;
-  std::unordered_map<ICodeKeyTypeImpl, std::any> mHashTable;
 };
 
 class ICodeImpl : public ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> {

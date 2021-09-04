@@ -16,4 +16,25 @@ void printSymbolTable(const std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>>
 
 };
 
+class ParseTreePrinter {
+private:
+  static const int INDENT_WIDTH = 4;
+  static const int LINE_WIDTH = 80;
+  std::ostream& mOutputStream;
+  int mLength;
+  std::string mIndentSpaces;
+  std::string mLineIndentation;
+  std::string mLine;
+public:
+  ParseTreePrinter(std::ostream& os);
+  void print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& intermediate_code);
+  void printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void printAttributes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void printAttributes(const std::string& key, const std::any& value);
+  void printChildNodes(const std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>>& child_nodes);
+  void printTypeSpec(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void appendOutputLine(const std::string& text);
+  void printLine();
+};
+
 #endif // UTILITIES_H

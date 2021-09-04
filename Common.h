@@ -4,6 +4,7 @@
 #include <map>
 #include <any>
 #include <string>
+#include <type_traits>
 #include <boost/algorithm/string.hpp>
 #include <boost/current_function.hpp>
 

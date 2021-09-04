@@ -1,4 +1,5 @@
 #include "Utilities.h"
+#include "IntermediateImpl.h"
 
 #include <string>
 #include <fmt/format.h>
@@ -25,5 +26,127 @@ void CrossReferencer::printSymbolTable(
       numbers += fmt::format("{:0>3d} ", line_number);
     }
     fmt::print("{: >{}}\n", numbers, NAME_WIDTH * 3);
+  }
+}
+
+ParseTreePrinter::ParseTreePrinter(std::ostream &os):
+  mOutputStream(os), mLength(0), mLineIndentation(""), mLine("")
+{
+  mIndentSpaces = "";
+  for (int i = 0; i < INDENT_WIDTH; ++i) {
+    mIndentSpaces += " ";
+  }
+}
+
+void ParseTreePrinter::print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &intermediate_code)
+{
+  mOutputStream << fmt::format("{:=^{}}\n", "CROSS-REFERENCE TABLE", LINE_WIDTH);
+  printNode(intermediate_code->getRoot());
+  printLine();
+}
+
+void ParseTreePrinter::printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+{
+  // opening tag
+  appendOutputLine(mLineIndentation);
+  appendOutputLine("<" + node->toString());
+  auto child_nodes = node->children();
+  if (child_nodes.size() > 0) {
+    appendOutputLine(">");
+    printLine();
+    printChildNodes(child_nodes);
+    appendOutputLine(mLineIndentation);
+    appendOutputLine("</" + node->toString() + ">");
+  } else {
+    appendOutputLine("");
+    appendOutputLine("/>");
+  }
+  printLine();
+}
+
+void ParseTreePrinter::printAttributes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+{
+  const auto saved_indentation = mLineIndentation;
+  mLineIndentation += mIndentSpaces;
+  const auto& attribute_table = node->attributeTable();
+  for (auto it = attribute_table.begin(); it != attribute_table.end(); ++it) {
+    std::string key_string;
+    switch (it->first) {
+      case ICodeKeyTypeImpl::LINE: {
+        key_string += "LINE";
+        break;
+      }
+      case ICodeKeyTypeImpl::ID: {
+        key_string += "ID";
+        break;
+      }
+      case ICodeKeyTypeImpl::VALUE: {
+        key_string += "VALUE";
+        break;
+      }
+    }
+    printAttributes(key_string, it->second);
+  }
+  mLineIndentation = saved_indentation;
+}
+
+void ParseTreePrinter::printAttributes(const std::string &key, const std::any &value)
+{
+  // if the value is a symbol table entry, use the identifier's name
+  // else just use the value string
+  std::string value_string;
+  if (value.type() == typeid(std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>)) {
+    const auto tmp_value = std::any_cast<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(value);
+    value_string = tmp_value->name();
+  } else {
+    value_string = any_to_string(value);
+  }
+  const std::string text = boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
+  appendOutputLine("");
+  appendOutputLine(text);
+  if (value.type() == typeid(std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>)) {
+    const auto tmp_value = std::any_cast<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(value);
+    const int level = tmp_value->symbolTable()->nestingLevel();
+    printAttributes("LEVEL", level);
+  }
+}
+
+void ParseTreePrinter::printChildNodes(const std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > > &child_nodes)
+{
+  auto saved_indentation = mLineIndentation;
+  mLineIndentation += mIndentSpaces;
+  for (const auto& elem: child_nodes) {
+    printNode(elem);
+  }
+  mLineIndentation = saved_indentation;
+}
+
+void ParseTreePrinter::printTypeSpec(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+{
+
+}
+
+void ParseTreePrinter::appendOutputLine(const std::string &text)
+{
+  const int text_length = text.size();
+  bool line_break = false;
+  if (mLength + text_length > LINE_WIDTH) {
+    printLine();
+    mLine += mLineIndentation;
+    mLength = mLineIndentation.length();
+    line_break = true;
+  }
+  if (!(line_break && (text == " "))) {
+    mLine += text;
+    mLength += text_length;
+  }
+}
+
+void ParseTreePrinter::printLine()
+{
+  if (mLength > 0) {
+    mOutputStream << mLine;
+    mLine.clear();
+    mLength = 0;
   }
 }

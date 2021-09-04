@@ -163,10 +163,9 @@ std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeImpl::getRo
   return mRoot;
 }
 
-ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType): ICodeNode()
+ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType): ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(pType)
 {
-  mType = pType;
-  mParent = nullptr;
+
 }
 
 ICodeNodeImpl::~ICodeNodeImpl()
@@ -174,56 +173,6 @@ ICodeNodeImpl::~ICodeNodeImpl()
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
-}
-
-const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> *&ICodeNodeImpl::parent()
-{
-  return mParent;
-}
-
-ICodeNodeTypeImpl ICodeNodeImpl::type() const
-{
-  return mType;
-}
-
-std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode> node)
-{
-  if (node != nullptr) {
-    mChildren.push_back(node);
-    node->parent() = dynamic_cast<const ICodeNode*>(this);
-  }
-  return node;
-}
-
-std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> > ICodeNodeImpl::children() const
-{
-  return mChildren;
-}
-
-void ICodeNodeImpl::setAttribute(const ICodeKeyTypeImpl& key, const std::any &value)
-{
-  mHashTable[key] = value;
-}
-
-std::any ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl& key) const
-{
-  const auto search = mHashTable.find(key);
-  if (search != mHashTable.end()) {
-    return search->second;
-  } else {
-    return std::any();
-  }
-}
-
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeNodeImpl::copy() const
-{
-  // only copy this node itself, not the parent and children!
-  auto new_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(this->mType);
-  ICodeNodeImpl* ptr = dynamic_cast<ICodeNodeImpl*>(new_node.get());
-  for (auto it = mHashTable.begin(); it != mHashTable.end(); ++it) {
-    ptr->mHashTable[it->first] = it->second;
-  }
-  return std::move(new_node);
 }
 
 std::string ICodeNodeImpl::toString() const
