@@ -31,7 +31,7 @@ public:
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const KeyT& key) const = 0;
-  virtual std::unique_ptr<ICodeNode> copy() const;
+  virtual std::unique_ptr<ICodeNode> copy() const = 0;
   virtual std::string toString() const = 0;
   attribute_map_iterator attributeMapBegin() {
     return attributeMap().begin();
@@ -66,8 +66,6 @@ protected:
   virtual ChildrenContainerTImpl& children() = 0;
   virtual const ChildrenContainerTImpl& children() const = 0;
 };
-
-
 
 template <typename ICodeNodeType, typename ICodeKeyType>
 class ICode {

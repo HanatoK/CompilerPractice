@@ -124,32 +124,32 @@ void PascalParserTopDown::parse() {
       nullptr;
   while (!token->isEof()) {
     if (token->type() != PascalTokenTypeImpl::ERROR) {
-      //      if (pascal_token->type() == PascalTokenType::BEGIN) {
-      //        StatementParser statement_parser(*this);
-      //        root_node = statement_parser.parse(token);
-      //        token = currentToken();
-      //      } else {
-      //        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN,
-      //        this);
-      //      }
-      //      if (pascal_token->type() != PascalTokenType::DOT) {
-      //        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD,
-      //        this);
-      //      }
-      //      token = currentToken();
-      //      if (root_node != nullptr) {
-      //        mICode->setRoot(std::move(root_node));
-      //      }
-      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
-        const std::string name = boost::algorithm::to_lower_copy(token->text());
-        auto symbol_table_stack =
-            dynamic_cast<SymbolTableStackImpl *>(mSymbolTableStack.get());
-        auto entry = symbol_table_stack->lookup(name);
-        if (entry == nullptr) {
-          entry = symbol_table_stack->enterLocal(name);
-        }
-        entry->appendLineNumber(token->lineNum());
+      if (token->type() == PascalTokenTypeImpl::BEGIN) {
+        StatementParser statement_parser(*this);
+        root_node = statement_parser.parse(token);
+        token = currentToken();
+      } else {
+        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN,
+        this);
       }
+      if (token->type() != PascalTokenTypeImpl::DOT) {
+        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD,
+        this);
+      }
+      token = currentToken();
+      if (root_node != nullptr) {
+        mICode->setRoot(std::move(root_node));
+      }
+//      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
+//        const std::string name = boost::algorithm::to_lower_copy(token->text());
+//        auto symbol_table_stack =
+//            dynamic_cast<SymbolTableStackImpl *>(mSymbolTableStack.get());
+//        auto entry = symbol_table_stack->lookup(name);
+//        if (entry == nullptr) {
+//          entry = symbol_table_stack->enterLocal(name);
+//        }
+//        entry->appendLineNumber(token->lineNum());
+//      }
       pascalTokenMessage(token->lineNum(), token->position(), token->type(),
                          token->text(), token->value());
     } else {
@@ -709,4 +709,14 @@ PascalErrorHandler *PascalSubparserTopDownBase::errorHandler() {
 
 PascalParserTopDown *PascalSubparserTopDownBase::currentParser() {
   return &mPascalParser;
+}
+
+PascalEofToken::PascalEofToken()
+{
+  mType = PascalTokenTypeImpl::END_OF_FILE;
+}
+
+PascalEofToken::PascalEofToken(std::shared_ptr<Source> source): EofToken<PascalTokenTypeImpl>(source)
+{
+  mType = PascalTokenTypeImpl::END_OF_FILE;
 }

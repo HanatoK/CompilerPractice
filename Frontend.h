@@ -41,6 +41,7 @@ private:
   static const char EOL = '\n';
   QTextStream &mStream; // input stream of the source program
   std::string mLine;        // source line
+  bool mReadOk;
   int mLineNum;         // current source line number
   int mCurrentPos;      // current source line position
 };

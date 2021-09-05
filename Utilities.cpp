@@ -40,7 +40,8 @@ ParseTreePrinter::ParseTreePrinter(std::ostream &os):
 
 void ParseTreePrinter::print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &intermediate_code)
 {
-  mOutputStream << fmt::format("{:=^{}}\n", "CROSS-REFERENCE TABLE", LINE_WIDTH);
+  const auto tmp_line_width = LINE_WIDTH;
+  mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
   printNode(intermediate_code->getRoot());
   printLine();
 }
@@ -148,7 +149,7 @@ void ParseTreePrinter::appendOutputLine(const std::string &text)
 void ParseTreePrinter::printLine()
 {
   if (mLength > 0) {
-    mOutputStream << mLine;
+    mOutputStream << mLine << '\n';
     mLine.clear();
     mLength = 0;
   }

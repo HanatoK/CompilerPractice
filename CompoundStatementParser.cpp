@@ -7,9 +7,9 @@ CompoundStatementParser::CompoundStatementParser(PascalParserTopDown &parent)
 
 CompoundStatementParser::~CompoundStatementParser()
 {
-#ifdef DEBUG_DESTRUCTOR
-  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
-#endif
+//#ifdef DEBUG_DESTRUCTOR
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+//#endif
 }
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > CompoundStatementParser::parse(std::shared_ptr<PascalToken> token)

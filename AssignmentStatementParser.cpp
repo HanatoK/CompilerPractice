@@ -1,4 +1,5 @@
 #include "AssignmentStatementParser.h"
+#include "ExpressionParser.h"
 
 AssignmentStatementParser::AssignmentStatementParser(PascalParserTopDown &parent): PascalSubparserTopDownBase(parent)
 {
@@ -7,9 +8,9 @@ AssignmentStatementParser::AssignmentStatementParser(PascalParserTopDown &parent
 
 AssignmentStatementParser::~AssignmentStatementParser()
 {
-#ifdef DEBUG_DESTRUCTOR
-  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
-#endif
+//#ifdef DEBUG_DESTRUCTOR
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+//#endif
 }
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentStatementParser::parse(std::shared_ptr<PascalToken> token)
@@ -38,7 +39,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
     errorHandler()->flag(token, PascalErrorCode::MISSING_COLON_EQUALS, currentParser());
   }
   // parse the expression
-//  ExpressionParser expression_parser(*currentParser());
-//  assign_node->addChild(expression_parser.parse(token));
+  ExpressionParser expression_parser(*currentParser());
+  assign_node->addChild(expression_parser.parse(token));
   return std::move(assign_node);
 }

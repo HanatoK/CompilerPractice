@@ -27,9 +27,9 @@ ExpressionParser::ExpressionParser(PascalParserTopDown &parent):
 
 ExpressionParser::~ExpressionParser()
 {
-#ifdef DEBUG_DESTRUCTOR
-  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
-#endif
+//#ifdef DEBUG_DESTRUCTOR
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+//#endif
 }
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parse(std::shared_ptr<PascalToken> token)
@@ -88,8 +88,9 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
       break;
     }
     case PascalTokenTypeImpl::STRING: {
+      const std::string s = any_to_string(token->value());
       root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::STRING_CONSTANT);
-      root_node->setAttribute(ICodeKeyTypeImpl::VALUE, token->value());
+      root_node->setAttribute(ICodeKeyTypeImpl::VALUE, s);
       token = nextToken();
       break;
     }

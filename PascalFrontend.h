@@ -12,7 +12,12 @@ class PascalErrorHandler;
 class PascalSubparserTopDownBase;
 
 typedef Token<PascalTokenTypeImpl> PascalToken;
-typedef EofToken<PascalTokenTypeImpl> PascalEofToken;
+
+class PascalEofToken: public EofToken<PascalTokenTypeImpl> {
+public:
+  PascalEofToken();
+  PascalEofToken(std::shared_ptr<Source> source);
+};
 
 std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
 

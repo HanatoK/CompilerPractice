@@ -215,7 +215,7 @@ std::unique_ptr<ICodeNodeBase> ICodeNodeImpl::copy() const
   // only copy this node itself, not the parent and children!
   auto new_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(this->mType);
   auto tmp_ptr = dynamic_cast<ICodeNodeImpl*>(new_node.get());
-  for (auto it = mHashTable.begin(); it != mHashTable.end(); ++it) {
+  for (auto it = mHashTable.cbegin(); it != mHashTable.cend(); ++it) {
     tmp_ptr->mHashTable[it->first] = it->second;
   }
   return std::move(new_node);

@@ -6,6 +6,7 @@ Source::Source(QTextStream &ifs): mStream(ifs)
 {
   mLineNum = 0;
   mCurrentPos = -2;
+  mReadOk = false;
 }
 
 char Source::currentChar()
@@ -14,7 +15,7 @@ char Source::currentChar()
     // first time?
     readLine();
     return nextChar();
-  } else if (mStream.atEnd()) {
+  } else if (!mReadOk) {
     // at the end of file?
     return EOF;
   } else if ((mCurrentPos == -1) || (mCurrentPos == mLine.size())) {
@@ -38,7 +39,7 @@ char Source::nextChar()
 char Source::peekChar()
 {
   currentChar();
-  if (mStream.atEnd()) {
+  if (!mReadOk) {
     return EOF;
   }
   const int nextPos = mCurrentPos + 1;
@@ -52,10 +53,10 @@ char Source::peekChar()
 void Source::readLine()
 {
   QString s;
-  const bool read_ok = mStream.readLineInto(&s);
+  mReadOk = mStream.readLineInto(&s);
   mLine = s.toStdString();
   mCurrentPos = -1;
-  if (read_ok) {
+  if (mReadOk) {
     // not EOF or error
     ++mLineNum;
     sendMessage(mLineNum, s.toStdString());

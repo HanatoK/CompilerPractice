@@ -11,10 +11,12 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
       mBackend(nullptr), mSourceFile(nullptr), mTextStream(nullptr),
       QObject(parent) {
   // what are these flags??
-  //  const bool intermediate = flags.indexOf('i') > -1;
+//    const bool intermediate = flags.indexOf('i') > -1;
 //  const bool xref = flags.indexOf('x') > -1;
   auto search_xref = flags.find('x');
   const bool xref = (search_xref == std::string::npos) ? false : true;
+  auto search_i = flags.find('i');
+  const bool intermediate = (search_i == std::string::npos) ? false : true;
   mSourceFile = new QFile(filePath.c_str(), nullptr);
   mSourceFile->open(QIODevice::ReadOnly);
   mTextStream = new QTextStream(mSourceFile);
@@ -46,11 +48,15 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
                   std::placeholders::_2, std::placeholders::_3));
   }
   mParser->parse();
-  if (xref) {
-    CrossReferencer::print(mParser->getSymbolTableStack());
-  }
   mICode = mParser->getICode();
   mSymbolTableStack = mParser->getSymbolTableStack();
+  if (xref) {
+    CrossReferencer::print(mSymbolTableStack);
+  }
+  if (intermediate) {
+    ParseTreePrinter printer(std::cout);
+    printer.print(mICode);
+  }
   mBackend->process(mICode, mSymbolTableStack);
 }
 

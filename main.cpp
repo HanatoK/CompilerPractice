@@ -12,6 +12,7 @@ void initMetaTypes() {
 
 int main(int argc, char *argv[])
 {
+  // TODO: rework the handling of command line options
   initMetaTypes();
   QCoreApplication a(argc, argv);
   a.setApplicationName("PascalPractice");
@@ -20,10 +21,12 @@ int main(int argc, char *argv[])
   const QCommandLineOption compile_option("compile", "Compile the source file.");
   const QCommandLineOption interpret_option("interpret", "Execute the source file directly.");
   const QCommandLineOption reference_listing_option("x", "Generate reference listing.");
+  const QCommandLineOption intermediate_option("i", "Show the parse tree.");
   parser.addHelpOption();
   parser.addOption(compile_option);
   parser.addOption(interpret_option);
   parser.addOption(reference_listing_option);
+  parser.addOption(intermediate_option);
   parser.addPositionalArgument("source file", "the pascal source file");
   parser.process(a);
   Pascal* pascal = nullptr;
@@ -31,6 +34,10 @@ int main(int argc, char *argv[])
   const auto& reference_listing_option_list = reference_listing_option.names();
   if (parser.isSet(reference_listing_option)) {
     flags += reference_listing_option_list.first();
+  }
+  const auto& intermediate_option_list = intermediate_option.names();
+  if (parser.isSet(intermediate_option)) {
+    flags += intermediate_option_list.first();
   }
   const QStringList files = parser.positionalArguments();
   if (files.empty()) {

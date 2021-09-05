@@ -8,9 +8,9 @@ StatementParser::StatementParser(PascalParserTopDown& parent)
 
 StatementParser::~StatementParser()
 {
-#ifdef DEBUG_DESTRUCTOR
-  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
-#endif
+//#ifdef DEBUG_DESTRUCTOR
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+//#endif
 }
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
@@ -56,23 +56,14 @@ void StatementParser::parseList(
     auto statement_node = parse(token);
     parent_node->addChild(std::move(statement_node));
     token = currentToken();
-    switch (token->type()) {
-      // look for the semicolon between statements
-      case PascalTokenTypeImpl::SEMICOLON: {
-        token = nextToken();
-      }
-      // if at the start of the next assignment statement,
-      // then a semicolon is missing
-      case PascalTokenTypeImpl::IDENTIFIER: {
-        errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
-      }
-      // unexpected token
-      default: {
-        if (token->type() == terminator) {
-          errorHandler()->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, currentParser());
-          token = nextToken();
-        }
-      }
+    const auto token_type = token->type();
+    if (token_type == PascalTokenTypeImpl::SEMICOLON) {
+      token = nextToken();
+    } else if (token_type == PascalTokenTypeImpl::IDENTIFIER) {
+      errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
+    } else if (token_type != terminator) {
+      errorHandler()->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, currentParser());
+      token = nextToken();
     }
   }
   if (token->type() == terminator) {
