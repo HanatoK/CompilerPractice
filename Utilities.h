@@ -31,7 +31,7 @@ public:
   void printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
   void printAttributes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
   void printAttributes(const std::string& key, const std::any& value);
-  void printChildNodes(const std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>>& child_nodes);
+  void printChildNodes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &parent_node);
   void printTypeSpec(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
   void appendOutputLine(const std::string& text);
   void printLine();

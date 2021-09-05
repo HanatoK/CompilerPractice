@@ -8,11 +8,30 @@
 #include <memory>
 #include <unordered_map>
 
-class ICodeNodeImpl : public ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> {
+typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> ICodeNodeBase;
+
+class ICodeNodeImpl :
+  public ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> {
 public:
   ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
+  virtual ICodeNodeTypeImpl type() const;
+  virtual const ICodeNodeBase*& parent();
+  virtual std::shared_ptr<ICodeNodeBase> addChild(std::shared_ptr<ICodeNodeBase> node);
+  virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value);
+  virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const;
+  virtual std::unique_ptr<ICodeNodeBase> copy() const;
   virtual std::string toString() const;
+protected:
+  virtual AttributeMapTImpl& attributeMap();
+  virtual const AttributeMapTImpl& attributeMap() const;
+  virtual ChildrenContainerTImpl& children();
+  virtual const ChildrenContainerTImpl& children() const;
+private:
+  ICodeNodeTypeImpl mType;
+  const ICodeNodeBase *mParent;
+  AttributeMapTImpl mHashTable;
+  ChildrenContainerTImpl mChildren;
 };
 
 class ICodeImpl : public ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> {

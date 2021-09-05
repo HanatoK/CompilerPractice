@@ -50,11 +50,11 @@ void ParseTreePrinter::printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeIm
   // opening tag
   appendOutputLine(mLineIndentation);
   appendOutputLine("<" + node->toString());
-  auto child_nodes = node->children();
-  if (child_nodes.size() > 0) {
+//  auto child_nodes = node->children();
+  if (node->numChildren() > 0) {
     appendOutputLine(">");
     printLine();
-    printChildNodes(child_nodes);
+    printChildNodes(node);
     appendOutputLine(mLineIndentation);
     appendOutputLine("</" + node->toString() + ">");
   } else {
@@ -68,8 +68,8 @@ void ParseTreePrinter::printAttributes(const std::shared_ptr<ICodeNode<ICodeNode
 {
   const auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
-  const auto& attribute_table = node->attributeTable();
-  for (auto it = attribute_table.begin(); it != attribute_table.end(); ++it) {
+//  const auto& attribute_table = node->attributeTable();
+  for (auto it = node->attributeMapBegin(); it != node->attributeMapEnd(); ++it) {
     std::string key_string;
     switch (it->first) {
       case ICodeKeyTypeImpl::LINE: {
@@ -111,12 +111,15 @@ void ParseTreePrinter::printAttributes(const std::string &key, const std::any &v
   }
 }
 
-void ParseTreePrinter::printChildNodes(const std::vector<std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > > &child_nodes)
+void ParseTreePrinter::printChildNodes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >  &parent_node)
 {
   auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
-  for (const auto& elem: child_nodes) {
-    printNode(elem);
+//  for (const auto& elem: parent_node) {
+//    printNode(elem);
+//  }
+  for (auto it = parent_node->childrenBegin(); it != parent_node->childrenEnd(); ++it) {
+    printNode(*it);
   }
   mLineIndentation = saved_indentation;
 }

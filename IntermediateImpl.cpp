@@ -163,7 +163,8 @@ std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> ICodeImpl::getRo
   return mRoot;
 }
 
-ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType): ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(pType)
+ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType):
+  ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(pType), mType(pType), mParent(nullptr)
 {
 
 }
@@ -173,6 +174,51 @@ ICodeNodeImpl::~ICodeNodeImpl()
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
+}
+
+ICodeNodeTypeImpl ICodeNodeImpl::type() const
+{
+  return mType;
+}
+
+const ICodeNodeBase *&ICodeNodeImpl::parent()
+{
+  return mParent;
+}
+
+std::shared_ptr<ICodeNodeBase> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeBase> node)
+{
+  if (node != nullptr) {
+    mChildren.push_back(node);
+    node->parent() = dynamic_cast<const ICodeNode*>(this);
+  }
+  return node;
+}
+
+void ICodeNodeImpl::setAttribute(const ICodeKeyTypeImpl &key, const std::any &value)
+{
+  mHashTable[key] = value;
+}
+
+std::any ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl &key) const
+{
+  const auto search = mHashTable.find(key);
+  if (search != mHashTable.end()) {
+    return search->second;
+  } else {
+    return std::any();
+  }
+}
+
+std::unique_ptr<ICodeNodeBase> ICodeNodeImpl::copy() const
+{
+  // only copy this node itself, not the parent and children!
+  auto new_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(this->mType);
+  auto tmp_ptr = dynamic_cast<ICodeNodeImpl*>(new_node.get());
+  for (auto it = mHashTable.begin(); it != mHashTable.end(); ++it) {
+    tmp_ptr->mHashTable[it->first] = it->second;
+  }
+  return std::move(new_node);
 }
 
 std::string ICodeNodeImpl::toString() const
@@ -217,6 +263,26 @@ std::string ICodeNodeImpl::toString() const
     case ICodeNodeTypeImpl::BOOLEAN_CONSTANT: return std::string("BOOLEAN_CONSTANT");
     default: return std::string("");
   }
+}
+
+ICodeNodeImpl::AttributeMapTImpl &ICodeNodeImpl::attributeMap()
+{
+  return mHashTable;
+}
+
+const ICodeNodeImpl::AttributeMapTImpl &ICodeNodeImpl::attributeMap() const
+{
+  return mHashTable;
+}
+
+ICodeNodeImpl::ChildrenContainerTImpl &ICodeNodeImpl::children()
+{
+  return mChildren;
+}
+
+const ICodeNodeImpl::ChildrenContainerTImpl &ICodeNodeImpl::children() const
+{
+  return mChildren;
 }
 
 template <>

@@ -11,56 +11,60 @@
 template <typename SymbolTableKeyType>
 class SymbolTable;
 
-template <typename ICodeNodeType, typename ICodeKeyType>
+template <typename NodeT,
+          typename KeyT,
+          template <typename...> typename AttributeMapT = std::unordered_map,
+          template <typename...> typename ChildrenContainerT = std::vector>
 class ICodeNode {
 public:
+  typedef AttributeMapT<KeyT, std::any> AttributeMapTImpl;
+  typedef ChildrenContainerT<std::shared_ptr<ICodeNode<NodeT, KeyT>>> ChildrenContainerTImpl;
+  typedef typename AttributeMapT<KeyT, std::any>::iterator attribute_map_iterator;
+  typedef typename AttributeMapT<KeyT, std::any>::const_iterator const_attribute_map_iterator;
+  typedef typename ChildrenContainerT<std::shared_ptr<ICodeNode<NodeT, KeyT>>>::iterator children_iterator;
+  typedef typename ChildrenContainerT<std::shared_ptr<ICodeNode<NodeT, KeyT>>>::const_iterator const_children_iterator;
   ICodeNode() {}
-  ICodeNode(const ICodeNodeType& pType): mType(pType), mParent(nullptr) {}
+  ICodeNode(const NodeT& pType) {}
   virtual ~ICodeNode() {}
-  virtual ICodeNodeType type() const {
-    return mType;
-  }
-  virtual const ICodeNode*& parent() {
-    return mParent;
-  }
-  virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) {
-    if (node != nullptr) {
-      mChildren.push_back(node);
-      node->parent() = dynamic_cast<const ICodeNode*>(this);
-    }
-    return node;
-  }
-  virtual std::vector<std::shared_ptr<ICodeNode>> children() {
-    return mChildren;
-  }
-  virtual void setAttribute(const ICodeKeyType& key, const std::any& value) {
-    mHashTable[key] = value;
-  }
-  virtual std::any getAttribute(const ICodeKeyType& key) const {
-    const auto search = mHashTable.find(key);
-    if (search != mHashTable.end()) {
-      return search->second;
-    } else {
-      return std::any();
-    }
-  }
-  virtual std::unique_ptr<ICodeNode> copy() const {
-    // only copy this node itself, not the parent and children!
-    auto new_node = createICodeNode<ICodeNodeType, ICodeKeyType>(this->mType);
-    for (auto it = mHashTable.begin(); it != mHashTable.end(); ++it) {
-      new_node->mHashTable[it->first] = it->second;
-    }
-    return std::move(new_node);
-  }
+  virtual NodeT type() const = 0;
+  virtual const ICodeNode*& parent() = 0;
+  virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
+  virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
+  virtual std::any getAttribute(const KeyT& key) const = 0;
+  virtual std::unique_ptr<ICodeNode> copy() const;
   virtual std::string toString() const = 0;
-  const std::unordered_map<ICodeKeyTypeImpl, std::any>& attributeTable() const {
-    return mHashTable;
+  attribute_map_iterator attributeMapBegin() {
+    return attributeMap().begin();
+  }
+  attribute_map_iterator attributeMapEnd() {
+    return attributeMap().end();
+  }
+  const_attribute_map_iterator attributeMapBegin() const {
+    return attributeMap().cbegin();
+  }
+  const_attribute_map_iterator attributeMapEnd() const {
+    return attributeMap().cend();
+  }
+  children_iterator childrenBegin() {
+    return children().begin();
+  }
+  children_iterator childrenEnd() {
+    return children().end();
+  }
+  const_children_iterator childrenBegin() const {
+    return children().cbegin();
+  }
+  const_children_iterator childrenEnd() const {
+    return children().cend();
+  }
+  size_t numChildren() const {
+    return children().size();
   }
 protected:
-  ICodeNodeType mType;
-  const ICodeNode<ICodeNodeType, ICodeKeyType> *mParent;
-  std::unordered_map<ICodeKeyType, std::any> mHashTable;
-  std::vector<std::shared_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>>> mChildren;
+  virtual AttributeMapTImpl& attributeMap() = 0;
+  virtual const AttributeMapTImpl& attributeMap() const = 0;
+  virtual ChildrenContainerTImpl& children() = 0;
+  virtual const ChildrenContainerTImpl& children() const = 0;
 };
 
 
