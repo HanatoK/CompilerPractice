@@ -44,6 +44,7 @@ void ParseTreePrinter::print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICod
   mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
   printNode(intermediate_code->getRoot());
   printLine();
+  mOutputStream << fmt::format("{:=^{}}\n", "", tmp_line_width);
 }
 
 void ParseTreePrinter::printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
@@ -51,7 +52,8 @@ void ParseTreePrinter::printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeIm
   // opening tag
   appendOutputLine(mLineIndentation);
   appendOutputLine("<" + node->toString());
-//  auto child_nodes = node->children();
+  printAttributes(node);
+  printTypeSpec(node);
   if (node->numChildren() > 0) {
     appendOutputLine(">");
     printLine();
@@ -103,7 +105,7 @@ void ParseTreePrinter::printAttributes(const std::string &key, const std::any &v
     value_string = any_to_string(value);
   }
   const std::string text = boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
-  appendOutputLine("");
+  appendOutputLine(" ");
   appendOutputLine(text);
   if (value.type() == typeid(std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>)) {
     const auto tmp_value = std::any_cast<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(value);
