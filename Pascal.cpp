@@ -2,6 +2,7 @@
 #include "Utilities.h"
 
 #include <iostream>
+#include <fstream>
 #include <fmt/format.h>
 
 Pascal::Pascal(const std::string &operation, const std::string &filePath,
@@ -54,7 +55,10 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
     CrossReferencer::print(mSymbolTableStack);
   }
   if (intermediate) {
-    ParseTreePrinter printer(std::cout);
+    ParseTreePrinter printer_xml(std::cout);
+    printer_xml.print(mICode);
+    std::ofstream ofs_dot((filePath + ".dot").c_str());
+    ParseTreePrinterDot printer(ofs_dot);
     printer.print(mICode);
   }
   mBackend->process(mICode, mSymbolTableStack);

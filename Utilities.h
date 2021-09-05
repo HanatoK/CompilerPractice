@@ -37,4 +37,16 @@ public:
   void printLine();
 };
 
+class ParseTreePrinterDot {
+private:
+  std::ostream& mOutputStream;
+  int mIndex;
+  std::vector<std::string> mNodeStyleLines;
+  std::vector<std::string> mNodeConnectionLines;
+public:
+  ParseTreePrinterDot(std::ostream& os);
+  void print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& intermediate_code);
+  std::string printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+};
+
 #endif // UTILITIES_H
