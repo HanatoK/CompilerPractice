@@ -26,7 +26,9 @@ set(HEADERS
     StatementParser.h
     CompoundStatementParser.h
     AssignmentStatementParser.h
-    ExpressionParser.h)
+    ExpressionParser.h
+    Interpreter.h
+    Compiler.h)
 
 set(SOURCES
     main.cpp
@@ -41,7 +43,9 @@ set(SOURCES
     CompoundStatementParser.cpp
     AssignmentStatementParser.cpp
     ExpressionParser.cpp
-    Common.cpp)
+    Common.cpp
+    Interpreter.cpp
+    Compiler.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

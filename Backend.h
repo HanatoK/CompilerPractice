@@ -53,42 +53,6 @@ protected:
   std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> mSymbolTableStack;
 };
 
-namespace Compiler {
-
-class CodeGenerator: public Backend {
-public:
-  CodeGenerator(): Backend() {}
-  virtual ~CodeGenerator() {}
-  virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
-                       std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
-  virtual std::string getType() const {
-    return "compiler";
-  }
-  virtual void sendRuntimeErrorMessage(std::string msg, int line);
-  //  void summary(int instructionCount, float elapsedTime);
-  boost::signals2::signal<void(int, float)> summary;
-};
-
-}
-
-namespace Interpreter {
-
-class Executor: public Backend {
-public:
-  Executor(): Backend() {}
-  virtual ~Executor() {}
-  virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
-                       std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
-  virtual std::string getType() const {
-    return "interpreter";
-  }
-  virtual void sendRuntimeErrorMessage(std::string msg, int line);
-  //  void summary(int executionCount, int runtimeErrors, float elapsedTime);
-  boost::signals2::signal<void(int, int, float)> summary;
-};
-
-}
-
 std::unique_ptr<Backend> createBackend(const std::string& operation);
 
 #endif // BACKEND_H

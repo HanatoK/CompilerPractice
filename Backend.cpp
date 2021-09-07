@@ -1,51 +1,15 @@
 #include "Backend.h"
 #include "IntermediateImpl.h"
+#include "Interpreter.h"
+#include "Compiler.h"
 
-#include <chrono>
 #include <QCoreApplication>
-
-void Compiler::CodeGenerator::process(
-    std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
-    std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
-        symbol_table_stack) {
-  const auto start_time = std::chrono::high_resolution_clock::now();
-  // do something
-  const auto end_time = std::chrono::high_resolution_clock::now();
-  const std::chrono::duration<double> elapsed_time = end_time - start_time;
-  const int instructionCount = 0;
-  summary(instructionCount, elapsed_time.count());
-}
-
-void Compiler::CodeGenerator::sendRuntimeErrorMessage(std::string msg, int line)
-{
-
-}
-
-void Interpreter::Executor::process(
-    std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
-    std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
-        symbol_table_stack) {
-  mICode = iCode;
-  mSymbolTableStack = symbol_table_stack;
-  const auto start_time = std::chrono::high_resolution_clock::now();
-  // do something
-  const auto end_time = std::chrono::high_resolution_clock::now();
-  const std::chrono::duration<double> elapsed_time = end_time - start_time;
-  const int executionCount = 0;
-  const int runtimeErrors = 0;
-  summary(executionCount, runtimeErrors, elapsed_time.count());
-}
-
-void Interpreter::Executor::sendRuntimeErrorMessage(std::string msg, int line)
-{
-
-}
 
 std::unique_ptr<Backend> createBackend(const std::string &operation) {
   if (boost::iequals(operation, "compile")) {
-    return std::make_unique<Compiler::CodeGenerator>();
+    return std::make_unique<CodeGenerator>();
   } else if (boost::iequals(operation, "interpret")) {
-    return std::make_unique<Interpreter::Executor>();
+    return std::make_unique<Executor>();
   } else {
     return nullptr;
   }

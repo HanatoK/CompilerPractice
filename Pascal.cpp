@@ -1,5 +1,8 @@
 #include "Pascal.h"
 #include "Utilities.h"
+#include "Compiler.h"
+#include "Interpreter.h"
+#include "Compiler.h"
 
 #include <iostream>
 #include <fstream>
@@ -38,12 +41,12 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   mBackend = createBackend(operation);
   const std::string backend_type = mBackend->getType();
   if (boost::iequals(backend_type, "compiler")) {
-    auto backend_ptr = dynamic_cast<Compiler::CodeGenerator *>(mBackend.get());
+    auto backend_ptr = dynamic_cast<CodeGenerator *>(mBackend.get());
     backend_ptr->summary.connect(std::bind(&Pascal::compilerSummary, this,
                                            std::placeholders::_1,
                                            std::placeholders::_2));
   } else if (boost::iequals(backend_type, "interpreter")) {
-    auto backend_ptr = dynamic_cast<Interpreter::Executor *>(mBackend.get());
+    auto backend_ptr = dynamic_cast<Executor *>(mBackend.get());
     backend_ptr->summary.connect(
         std::bind(&Pascal::interpreterSummary, this, std::placeholders::_1,
                   std::placeholders::_2, std::placeholders::_3));
