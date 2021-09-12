@@ -181,7 +181,7 @@ ICodeNodeTypeImpl ICodeNodeImpl::type() const
   return mType;
 }
 
-const ICodeNodeBase *&ICodeNodeImpl::parent()
+const ICodeNodeBase *ICodeNodeImpl::parent() const
 {
   return mParent;
 }
@@ -190,7 +190,8 @@ std::shared_ptr<ICodeNodeBase> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNode
 {
   if (node != nullptr) {
     mChildren.push_back(node);
-    node->parent() = dynamic_cast<const ICodeNode*>(this);
+    auto tmp_impl = dynamic_cast<ICodeNodeImpl*>(node.get());
+    tmp_impl->mParent = dynamic_cast<const ICodeNode*>(this);
   }
   return node;
 }

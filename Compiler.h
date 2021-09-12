@@ -12,7 +12,6 @@ public:
   virtual std::string getType() const {
     return "compiler";
   }
-  virtual void sendRuntimeErrorMessage(std::string msg, int line);
   //  void summary(int instructionCount, float elapsedTime);
   boost::signals2::signal<void(int, float)> summary;
 };

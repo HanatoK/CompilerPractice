@@ -114,6 +114,10 @@ PascalParserTopDown::~PascalParserTopDown() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
+  if (mErrorHandler != nullptr) {
+    delete mErrorHandler;
+    mErrorHandler = nullptr;
+  }
 }
 
 void PascalParserTopDown::parse() {
@@ -603,7 +607,7 @@ void PascalNumberToken::extractNumber(std::string &text) {
     exponent_digits = PascalNumberToken::unsignedIntegerDigits(text);
   }
   if (mType == PascalTokenTypeImpl::INTEGER) {
-    const qulonglong integer_value = computeIntegerValue(whole_digits);
+    const unsigned long long integer_value = computeIntegerValue(whole_digits);
     if (mType != PascalTokenTypeImpl::ERROR) {
       mValue = integer_value;
     }

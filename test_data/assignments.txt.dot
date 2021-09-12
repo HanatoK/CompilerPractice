@@ -21,7 +21,7 @@ digraph "parse tree"
     node15 [label = "VARIABLE\nID: ratio"]
     node16 [label = "FLOAT_DIVIDE"]
     node17 [label = "VARIABLE\nID: five"]
-    node18 [label = "REAL_CONSTANT\nVALUE: 9.000000"]
+    node18 [label = "REAL_CONSTANT\nVALUE: 9.000000000"]
     node19 [label = "ASSIGN\nLINE: 6"]
     node20 [label = "VARIABLE\nID: fahrenheit"]
     node21 [label = "INTEGER_CONSTANT\nVALUE: 72"]
@@ -75,12 +75,48 @@ digraph "parse tree"
     node69 [label = "VARIABLE\nID: root"]
     node70 [label = "VARIABLE\nID: root"]
     node71 [label = "INTEGER_CONSTANT\nVALUE: 2"]
-    node72 [label = "ASSIGN\nLINE: 25"]
-    node73 [label = "VARIABLE\nID: ch"]
-    node74 [label = "STRING_CONSTANT\nVALUE: x"]
-    node75 [label = "ASSIGN\nLINE: 26"]
-    node76 [label = "VARIABLE\nID: str"]
-    node77 [label = "STRING_CONSTANT\nVALUE: hello, world"]
+    node72 [label = "ASSIGN\nLINE: 23"]
+    node73 [label = "VARIABLE\nID: root"]
+    node74 [label = "FLOAT_DIVIDE"]
+    node75 [label = "ADD"]
+    node76 [label = "FLOAT_DIVIDE"]
+    node77 [label = "VARIABLE\nID: number"]
+    node78 [label = "VARIABLE\nID: root"]
+    node79 [label = "VARIABLE\nID: root"]
+    node80 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node81 [label = "ASSIGN\nLINE: 24"]
+    node82 [label = "VARIABLE\nID: root"]
+    node83 [label = "FLOAT_DIVIDE"]
+    node84 [label = "ADD"]
+    node85 [label = "FLOAT_DIVIDE"]
+    node86 [label = "VARIABLE\nID: number"]
+    node87 [label = "VARIABLE\nID: root"]
+    node88 [label = "VARIABLE\nID: root"]
+    node89 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node90 [label = "ASSIGN\nLINE: 25"]
+    node91 [label = "VARIABLE\nID: root"]
+    node92 [label = "FLOAT_DIVIDE"]
+    node93 [label = "ADD"]
+    node94 [label = "FLOAT_DIVIDE"]
+    node95 [label = "VARIABLE\nID: number"]
+    node96 [label = "VARIABLE\nID: root"]
+    node97 [label = "VARIABLE\nID: root"]
+    node98 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node99 [label = "ASSIGN\nLINE: 26"]
+    node100 [label = "VARIABLE\nID: root"]
+    node101 [label = "FLOAT_DIVIDE"]
+    node102 [label = "ADD"]
+    node103 [label = "FLOAT_DIVIDE"]
+    node104 [label = "VARIABLE\nID: number"]
+    node105 [label = "VARIABLE\nID: root"]
+    node106 [label = "VARIABLE\nID: root"]
+    node107 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node108 [label = "ASSIGN\nLINE: 29"]
+    node109 [label = "VARIABLE\nID: ch"]
+    node110 [label = "STRING_CONSTANT\nVALUE: x"]
+    node111 [label = "ASSIGN\nLINE: 30"]
+    node112 [label = "VARIABLE\nID: str"]
+    node113 [label = "STRING_CONSTANT\nVALUE: hello, world"]
   }
   node8 -> { node9 }
   node7 -> { node8 node10 }
@@ -112,8 +148,24 @@ digraph "parse tree"
   node66 -> { node67 node70 }
   node65 -> { node66 node71 }
   node63 -> { node64 node65 }
-  node56 -> { node57 node60 node63 }
+  node76 -> { node77 node78 }
+  node75 -> { node76 node79 }
+  node74 -> { node75 node80 }
   node72 -> { node73 node74 }
-  node75 -> { node76 node77 }
-  node0 -> { node1 node49 node56 node72 node75 }
+  node85 -> { node86 node87 }
+  node84 -> { node85 node88 }
+  node83 -> { node84 node89 }
+  node81 -> { node82 node83 }
+  node94 -> { node95 node96 }
+  node93 -> { node94 node97 }
+  node92 -> { node93 node98 }
+  node90 -> { node91 node92 }
+  node103 -> { node104 node105 }
+  node102 -> { node103 node106 }
+  node101 -> { node102 node107 }
+  node99 -> { node100 node101 }
+  node56 -> { node57 node60 node63 node72 node81 node90 node99 }
+  node108 -> { node109 node110 }
+  node111 -> { node112 node113 }
+  node0 -> { node1 node49 node56 node108 node111 }
 }

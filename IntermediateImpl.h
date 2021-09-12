@@ -16,7 +16,7 @@ public:
   ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
   virtual ICodeNodeTypeImpl type() const;
-  virtual const ICodeNodeBase*& parent();
+  virtual const ICodeNodeBase* parent() const;
   virtual std::shared_ptr<ICodeNodeBase> addChild(std::shared_ptr<ICodeNodeBase> node);
   virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value);
   virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const;

@@ -1,26 +1,28 @@
 #include "ExpressionParser.h"
 
+const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParser::mRelOpsMap =
+  {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},
+   {PascalTokenTypeImpl::NOT_EQUALS, ICodeNodeTypeImpl::NE},
+   {PascalTokenTypeImpl::LESS_THAN, ICodeNodeTypeImpl::LT},
+   {PascalTokenTypeImpl::LESS_EQUALS, ICodeNodeTypeImpl::LE},
+   {PascalTokenTypeImpl::GREATER_THAN, ICodeNodeTypeImpl::GT},
+   {PascalTokenTypeImpl::GREATER_EQUALS, ICodeNodeTypeImpl::GE}};
+
+const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParser::mAddOpsMap =
+  {{PascalTokenTypeImpl::PLUS, ICodeNodeTypeImpl::ADD},
+   {PascalTokenTypeImpl::MINUS, ICodeNodeTypeImpl::SUBTRACT},
+   {PascalTokenTypeImpl::OR, ICodeNodeTypeImpl::OR}};
+
+const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParser::mMultOpsMap =
+  {{PascalTokenTypeImpl::STAR, ICodeNodeTypeImpl::MULTIPLY},
+   {PascalTokenTypeImpl::SLASH, ICodeNodeTypeImpl::FLOAT_DIVIDE},
+   {PascalTokenTypeImpl::DIV, ICodeNodeTypeImpl::INTEGER_DIVIDE},
+   {PascalTokenTypeImpl::MOD, ICodeNodeTypeImpl::MOD},
+   {PascalTokenTypeImpl::AND, ICodeNodeTypeImpl::AND}};
+
+
 ExpressionParser::ExpressionParser(PascalParserTopDown &parent):
-  PascalSubparserTopDownBase(parent),
-//  mRelOps({PascalTokenTypeImpl::EQUALS, PascalTokenTypeImpl::NOT_EQUALS,
-//           PascalTokenTypeImpl::LESS_THAN, PascalTokenTypeImpl::LESS_EQUALS,
-//           PascalTokenTypeImpl::GREATER_THAN, PascalTokenTypeImpl::GREATER_EQUALS}),
-//  mAddOps({PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
-//           PascalTokenTypeImpl::OR}),
-  mRelOpsMap({{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},
-              {PascalTokenTypeImpl::NOT_EQUALS, ICodeNodeTypeImpl::NE},
-              {PascalTokenTypeImpl::LESS_THAN, ICodeNodeTypeImpl::LT},
-              {PascalTokenTypeImpl::LESS_EQUALS, ICodeNodeTypeImpl::LE},
-              {PascalTokenTypeImpl::GREATER_THAN, ICodeNodeTypeImpl::GT},
-              {PascalTokenTypeImpl::GREATER_EQUALS, ICodeNodeTypeImpl::GE}}),
-  mAddOpsMap({{PascalTokenTypeImpl::PLUS, ICodeNodeTypeImpl::ADD},
-              {PascalTokenTypeImpl::MINUS, ICodeNodeTypeImpl::SUBTRACT},
-              {PascalTokenTypeImpl::OR, ICodeNodeTypeImpl::OR}}),
-  mMultOpsMap({{PascalTokenTypeImpl::STAR, ICodeNodeTypeImpl::MULTIPLY},
-               {PascalTokenTypeImpl::SLASH, ICodeNodeTypeImpl::FLOAT_DIVIDE},
-               {PascalTokenTypeImpl::DIV, ICodeNodeTypeImpl::INTEGER_DIVIDE},
-               {PascalTokenTypeImpl::MOD, ICodeNodeTypeImpl::MOD},
-               {PascalTokenTypeImpl::AND, ICodeNodeTypeImpl::AND}})
+  PascalSubparserTopDownBase(parent)
 {
 
 }
@@ -41,7 +43,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   const auto search = mRelOpsMap.find(token_type);
   if (search != mRelOpsMap.end()) {
     // relational operator found
-    const auto node_type = mRelOpsMap[token_type];
+    const auto node_type = mRelOpsMap.at(token_type);
     auto op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
     op_node->addChild(std::move(root_node));
     // now root_node should be nullptr
@@ -130,7 +132,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   token = currentToken();
   auto token_type = token->type();
   while (mMultOpsMap.find(token_type) != mMultOpsMap.end()) {
-    const auto node_type = mMultOpsMap[token_type];
+    const auto node_type = mMultOpsMap.at(token_type);
     auto op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
     op_node->addChild(std::move(root_node));
     token = nextToken();
@@ -165,7 +167,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   while (mAddOpsMap.find(token_type) != mAddOpsMap.end()) {
     // create a new operator node and adopt the current tree
     // as its first child
-    const auto node_type = mAddOpsMap[token_type];
+    const auto node_type = mAddOpsMap.at(token_type);
     auto op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
     op_node->addChild(std::move(root_node));
     // consume the operator

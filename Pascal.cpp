@@ -50,6 +50,13 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
     backend_ptr->summary.connect(
         std::bind(&Pascal::interpreterSummary, this, std::placeholders::_1,
                   std::placeholders::_2, std::placeholders::_3));
+    backend_ptr->assignmentMessage.connect(std::bind(&Pascal::assignmentMessage,
+                                                     this, std::placeholders::_1,
+                                                     std::placeholders::_2,
+                                                     std::placeholders::_3));
+    backend_ptr->runtimeErrorMessage.connect(std::bind(&Pascal::runtimeErrorMessage,
+                                                       this, std::placeholders::_1,
+                                                       std::placeholders::_2));
   }
   mParser->parse();
   mICode = mParser->getICode();
@@ -130,4 +137,14 @@ void Pascal::syntaxErrorMessage(int lineNumber, int position, std::string text,
   const int space_count = prefix_width + position;
   fmt::print("{: >{}}^\n", "", space_count);
   fmt::print("***{} [at \"{}\"]\n", error, text);
+}
+
+void Pascal::assignmentMessage(int line_number, std::string variable_name, std::any value)
+{
+  fmt::print("LINE {:3d}: {} = {}\n", line_number, variable_name, any_to_string(value));
+}
+
+void Pascal::runtimeErrorMessage(int line_number, std::string error_message)
+{
+  fmt::print("*** RUNTIME ERROR AT LINE {:03d} {}\n", line_number, error_message);
 }

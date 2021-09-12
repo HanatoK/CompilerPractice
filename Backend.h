@@ -28,7 +28,7 @@ class RuntimeErrorHandler {
 public:
   RuntimeErrorHandler();
   void flag(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> node,
-            RuntimeErrorCode error_code, std::shared_ptr<Backend> backend);
+            RuntimeErrorCode error_code, Backend* backend);
 private:
   static const int MAX_ERRORS = 5;
   int mErrorCount;
@@ -47,7 +47,7 @@ public:
   virtual std::string getType() const {
     return "unknown";
   }
-  virtual void sendRuntimeErrorMessage(std::string msg, int line) = 0;
+  boost::signals2::signal<void(int, std::string)> runtimeErrorMessage;
 protected:
   std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
   std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> mSymbolTableStack;

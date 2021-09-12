@@ -13,8 +13,3 @@ void CodeGenerator::process(
   const int instructionCount = 0;
   summary(instructionCount, elapsed_time.count());
 }
-
-void CodeGenerator::sendRuntimeErrorMessage(std::string msg, int line)
-{
-
-}

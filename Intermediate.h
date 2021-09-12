@@ -27,7 +27,7 @@ public:
   ICodeNode(const NodeT& pType) {}
   virtual ~ICodeNode() {}
   virtual NodeT type() const = 0;
-  virtual const ICodeNode*& parent() = 0;
+  virtual const ICodeNode* parent() const = 0;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const KeyT& key) const = 0;

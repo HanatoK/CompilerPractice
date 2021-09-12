@@ -21,14 +21,17 @@ RuntimeErrorHandler::RuntimeErrorHandler(): mErrorCount(0)
 }
 
 void RuntimeErrorHandler::flag(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > node,
-                               RuntimeErrorCode error_code, std::shared_ptr<Backend> backend)
+                               RuntimeErrorCode error_code, Backend *backend)
 {
   const ICodeNodeBase* ptr = node.get();
-  while ((node != nullptr) && (!node->getAttribute(ICodeKeyTypeImpl::LINE).has_value())) {
-    ptr = node->parent();
-  }
-  const int line_number = std::any_cast<int>(ptr->getAttribute(ICodeKeyTypeImpl::LINE));
-  backend->sendRuntimeErrorMessage(runtimeErrorCodeToString(error_code), line_number);
+  int line_number = 0;
+  do {
+    if (ptr->getAttribute(ICodeKeyTypeImpl::LINE).has_value()) {
+      line_number = std::any_cast<int>(ptr->getAttribute(ICodeKeyTypeImpl::LINE));
+    }
+    ptr = ptr->parent();
+  } while (ptr != nullptr);
+  backend->runtimeErrorMessage(line_number, runtimeErrorCodeToString(error_code));
   if (++mErrorCount > MAX_ERRORS) {
     std::cerr << "ABORTED AFTER TOO MANY RUNTIME ERRORS.\n";
     QCoreApplication::exit(-1);

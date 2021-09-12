@@ -16,7 +16,6 @@ public:
   Pascal(const std::string& operation, const std::string& filePath,
          const std::string& flags, QObject* parent = nullptr);
   ~Pascal();
-public slots:
   void sourceMessage(int lineNumber, std::string line);
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   void compilerSummary(int instructionCount, float elapsedTime);
@@ -25,6 +24,8 @@ public slots:
                     std::string text, std::any value);
   void syntaxErrorMessage(int lineNumber, int position, std::string text,
                           std::string error);
+  void assignmentMessage(int line_number, std::string variable_name, std::any value);
+  void runtimeErrorMessage(int line_number, std::string error_message);
 signals:
   void exit(int exitCode);
 private:

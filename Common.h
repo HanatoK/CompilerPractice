@@ -32,7 +32,7 @@ enum class SymbolTableKeyTypeImpl {
   ROUTINE_CODE, ROUTINE_SYMTAB, ROUTINE_ICODE,
   ROUTINE_PARMS, ROUTINE_ROUTINES,
   // Variable or record field value
-  DATA_VALUE
+  DATA_VALUE, DATA_TYPE
 };
 
 enum class ICodeKeyTypeImpl {
@@ -55,6 +55,10 @@ enum class ICodeNodeTypeImpl {
   VARIABLE, SUBSCRIPTS, FIELD,
   INTEGER_CONSTANT, REAL_CONSTANT,
   STRING_CONSTANT, BOOLEAN_CONSTANT
+};
+
+enum class VariableType {
+  INTEGER, FLOAT, BOOLEAN, STRING, UNKNOWN
 };
 
 extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
