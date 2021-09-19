@@ -32,7 +32,12 @@ set(HEADERS
     StatementExecutor.h
     CompoundStatementExecutor.h
     AssignmentStatementExecutor.h
-    ExpressionExecutor.h)
+    ExpressionExecutor.h
+    RepeatStatementParser.h
+    WhileStatementParser.h
+    ForStatementParser.h
+    IfStatementParser.h
+    CaseStatementParser.h)
 
 set(SOURCES
     main.cpp
@@ -53,7 +58,12 @@ set(SOURCES
     StatementExecutor.cpp
     CompoundStatementExecutor.cpp
     AssignmentStatementExecutor.cpp
-    ExpressionExecutor.cpp)
+    ExpressionExecutor.cpp
+    RepeatStatementParser.cpp
+    WhileStatementParser.cpp
+    ForStatementParser.cpp
+    IfStatementParser.cpp
+    CaseStatementParser.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

@@ -696,7 +696,21 @@ double PascalNumberToken::computeFloatValue(std::string &whole_digits,
 
 PascalSubparserTopDownBase::PascalSubparserTopDownBase(
     PascalParserTopDown &pascal_parser)
-    : mPascalParser(pascal_parser) {}
+  : mPascalParser(pascal_parser),
+    mStatementStartSet{PascalTokenTypeImpl::BEGIN,
+                       PascalTokenTypeImpl::CASE,
+                       PascalTokenTypeImpl::FOR,
+                       PascalTokenTypeImpl::IF,
+                       PascalTokenTypeImpl::REPEAT,
+                       PascalTokenTypeImpl::WHILE,
+                       PascalTokenTypeImpl::IDENTIFIER,
+                       PascalTokenTypeImpl::SEMICOLON},
+    mStatementFollowSet{PascalTokenTypeImpl::SEMICOLON,
+                        PascalTokenTypeImpl::END,
+                        PascalTokenTypeImpl::ELSE,
+                        PascalTokenTypeImpl::UNTIL,
+                        PascalTokenTypeImpl::DOT}
+{}
 
 PascalSubparserTopDownBase::~PascalSubparserTopDownBase() {}
 
