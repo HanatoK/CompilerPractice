@@ -46,7 +46,6 @@ void StatementParser::setLineNumber(
   }
 }
 
-// TODO: figure out what does parseList do
 void StatementParser::parseList(
     std::shared_ptr<PascalToken> token,
     std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>

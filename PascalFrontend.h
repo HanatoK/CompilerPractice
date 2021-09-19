@@ -184,7 +184,7 @@ public:
   virtual void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
-  qulonglong computeIntegerValue(std::string& digits);
+  unsigned long long computeIntegerValue(std::string& digits);
   double computeFloatValue(std::string& whole_digits, std::string& fraction_digits,
                            std::string& exponent_digits, char exponent_sign);
 };

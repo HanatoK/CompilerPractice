@@ -5,7 +5,7 @@
 #include "Common.h"
 
 #include <iostream>
-#include <QTextStream>
+#include <fstream>
 #include <boost/signals2.hpp>
 #include <cstdio>
 #include <memory>
@@ -21,7 +21,7 @@ class Source;
 class Source {
 public:
   // constructor from an input stream
-  Source(QTextStream &ifs);
+  Source(std::ifstream &ifs);
   // return the source character of the current position
   char currentChar();
   // consume the current source character and return the next one
@@ -39,7 +39,7 @@ private:
 
 private:
   static const char EOL = '\n';
-  QTextStream &mStream; // input stream of the source program
+  std::ifstream &mStream; // input stream of the source program
   std::string mLine;        // source line
   bool mReadOk;
   int mLineNum;         // current source line number

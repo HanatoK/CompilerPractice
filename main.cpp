@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
   parser.addOption(intermediate_option);
   parser.addPositionalArgument("source file", "the pascal source file");
   parser.process(a);
-  Pascal* pascal = nullptr;
   QString flags;
   const auto& reference_listing_option_list = reference_listing_option.names();
   if (parser.isSet(reference_listing_option)) {
@@ -42,23 +41,16 @@ int main(int argc, char *argv[])
   const QStringList files = parser.positionalArguments();
   if (files.empty()) {
     qWarning().noquote() << "No source file specified.";
-    a.exit(1);
     return 1;
   }
   const QString& filePath = files.first();
   if (parser.isSet(compile_option)) {
-    pascal = new Pascal("compile", filePath.toStdString(), flags.toStdString(), &a);
-    QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
-    emit pascal->exit(0);
-    return 0;
+    Pascal p("compile", filePath.toStdString(), flags.toStdString());
   } else if (parser.isSet(interpret_option)) {
-    pascal = new Pascal("interpret", filePath.toStdString(), flags.toStdString(), &a);
-    QObject::connect(pascal, &Pascal::exit, &a, &QCoreApplication::exit);
-    emit pascal->exit(0);
-    return 0;
+    Pascal p("interpret", filePath.toStdString(), flags.toStdString());
   } else {
     parser.showHelp();
     return 0;
   }
-  return a.exec();
+  return 0;
 }

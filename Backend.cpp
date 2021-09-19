@@ -28,6 +28,7 @@ void RuntimeErrorHandler::flag(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICod
   do {
     if (ptr->getAttribute(ICodeKeyTypeImpl::LINE).has_value()) {
       line_number = std::any_cast<int>(ptr->getAttribute(ICodeKeyTypeImpl::LINE));
+      break;
     }
     ptr = ptr->parent();
   } while (ptr != nullptr);

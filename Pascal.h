@@ -9,12 +9,12 @@
 
 #include <QFile>
 #include <QObject>
+#include <fstream>
 
-class Pascal: public QObject {
-  Q_OBJECT
+class Pascal {
 public:
   Pascal(const std::string& operation, const std::string& filePath,
-         const std::string& flags, QObject* parent = nullptr);
+         const std::string& flags);
   ~Pascal();
   void sourceMessage(int lineNumber, std::string line);
   void parserSummary(int lineNumber, int errorCount, float elapsedTime);
@@ -34,8 +34,7 @@ private:
   std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
   std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> mSymbolTableStack;
   std::shared_ptr<Backend> mBackend;
-  QFile* mSourceFile;
-  QTextStream* mTextStream;
+  std::ifstream mTextStream;
 };
 
 #endif // PASCAL_H

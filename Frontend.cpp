@@ -1,8 +1,9 @@
 #include "Frontend.h"
 
 #include <QString>
+#include <istream>
 
-Source::Source(QTextStream &ifs): mStream(ifs)
+Source::Source(std::ifstream &ifs): mStream(ifs)
 {
   mLineNum = 0;
   mCurrentPos = -2;
@@ -52,14 +53,15 @@ char Source::peekChar()
 
 void Source::readLine()
 {
-  QString s;
-  mReadOk = mStream.readLineInto(&s);
-  mLine = s.toStdString();
+  mReadOk = std::getline(mStream, mLine).good();
   mCurrentPos = -1;
   if (mReadOk) {
     // not EOF or error
     ++mLineNum;
-    sendMessage(mLineNum, s.toStdString());
+    clear_line_ending(mLine);
+    sendMessage(mLineNum, mLine);
+  } else {
+    mLine = "";
   }
 }
 

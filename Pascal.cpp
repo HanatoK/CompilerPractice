@@ -9,11 +9,10 @@
 #include <fmt/format.h>
 
 Pascal::Pascal(const std::string &operation, const std::string &filePath,
-               const std::string &flags, QObject *parent)
+               const std::string &flags)
     : mParser(nullptr),
       mSource(nullptr), mICode(nullptr), mSymbolTableStack(nullptr),
-      mBackend(nullptr), mSourceFile(nullptr), mTextStream(nullptr),
-      QObject(parent) {
+      mBackend(nullptr), mTextStream(nullptr) {
   // what are these flags??
 //    const bool intermediate = flags.indexOf('i') > -1;
 //  const bool xref = flags.indexOf('x') > -1;
@@ -21,10 +20,8 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   const bool xref = (search_xref == std::string::npos) ? false : true;
   auto search_i = flags.find('i');
   const bool intermediate = (search_i == std::string::npos) ? false : true;
-  mSourceFile = new QFile(filePath.c_str(), nullptr);
-  mSourceFile->open(QIODevice::ReadOnly);
-  mTextStream = new QTextStream(mSourceFile);
-  mSource = std::make_shared<Source>(*mTextStream);
+  mTextStream.open(filePath.c_str());
+  mSource = std::make_shared<Source>(mTextStream);
   mParser = createPascalParser("Pascal", "top-down", mSource);
   mSource->sendMessage.connect(std::bind(&Pascal::sourceMessage, this,
                                          std::placeholders::_1,
@@ -78,14 +75,10 @@ Pascal::~Pascal() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
-  if (mTextStream != nullptr) {
-    delete mTextStream;
-    mTextStream = nullptr;
-  }
-  if (mSourceFile != nullptr) {
-    delete mSourceFile;
-    mSourceFile = nullptr;
-  }
+//  if (mTextStream != nullptr) {
+//    delete mTextStream;
+//    mTextStream = nullptr;
+//  }
 //  if (mSource != nullptr) {
 //    //    delete mSource;
 //    //    mSource = nullptr;

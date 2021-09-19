@@ -30,3 +30,10 @@ std::string any_to_string(const std::any &a)
     return "Failed to cast std::any!";
   }
 }
+
+void clear_line_ending(std::string& line) {
+  const auto ending = line.find_last_of("\r\n");
+  if (ending != std::string::npos) {
+    line.erase(line.begin() + ending);
+  }
+}
