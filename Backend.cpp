@@ -3,7 +3,7 @@
 #include "Interpreter.h"
 #include "Compiler.h"
 
-#include <QCoreApplication>
+#include <cstdlib>
 
 std::unique_ptr<Backend> createBackend(const std::string &operation) {
   if (boost::iequals(operation, "compile")) {
@@ -35,7 +35,7 @@ void RuntimeErrorHandler::flag(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICod
   backend->runtimeErrorMessage(line_number, runtimeErrorCodeToString(error_code));
   if (++mErrorCount > MAX_ERRORS) {
     std::cerr << "ABORTED AFTER TOO MANY RUNTIME ERRORS.\n";
-    QCoreApplication::exit(-1);
+    std::exit(-1);
   }
 }
 

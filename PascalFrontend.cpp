@@ -8,6 +8,7 @@
 #include <chrono>
 #include <ratio>
 #include <cctype>
+#include <set>
 #include <fmt/format.h>
 
 std::map<PascalTokenTypeImpl, std::string> initReservedWordsMap() {
@@ -167,6 +168,24 @@ void PascalParserTopDown::parse() {
 }
 
 int PascalParserTopDown::errorCount() { return mErrorHandler->errorCount(); }
+
+std::shared_ptr<PascalToken> PascalParserTopDown::synchronize(const std::set<PascalTokenTypeImpl> &sync_set)
+{
+  auto token = currentToken();
+  // if the current token is not in the synchronization set,
+  // then it is unexpected and the parser must recover
+  auto search = sync_set.find(token->type());
+  if (search == sync_set.end()) {
+    // flag the unexpected token
+    mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, this);
+    // recover by skipping tokens that are not in the synchronization set
+    do {
+      token = nextToken();
+      search = sync_set.find(token->type());
+    } while (!token->isEof() && search == sync_set.end());
+  }
+  return token;
+}
 
 PascalScanner::PascalScanner() : Scanner(nullptr) {}
 

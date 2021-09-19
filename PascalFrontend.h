@@ -7,6 +7,7 @@
 
 #include <boost/signals2/connection.hpp>
 #include <map>
+#include <set>
 
 class PascalErrorHandler;
 class PascalSubparserTopDownBase;
@@ -39,16 +40,10 @@ public:
   virtual ~PascalParserTopDown();
   virtual void parse();
   virtual int errorCount();
-  //  void pascalTokenMessage(int lineNumber, int position, PascalTokenType tokenType,
-  //    std::string text, std::any value);
+  std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   boost::signals2::signal<void(int, int, PascalTokenTypeImpl, std::string, std::any)> pascalTokenMessage;
-  //  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
   boost::signals2::signal<void(int, int, float)> parserSummary;
-  //  void tokenMessage(int lineNumber, int position, std::string tokenType,
-  //                    std::string text, std::any value);
   boost::signals2::signal<void(int, int, std::string, std::string, std::any)> tokenMessage;
-  //  void syntaxErrorMessage(int lineNumber, int position, std::string text,
-  //                          std::string error);
   boost::signals2::signal<void(int, int, std::string, std::string)> syntaxErrorMessage;
   friend class PascalSubparserTopDownBase;
 protected:
