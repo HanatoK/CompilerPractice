@@ -90,31 +90,31 @@ Pascal::~Pascal() {
   //  }
 }
 
-void Pascal::sourceMessage(int lineNumber, std::string line) {
+void Pascal::sourceMessage(const int lineNumber, const std::string &line) const {
   fmt::print("{:03d} {}\n", lineNumber, line);
 }
 
-void Pascal::parserSummary(int lineNumber, int errorCount, float elapsedTime) {
+void Pascal::parserSummary(const int lineNumber, const int errorCount, const float elapsedTime) const {
   fmt::print("\n{:10d} source lines.", lineNumber);
   fmt::print("\n{:10d} syntax errors.", errorCount);
   fmt::print("\n{:10.5f} seconds total parsing time.\n\n", elapsedTime);
 }
 
-void Pascal::compilerSummary(int instructionCount, float elapsedTime) {
+void Pascal::compilerSummary(const int instructionCount, const float elapsedTime) const {
   fmt::print("\n{:10d} instructions generated.", instructionCount);
   fmt::print("\n{:10.5f} seconds total code generation time.\n\n", elapsedTime);
 }
 
-void Pascal::interpreterSummary(int executionCount, int runtimeErrors,
-                                float elapsedTime) {
+void Pascal::interpreterSummary(const int executionCount, const int runtimeErrors,
+                                const float elapsedTime) const {
   fmt::print("\n{:10d} statements executed.", executionCount);
   fmt::print("\n{:10d} runtime errors.", runtimeErrors);
   fmt::print("\n{:10.5f} seconds total execution time.\n\n", elapsedTime);
 }
 
-void Pascal::tokenMessage(int lineNumber, int position,
-                          PascalTokenTypeImpl tokenType, std::string text,
-                          std::any value) {
+void Pascal::tokenMessage(const int lineNumber, const int position,
+                          const PascalTokenTypeImpl tokenType, const std::string& text,
+                          const std::any& value) const {
   const auto type_str = typeToStr(tokenType);
   fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
              type_str, lineNumber, position, text);
@@ -124,20 +124,20 @@ void Pascal::tokenMessage(int lineNumber, int position,
   fmt::print("\n");
 }
 
-void Pascal::syntaxErrorMessage(int lineNumber, int position, std::string text,
-                                std::string error) {
+void Pascal::syntaxErrorMessage(const int lineNumber, const int position, const std::string& text,
+                                const std::string& error) const {
   const int prefix_width = 4;
   const int space_count = prefix_width + position;
   fmt::print("{: >{}}^\n", "", space_count);
   fmt::print("***{} [at \"{}\"]\n", error, text);
 }
 
-void Pascal::assignmentMessage(int line_number, std::string variable_name, std::any value)
+void Pascal::assignmentMessage(const int line_number, const std::string& variable_name, const std::any& value) const
 {
   fmt::print("LINE {:3d}: {} = {}\n", line_number, variable_name, any_to_string(value));
 }
 
-void Pascal::runtimeErrorMessage(int line_number, std::string error_message)
+void Pascal::runtimeErrorMessage(const int line_number, const std::string& error_message) const
 {
   fmt::print("*** RUNTIME ERROR AT LINE {:03d} {}\n", line_number, error_message);
 }

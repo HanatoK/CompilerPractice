@@ -4,9 +4,7 @@
 #include <fmt/format.h>
 #include <string>
 
-void CrossReferencer::print(
-    const std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
-        symbol_table_stack) {
+void CrossReferencer::print(const std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl> > &symbol_table_stack) {
   fmt::print("{:=^{}}\n", "CROSS-REFERENCE TABLE", NAME_WIDTH * 4);
   printColumnHeadings();
   printSymbolTable(symbol_table_stack->localSymbolTable());
@@ -19,7 +17,7 @@ void CrossReferencer::printColumnHeadings() {
 }
 
 void CrossReferencer::printSymbolTable(
-    const std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>> symbol_table) {
+    const std::shared_ptr<const SymbolTable<SymbolTableKeyTypeImpl>>& symbol_table) {
   auto sorted_list = symbol_table->sortedEntries();
   for (const auto &elem : sorted_list) {
     const auto line_numbers = elem->lineNumbers();
@@ -41,7 +39,7 @@ ParseTreePrinter::ParseTreePrinter(std::ostream &os)
 }
 
 void ParseTreePrinter::print(
-    const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+    const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const>
         &intermediate_code) {
   const auto tmp_line_width = LINE_WIDTH;
   mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
@@ -51,7 +49,7 @@ void ParseTreePrinter::print(
 }
 
 void ParseTreePrinter::printNode(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const>
         &node) {
   // opening tag
   appendOutputLine(mLineIndentation);
@@ -72,7 +70,7 @@ void ParseTreePrinter::printNode(
 }
 
 void ParseTreePrinter::printAttributes(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const>
         &node) {
   const auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
@@ -126,7 +124,7 @@ void ParseTreePrinter::printAttributes(const std::string &key,
 }
 
 void ParseTreePrinter::printChildNodes(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+    const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
         &parent_node) {
   auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
@@ -141,7 +139,7 @@ void ParseTreePrinter::printChildNodes(
 }
 
 void ParseTreePrinter::printTypeSpec(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+    const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
         &node) {}
 
 void ParseTreePrinter::appendOutputLine(const std::string &text) {
@@ -172,7 +170,7 @@ ParseTreePrinterDot::ParseTreePrinterDot(std::ostream &os): mOutputStream(os), m
 
 }
 
-void ParseTreePrinterDot::print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &intermediate_code)
+void ParseTreePrinterDot::print(const std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &intermediate_code)
 {
   auto root_node = intermediate_code->getRoot();
   printNode(root_node);
@@ -190,7 +188,7 @@ void ParseTreePrinterDot::print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, I
   mOutputStream << "}";
 }
 
-std::string ParseTreePrinterDot::printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
 {
   // print current node
   std::string node_label = node->toString();

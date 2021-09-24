@@ -21,7 +21,7 @@ Executor::~Executor()
 }
 
 void Executor::process(
-    std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
+    std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const> iCode,
     std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
         symbol_table_stack) {
   mICode = iCode;
@@ -47,7 +47,7 @@ SubExecutorBase::~SubExecutorBase()
 
 }
 
-void SubExecutorBase::sendSourceLineMessage(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > node)
+void SubExecutorBase::sendSourceLineMessage(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node)
 {
   const auto line_number_obj = node->getAttribute(ICodeKeyTypeImpl::LINE);
   if (line_number_obj.has_value()) {

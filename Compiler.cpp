@@ -2,8 +2,7 @@
 
 #include <chrono>
 
-void CodeGenerator::process(
-    std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
+void CodeGenerator::process(std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > iCode,
     std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
         symbol_table_stack) {
   const auto start_time = std::chrono::high_resolution_clock::now();

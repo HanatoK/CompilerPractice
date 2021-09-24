@@ -14,7 +14,7 @@ public:
                              const std::shared_ptr<PascalToken>& token);
   virtual void parseList(std::shared_ptr<PascalToken> token,
                          std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &parent_node,
-                         PascalTokenTypeImpl terminator, PascalErrorCode error_code);
+                         const PascalTokenTypeImpl &terminator, const PascalErrorCode &error_code);
 };
 
 #endif // STATEMENTPARSER_H

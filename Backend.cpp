@@ -20,8 +20,8 @@ RuntimeErrorHandler::RuntimeErrorHandler(): mErrorCount(0)
 
 }
 
-void RuntimeErrorHandler::flag(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > node,
-                               RuntimeErrorCode error_code, Backend *backend)
+void RuntimeErrorHandler::flag(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node,
+                               const RuntimeErrorCode error_code, const Backend *backend)
 {
   const ICodeNodeBase* ptr = node.get();
   int line_number = 0;
@@ -39,7 +39,7 @@ void RuntimeErrorHandler::flag(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICod
   }
 }
 
-std::string runtimeErrorCodeToString(RuntimeErrorCode code)
+std::string runtimeErrorCodeToString(const RuntimeErrorCode& code)
 {
   switch (code) {
     case RuntimeErrorCode::DIVISION_BY_ZERO: {return "Division by zero";}

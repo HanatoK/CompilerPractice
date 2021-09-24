@@ -17,6 +17,7 @@ public:
   virtual ~ICodeNodeImpl();
   virtual ICodeNodeTypeImpl type() const;
   virtual const ICodeNodeBase* parent() const;
+  virtual const ICodeNodeBase* setParent(const ICodeNodeBase* new_parent);
   virtual std::shared_ptr<ICodeNodeBase> addChild(std::shared_ptr<ICodeNodeBase> node);
   virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value);
   virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const;
@@ -59,7 +60,7 @@ public:
   virtual void setAttribute(const SymbolTableKeyTypeImpl &key,
                             const std::any &value);
   virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key,
-                                bool *ok = nullptr);
+                                bool *ok = nullptr) const;
 
 private:
   SymbolTable<SymbolTableKeyTypeImpl> *mSymbolTable;
@@ -74,11 +75,11 @@ public:
   virtual ~SymbolTableImpl();
   virtual int nestingLevel() const;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookup(const std::string &name);
+  lookup(const std::string &name) const;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
   enter(const std::string &name);
   virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
-  sortedEntries();
+  sortedEntries() const;
 
 private:
   int mNestingLevel;
@@ -96,9 +97,9 @@ public:
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
   enterLocal(const std::string &name);
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookupLocal(const std::string &name);
+  lookupLocal(const std::string &name) const;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookup(const std::string &name);
+  lookup(const std::string &name) const;
 
 private:
   int mCurrentNestingLevel;

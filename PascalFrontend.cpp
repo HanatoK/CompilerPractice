@@ -4,12 +4,12 @@
 #include "StatementParser.h"
 
 #include <QCoreApplication>
-#include <iostream>
-#include <chrono>
-#include <ratio>
 #include <cctype>
-#include <set>
+#include <chrono>
 #include <fmt/format.h>
+#include <iostream>
+#include <ratio>
+#include <set>
 
 std::map<PascalTokenTypeImpl, std::string> initReservedWordsMap() {
   std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
@@ -90,7 +90,8 @@ std::map<PascalTokenTypeImpl, std::string> initSpecialWordsMap() {
   specialWordsMap[PascalTokenTypeImpl::REAL] = std::string("real");
   specialWordsMap[PascalTokenTypeImpl::STRING] = std::string("string");
   specialWordsMap[PascalTokenTypeImpl::ERROR] = std::string("error");
-  specialWordsMap[PascalTokenTypeImpl::END_OF_FILE] = std::string("end_of_file");
+  specialWordsMap[PascalTokenTypeImpl::END_OF_FILE] =
+      std::string("end_of_file");
   return specialWordsMap;
 }
 
@@ -98,7 +99,8 @@ std::map<PascalTokenTypeImpl, std::string> reservedWordsMap =
     initReservedWordsMap();
 std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap =
     initSpecialSymbolsMap();
-std::map<PascalTokenTypeImpl, std::string> specialWordsMap = initSpecialWordsMap();
+std::map<PascalTokenTypeImpl, std::string> specialWordsMap =
+    initSpecialWordsMap();
 std::map<std::string, PascalTokenTypeImpl> reservedWordsMapRev =
     reverse_map(reservedWordsMap);
 std::map<std::string, PascalTokenTypeImpl> specialSymbolsMapRev =
@@ -134,31 +136,32 @@ void PascalParserTopDown::parse() {
         root_node = statement_parser.parse(token);
         token = currentToken();
       } else {
-        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN,
-        this);
+        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, this);
       }
       if (token->type() != PascalTokenTypeImpl::DOT) {
-        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD,
-        this);
+        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, this);
       }
       token = currentToken();
       if (root_node != nullptr) {
         mICode->setRoot(std::move(root_node));
       }
-//      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
-//        const std::string name = boost::algorithm::to_lower_copy(token->text());
-//        auto symbol_table_stack =
-//            dynamic_cast<SymbolTableStackImpl *>(mSymbolTableStack.get());
-//        auto entry = symbol_table_stack->lookup(name);
-//        if (entry == nullptr) {
-//          entry = symbol_table_stack->enterLocal(name);
-//        }
-//        entry->appendLineNumber(token->lineNum());
-//      }
+      //      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
+      //        const std::string name =
+      //        boost::algorithm::to_lower_copy(token->text()); auto
+      //        symbol_table_stack =
+      //            dynamic_cast<SymbolTableStackImpl
+      //            *>(mSymbolTableStack.get());
+      //        auto entry = symbol_table_stack->lookup(name);
+      //        if (entry == nullptr) {
+      //          entry = symbol_table_stack->enterLocal(name);
+      //        }
+      //        entry->appendLineNumber(token->lineNum());
+      //      }
       pascalTokenMessage(token->lineNum(), token->position(), token->type(),
                          token->text(), token->value());
     } else {
-      mErrorHandler->flag(token, std::any_cast<PascalErrorCode>(token->value()), this);
+      mErrorHandler->flag(token, std::any_cast<PascalErrorCode>(token->value()),
+                          this);
     }
     token = nextToken();
   }
@@ -167,10 +170,10 @@ void PascalParserTopDown::parse() {
   parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());
 }
 
-int PascalParserTopDown::errorCount() { return mErrorHandler->errorCount(); }
+int PascalParserTopDown::errorCount() const { return mErrorHandler->errorCount(); }
 
-std::shared_ptr<PascalToken> PascalParserTopDown::synchronize(const std::set<PascalTokenTypeImpl> &sync_set)
-{
+std::shared_ptr<PascalToken> PascalParserTopDown::synchronize(
+    const std::set<PascalTokenTypeImpl> &sync_set) {
   auto token = currentToken();
   // if the current token is not in the synchronization set,
   // then it is unexpected and the parser must recover
@@ -245,8 +248,7 @@ void PascalScanner::skipWhiteSpace() {
 std::unique_ptr<PascalParserTopDown>
 createPascalParser(const std::string &language, const std::string &type,
                    std::shared_ptr<Source> source) {
-  if (boost::iequals(language, "Pascal") &&
-      boost::iequals(type, "top-down")) {
+  if (boost::iequals(language, "Pascal") && boost::iequals(type, "top-down")) {
     std::unique_ptr<PascalScanner> scanner =
         std::make_unique<PascalScanner>(source);
     return std::make_unique<PascalParserTopDown>(std::move(scanner));
@@ -268,8 +270,8 @@ PascalErrorHandler::~PascalErrorHandler() {
 }
 
 void PascalErrorHandler::flag(const std::shared_ptr<PascalToken> &token,
-                              PascalErrorCode errorCode,
-                              PascalParserTopDown *parser) {
+                              const PascalErrorCode errorCode,
+                              const PascalParserTopDown *parser) {
   parser->syntaxErrorMessage(token->lineNum(), token->position(), token->text(),
                              errorMessageMap[errorCode]);
   if (++mErrorCount > maxError) {
@@ -277,11 +279,11 @@ void PascalErrorHandler::flag(const std::shared_ptr<PascalToken> &token,
   }
 }
 
-void PascalErrorHandler::abortTranslation(PascalErrorCode errorCode,
-                                          PascalParserTopDown *parser) {
+void PascalErrorHandler::abortTranslation(const PascalErrorCode errorCode,
+                                          const PascalParserTopDown *parser) {
   const std::string fatalText = "FATAL ERROR: " + errorMessageMap[errorCode];
-  PascalParserTopDown *pascalParser =
-      dynamic_cast<PascalParserTopDown *>(parser);
+  const PascalParserTopDown *pascalParser =
+      dynamic_cast<const PascalParserTopDown *>(parser);
   pascalParser->syntaxErrorMessage(0, 0, "", fatalText);
   QCoreApplication::exit(int(errorCode));
 }
@@ -404,8 +406,9 @@ PascalErrorToken::PascalErrorToken() : PascalToken() {
 }
 
 PascalErrorToken::PascalErrorToken(std::shared_ptr<Source> source,
-                                   PascalErrorCode errorCode,
-                                   const std::string &tokenText): PascalToken(source, false) {
+                                   const PascalErrorCode errorCode,
+                                   const std::string &tokenText)
+    : PascalToken(source, false) {
   this->mType = PascalTokenTypeImpl::ERROR;
   this->mValue = errorCode;
   this->mText = tokenText;
@@ -418,7 +421,8 @@ unique_ptr<PascalToken> PascalErrorToken::clone() const {
 
 void PascalErrorToken::extract() {}
 
-PascalWordToken::PascalWordToken(std::shared_ptr<Source> source): PascalToken(source, false) {
+PascalWordToken::PascalWordToken(std::shared_ptr<Source> source)
+    : PascalToken(source, false) {
   PascalWordToken::extract();
   mValue.reset();
 }
@@ -443,7 +447,8 @@ void PascalWordToken::extract() {
   }
 }
 
-PascalStringToken::PascalStringToken(std::shared_ptr<Source> source): PascalToken(source, false) {
+PascalStringToken::PascalStringToken(std::shared_ptr<Source> source)
+    : PascalToken(source, false) {
   PascalStringToken::extract();
 }
 
@@ -572,7 +577,8 @@ void PascalSpecialSymbolToken::extract() {
   }
 }
 
-PascalNumberToken::PascalNumberToken(std::shared_ptr<Source> source): PascalToken(source, false) {
+PascalNumberToken::PascalNumberToken(std::shared_ptr<Source> source)
+    : PascalToken(source, false) {
   PascalNumberToken::extract();
 }
 
@@ -694,23 +700,19 @@ double PascalNumberToken::computeFloatValue(std::string &whole_digits,
   }
 }
 
+const std::set<PascalTokenTypeImpl> PascalSubparserTopDownBase::mStatementStartSet{
+    PascalTokenTypeImpl::BEGIN,      PascalTokenTypeImpl::CASE,
+    PascalTokenTypeImpl::FOR,        PascalTokenTypeImpl::IF,
+    PascalTokenTypeImpl::REPEAT,     PascalTokenTypeImpl::WHILE,
+    PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::SEMICOLON};
+const std::set<PascalTokenTypeImpl> PascalSubparserTopDownBase::mStatementFollowSet{
+    PascalTokenTypeImpl::SEMICOLON, PascalTokenTypeImpl::END,
+    PascalTokenTypeImpl::ELSE, PascalTokenTypeImpl::UNTIL,
+    PascalTokenTypeImpl::DOT};
+
 PascalSubparserTopDownBase::PascalSubparserTopDownBase(
     PascalParserTopDown &pascal_parser)
-  : mPascalParser(pascal_parser),
-    mStatementStartSet{PascalTokenTypeImpl::BEGIN,
-                       PascalTokenTypeImpl::CASE,
-                       PascalTokenTypeImpl::FOR,
-                       PascalTokenTypeImpl::IF,
-                       PascalTokenTypeImpl::REPEAT,
-                       PascalTokenTypeImpl::WHILE,
-                       PascalTokenTypeImpl::IDENTIFIER,
-                       PascalTokenTypeImpl::SEMICOLON},
-    mStatementFollowSet{PascalTokenTypeImpl::SEMICOLON,
-                        PascalTokenTypeImpl::END,
-                        PascalTokenTypeImpl::ELSE,
-                        PascalTokenTypeImpl::UNTIL,
-                        PascalTokenTypeImpl::DOT}
-{}
+    : mPascalParser(pascal_parser) {}
 
 PascalSubparserTopDownBase::~PascalSubparserTopDownBase() {}
 
@@ -748,12 +750,9 @@ PascalParserTopDown *PascalSubparserTopDownBase::currentParser() {
   return &mPascalParser;
 }
 
-PascalEofToken::PascalEofToken()
-{
-  mType = PascalTokenTypeImpl::END_OF_FILE;
-}
+PascalEofToken::PascalEofToken() { mType = PascalTokenTypeImpl::END_OF_FILE; }
 
-PascalEofToken::PascalEofToken(std::shared_ptr<Source> source): EofToken<PascalTokenTypeImpl>(source)
-{
+PascalEofToken::PascalEofToken(std::shared_ptr<Source> source)
+    : EofToken<PascalTokenTypeImpl>(source) {
   mType = PascalTokenTypeImpl::END_OF_FILE;
 }

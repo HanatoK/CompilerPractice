@@ -39,12 +39,12 @@ public:
   PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
   virtual ~PascalParserTopDown();
   virtual void parse();
-  virtual int errorCount();
+  virtual int errorCount() const;
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
-  boost::signals2::signal<void(int, int, PascalTokenTypeImpl, std::string, std::any)> pascalTokenMessage;
-  boost::signals2::signal<void(int, int, float)> parserSummary;
-  boost::signals2::signal<void(int, int, std::string, std::string, std::any)> tokenMessage;
-  boost::signals2::signal<void(int, int, std::string, std::string)> syntaxErrorMessage;
+  boost::signals2::signal<void(const int, const int, const PascalTokenTypeImpl, const std::string&, std::any)> pascalTokenMessage;
+  boost::signals2::signal<void(const int, const int, const float)> parserSummary;
+  boost::signals2::signal<void(const int, const int, const std::string&, const std::string&, const std::any&)> tokenMessage;
+  boost::signals2::signal<void(const int, const int, const std::string&, const std::string&)> syntaxErrorMessage;
   friend class PascalSubparserTopDownBase;
 protected:
   PascalErrorHandler* mErrorHandler;
@@ -63,8 +63,8 @@ public:
   PascalErrorHandler* errorHandler();
   PascalParserTopDown* currentParser();
 protected:
-  std::set<PascalTokenTypeImpl> mStatementStartSet;
-  std::set<PascalTokenTypeImpl> mStatementFollowSet;
+  static const std::set<PascalTokenTypeImpl> mStatementStartSet;
+  static const std::set<PascalTokenTypeImpl> mStatementFollowSet;
 private:
   PascalParserTopDown& mPascalParser;
 };
@@ -73,8 +73,8 @@ class PascalErrorHandler {
 public:
   PascalErrorHandler();
   virtual ~PascalErrorHandler();
-  void flag(const std::shared_ptr<PascalToken> &token, PascalErrorCode errorCode, PascalParserTopDown *parser);
-  void abortTranslation(PascalErrorCode errorCode, PascalParserTopDown *parser);
+  void flag(const std::shared_ptr<PascalToken> &token, const PascalErrorCode errorCode, const PascalParserTopDown *parser);
+  void abortTranslation(const PascalErrorCode errorCode, const PascalParserTopDown *parser);
   int errorCount() const;
 private:
   static const int maxError = 25;
@@ -85,7 +85,7 @@ private:
 class PascalErrorToken: public PascalToken {
 public:
   PascalErrorToken();
-  PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCode errorCode,
+  PascalErrorToken(std::shared_ptr<Source> source, const PascalErrorCode errorCode,
                    const std::string& tokenText);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();

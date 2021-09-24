@@ -6,7 +6,7 @@ CompoundStatementExecutor::CompoundStatementExecutor(Executor &executor): SubExe
 
 }
 
-std::shared_ptr<SubExecutorBase> CompoundStatementExecutor::execute(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > node)
+std::shared_ptr<SubExecutorBase> CompoundStatementExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node)
 {
   StatementExecutor statement_executor(*currentExecutor());
   for (auto it = node->childrenBegin(); it != node->childrenEnd(); ++it) {

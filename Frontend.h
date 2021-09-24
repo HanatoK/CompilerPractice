@@ -207,7 +207,7 @@ public:
   Parser(std::shared_ptr<ScannerT> scanner);
   virtual ~Parser();
   virtual void parse() = 0;
-  virtual int errorCount() = 0;
+  virtual int errorCount() const = 0;
   std::shared_ptr<Token<TokenT>> currentToken() const;
   std::shared_ptr<Token<TokenT>> nextToken();
   std::shared_ptr<SymbolTableStack<SymbolTableKeyT>>

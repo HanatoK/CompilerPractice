@@ -8,11 +8,11 @@ namespace CrossReferencer {
 
 const int NAME_WIDTH = 16;
 
-void print(const std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
+void print(const std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>& symbol_table_stack);
 
 void printColumnHeadings();
 
-void printSymbolTable(const std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>> symbol_table);
+void printSymbolTable(const std::shared_ptr<const SymbolTable<SymbolTableKeyTypeImpl> > &symbol_table);
 
 };
 
@@ -27,12 +27,12 @@ public:
   static const int INDENT_WIDTH = 4;
   static const int LINE_WIDTH = 80;
   ParseTreePrinter(std::ostream& os);
-  void print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& intermediate_code);
-  void printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
-  void printAttributes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void print(const std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &intermediate_code);
+  void printNode(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void printAttributes(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
   void printAttributes(const std::string& key, const std::any& value);
-  void printChildNodes(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &parent_node);
-  void printTypeSpec(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void printChildNodes(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &parent_node);
+  void printTypeSpec(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
   void appendOutputLine(const std::string& text);
   void printLine();
 };
@@ -45,8 +45,8 @@ private:
   std::vector<std::string> mNodeConnectionLines;
 public:
   ParseTreePrinterDot(std::ostream& os);
-  void print(const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& intermediate_code);
-  std::string printNode(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  void print(const std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& intermediate_code);
+  std::string printNode(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
 };
 
 #endif // UTILITIES_H

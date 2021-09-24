@@ -80,7 +80,7 @@ void StatementParser::parseList(
     std::shared_ptr<PascalToken> token,
     std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
         &parent_node,
-    PascalTokenTypeImpl terminator, PascalErrorCode error_code) {
+    const PascalTokenTypeImpl& terminator, const PascalErrorCode& error_code) {
   auto terminator_set = mStatementStartSet;
   terminator_set.insert(terminator);
   while (!token->isEof() && token->type() != terminator) {

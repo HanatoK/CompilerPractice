@@ -27,6 +27,7 @@ public:
   ICodeNode(const NodeT& pType) {}
   virtual ~ICodeNode() {}
   virtual NodeT type() const = 0;
+  virtual const ICodeNode* setParent(const ICodeNode* new_parent) = 0;
   virtual const ICodeNode* parent() const = 0;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
@@ -86,7 +87,7 @@ public:
   virtual void appendLineNumber(int line_number) = 0;
   virtual std::vector<int> lineNumbers() const = 0;
   virtual void setAttribute(const SymbolTableKeyType& key, const std::any& value) = 0;
-  virtual std::any getAttribute(const SymbolTableKeyType& key, bool* ok = nullptr) = 0;
+  virtual std::any getAttribute(const SymbolTableKeyType& key, bool* ok = nullptr) const = 0;
 };
 
 template <typename SymbolTableKeyType>
@@ -95,9 +96,9 @@ public:
   SymbolTable(int nestingLevel) {}
   virtual ~SymbolTable() {}
   virtual int nestingLevel() const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) const = 0;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enter(const std::string& name) = 0;
-  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>>> sortedEntries() = 0;
+  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>>> sortedEntries() const = 0;
 };
 
 template <typename SymbolTableKeyType>
@@ -108,8 +109,8 @@ public:
   virtual int currentNestingLevel() const = 0;
   virtual std::shared_ptr<SymbolTable<SymbolTableKeyType>> localSymbolTable() const = 0;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enterLocal(const std::string& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookupLocal(const std::string& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookupLocal(const std::string& name) const = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) const = 0;
 };
 
 template <typename SymbolTableKeyType>

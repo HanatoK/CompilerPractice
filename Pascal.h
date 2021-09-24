@@ -16,16 +16,16 @@ public:
   Pascal(const std::string& operation, const std::string& filePath,
          const std::string& flags);
   ~Pascal();
-  void sourceMessage(int lineNumber, std::string line);
-  void parserSummary(int lineNumber, int errorCount, float elapsedTime);
-  void compilerSummary(int instructionCount, float elapsedTime);
-  void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime);
-  void tokenMessage(int lineNumber, int position, PascalTokenTypeImpl tokenType,
-                    std::string text, std::any value);
-  void syntaxErrorMessage(int lineNumber, int position, std::string text,
-                          std::string error);
-  void assignmentMessage(int line_number, std::string variable_name, std::any value);
-  void runtimeErrorMessage(int line_number, std::string error_message);
+  void sourceMessage(const int lineNumber, const std::string& line) const;
+  void parserSummary(const int lineNumber, const int errorCount, const float elapsedTime) const;
+  void compilerSummary(const int instructionCount, const float elapsedTime) const;
+  void interpreterSummary(const int executionCount, const int runtimeErrors, const float elapsedTime) const;
+  void tokenMessage(const int lineNumber, const int position, const PascalTokenTypeImpl tokenType,
+                    const std::string& text, const std::any& value) const;
+  void syntaxErrorMessage(const int lineNumber, const int position, const std::string& text,
+                          const std::string& error) const;
+  void assignmentMessage(const int line_number, const std::string& variable_name, const std::any& value) const;
+  void runtimeErrorMessage(const int line_number, const std::string& error_message) const;
 signals:
   void exit(int exitCode);
 private:

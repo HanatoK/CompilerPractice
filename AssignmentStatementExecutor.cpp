@@ -6,7 +6,7 @@ AssignmentStatementExecutor::AssignmentStatementExecutor(Executor &executor): Su
 
 }
 
-std::shared_ptr<SubExecutorBase> AssignmentStatementExecutor::execute(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > node)
+std::shared_ptr<SubExecutorBase> AssignmentStatementExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node)
 {
   // get the variable node and the expression node
   auto it = node->childrenBegin();

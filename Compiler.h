@@ -7,7 +7,7 @@ class CodeGenerator: public Backend {
 public:
   CodeGenerator(): Backend() {}
   virtual ~CodeGenerator() {}
-  virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
+  virtual void process(std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const> iCode,
                        std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
   virtual std::string getType() const {
     return "compiler";

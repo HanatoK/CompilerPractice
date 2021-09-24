@@ -30,12 +30,12 @@ std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::
   return mStack[mCurrentNestingLevel]->enter(name);
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookupLocal(const std::string &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookupLocal(const std::string &name) const
 {
   return mStack[mCurrentNestingLevel]->lookup(name);
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookup(const std::string &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableStackImpl::lookup(const std::string &name) const
 {
   return lookupLocal(name);
 }
@@ -57,7 +57,7 @@ int SymbolTableImpl::nestingLevel() const
   return mNestingLevel;
 }
 
-std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > SymbolTableImpl::lookup(const std::string &name)
+std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > SymbolTableImpl::lookup(const std::string &name) const
 {
   auto search = mSymbolMap.find(name);
   if (search != mSymbolMap.end()) {
@@ -73,7 +73,7 @@ std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>> SymbolTableImpl::enter
   return mSymbolMap[name];
 }
 
-std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > > SymbolTableImpl::sortedEntries()
+std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl> > > SymbolTableImpl::sortedEntries() const
 {
   // std::map is already sorted
   std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>> result;
@@ -123,7 +123,7 @@ void SymbolTableEntryImpl::setAttribute(const SymbolTableKeyTypeImpl& key, const
   mEntryMap[key] = value;
 }
 
-std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok)
+std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok) const
 {
 //  const SymbolTableKeyImpl* key_impl = static_cast<const SymbolTableKeyImpl*>(key);
   auto search = mEntryMap.find(key);
@@ -186,12 +186,17 @@ const ICodeNodeBase *ICodeNodeImpl::parent() const
   return mParent;
 }
 
+const ICodeNodeBase *ICodeNodeImpl::setParent(const ICodeNodeBase *new_parent)
+{
+  mParent = new_parent;
+  return mParent;
+}
+
 std::shared_ptr<ICodeNodeBase> ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeBase> node)
 {
   if (node != nullptr) {
     mChildren.push_back(node);
-    auto tmp_impl = dynamic_cast<ICodeNodeImpl*>(node.get());
-    tmp_impl->mParent = dynamic_cast<const ICodeNode*>(this);
+    mChildren.back()->setParent(this);
   }
   return node;
 }
