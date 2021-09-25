@@ -72,3 +72,7 @@ Thumbs.db
 *.exe
 
 CMakeLists.txt.user*
+
+# VS code
+.vscode/
+build/
