@@ -20,7 +20,6 @@ const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParse
    {PascalTokenTypeImpl::MOD, ICodeNodeTypeImpl::MOD},
    {PascalTokenTypeImpl::AND, ICodeNodeTypeImpl::AND}};
 
-
 const std::set<PascalTokenTypeImpl> ExpressionParser::mExpressionStartSet =
   {PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
    PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,

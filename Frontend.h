@@ -225,7 +225,7 @@ template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::Parser(
     std::shared_ptr<ScannerT> scanner)
-    : mSymbolTableStack(nullptr), mScanner(scanner), mICode(nullptr) {
+    : mSymbolTableStack(nullptr), mScanner(std::move(scanner)), mICode(nullptr) {
   mSymbolTableStack = createSymbolTableStack<SymbolTableKeyT>();
   //  scanner->setParent(this);
 }

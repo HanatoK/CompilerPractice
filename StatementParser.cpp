@@ -68,14 +68,6 @@ StatementParser::parse(std::shared_ptr<PascalToken> token) {
   return std::move(statement_node);
 }
 
-void StatementParser::setLineNumber(
-    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> &node,
-    const std::shared_ptr<PascalToken> &token) {
-  if (node != nullptr) {
-    node->setAttribute(ICodeKeyTypeImpl::LINE, token->lineNum());
-  }
-}
-
 void StatementParser::parseList(
     std::shared_ptr<PascalToken> token,
     std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
@@ -98,7 +90,7 @@ void StatementParser::parseList(
       }
     }
     // synchromize at the start of the next statement
-    token = currentParser()->synchronize(terminator_set);
+    token = synchronize(terminator_set);
     /*else if (token_type == PascalTokenTypeImpl::IDENTIFIER) {
       errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
     } else if (token_type != terminator) {

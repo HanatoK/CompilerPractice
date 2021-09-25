@@ -3,7 +3,6 @@
 
 #include "PascalFrontend.h"
 
-#include <set>
 #include <unordered_map>
 
 class ExpressionParser : public PascalSubparserTopDownBase

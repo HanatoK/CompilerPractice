@@ -170,7 +170,9 @@ void PascalParserTopDown::parse() {
   parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());
 }
 
-int PascalParserTopDown::errorCount() const { return mErrorHandler->errorCount(); }
+int PascalParserTopDown::errorCount() const {
+  return mErrorHandler->errorCount();
+}
 
 std::shared_ptr<PascalToken> PascalParserTopDown::synchronize(
     const std::set<PascalTokenTypeImpl> &sync_set) {
@@ -700,15 +702,17 @@ double PascalNumberToken::computeFloatValue(std::string &whole_digits,
   }
 }
 
-const std::set<PascalTokenTypeImpl> PascalSubparserTopDownBase::mStatementStartSet{
-    PascalTokenTypeImpl::BEGIN,      PascalTokenTypeImpl::CASE,
-    PascalTokenTypeImpl::FOR,        PascalTokenTypeImpl::IF,
-    PascalTokenTypeImpl::REPEAT,     PascalTokenTypeImpl::WHILE,
-    PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::SEMICOLON};
-const std::set<PascalTokenTypeImpl> PascalSubparserTopDownBase::mStatementFollowSet{
-    PascalTokenTypeImpl::SEMICOLON, PascalTokenTypeImpl::END,
-    PascalTokenTypeImpl::ELSE, PascalTokenTypeImpl::UNTIL,
-    PascalTokenTypeImpl::DOT};
+const std::set<PascalTokenTypeImpl>
+    PascalSubparserTopDownBase::mStatementStartSet{
+        PascalTokenTypeImpl::BEGIN,      PascalTokenTypeImpl::CASE,
+        PascalTokenTypeImpl::FOR,        PascalTokenTypeImpl::IF,
+        PascalTokenTypeImpl::REPEAT,     PascalTokenTypeImpl::WHILE,
+        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::SEMICOLON};
+const std::set<PascalTokenTypeImpl>
+    PascalSubparserTopDownBase::mStatementFollowSet{
+        PascalTokenTypeImpl::SEMICOLON, PascalTokenTypeImpl::END,
+        PascalTokenTypeImpl::ELSE, PascalTokenTypeImpl::UNTIL,
+        PascalTokenTypeImpl::DOT};
 
 PascalSubparserTopDownBase::PascalSubparserTopDownBase(
     PascalParserTopDown &pascal_parser)
@@ -722,6 +726,11 @@ std::shared_ptr<PascalToken> PascalSubparserTopDownBase::currentToken() const {
 
 std::shared_ptr<PascalToken> PascalSubparserTopDownBase::nextToken() {
   return mPascalParser.nextToken();
+}
+
+std::shared_ptr<PascalToken> PascalSubparserTopDownBase::synchronize(
+    const std::set<PascalTokenTypeImpl> &sync_set) {
+  return mPascalParser.synchronize(sync_set);
 }
 
 std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
@@ -748,6 +757,14 @@ PascalErrorHandler *PascalSubparserTopDownBase::errorHandler() {
 
 PascalParserTopDown *PascalSubparserTopDownBase::currentParser() {
   return &mPascalParser;
+}
+
+void PascalSubparserTopDownBase::setLineNumber(
+    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> &node,
+    const std::shared_ptr<PascalToken> &token) {
+  if (node != nullptr) {
+    node->setAttribute(ICodeKeyTypeImpl::LINE, token->lineNum());
+  }
 }
 
 PascalEofToken::PascalEofToken() { mType = PascalTokenTypeImpl::END_OF_FILE; }

@@ -1,6 +1,18 @@
 #include "AssignmentStatementParser.h"
 #include "ExpressionParser.h"
 
+std::set<PascalTokenTypeImpl> initColonEqualsSet() {
+  std::set<PascalTokenTypeImpl> s = ExpressionParser::mExpressionStartSet;
+  s.insert(PascalTokenTypeImpl::COLON_EQUALS);
+  const auto& follow_set = PascalSubparserTopDownBase::mStatementFollowSet;
+  for (auto it = follow_set.begin(); it != follow_set.end(); ++it) {
+    s.insert(*it);
+  }
+  return s;
+}
+
+decltype(AssignmentStatementParser::mColonEqualsSet) AssignmentStatementParser::mColonEqualsSet = initColonEqualsSet();
+
 AssignmentStatementParser::AssignmentStatementParser(PascalParserTopDown &parent): PascalSubparserTopDownBase(parent)
 {
 
@@ -31,6 +43,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
   assign_node->addChild(std::move(variable_node));
   // consume the identifier token
   token = nextToken();
+  token = synchronize(AssignmentStatementParser::mColonEqualsSet);
   // and look for the := token
   if (token->type() == PascalTokenTypeImpl::COLON_EQUALS) {
     // consume :=

@@ -56,13 +56,16 @@ public:
   virtual ~PascalSubparserTopDownBase();
   std::shared_ptr<PascalToken> currentToken() const;
   std::shared_ptr<PascalToken> nextToken();
+  std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> getSymbolTableStack();
   std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> getICode() const;
   std::shared_ptr<PascalScanner> scanner() const;
   int errorCount();
   PascalErrorHandler* errorHandler();
   PascalParserTopDown* currentParser();
-protected:
+  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token) = 0;
+  static void setLineNumber(std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node,
+                            const std::shared_ptr<PascalToken>& token);
   static const std::set<PascalTokenTypeImpl> mStatementStartSet;
   static const std::set<PascalTokenTypeImpl> mStatementFollowSet;
 private:
