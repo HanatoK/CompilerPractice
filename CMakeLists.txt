@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(CompilerPractice LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(PROJECT_SOURCE_DIR src)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -14,59 +15,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_VERSION_MAJOR 5)
 add_compile_definitions(DEBUG_DESTRUCTOR)
 
-set(HEADERS
-    Frontend.h
-    Intermediate.h
-    IntermediateImpl.h
-    Backend.h
-    Pascal.h
-    PascalFrontend.h
-    Common.h
-    Utilities.h
-    StatementParser.h
-    CompoundStatementParser.h
-    AssignmentStatementParser.h
-    ExpressionParser.h
-    Interpreter.h
-    Compiler.h
-    StatementExecutor.h
-    CompoundStatementExecutor.h
-    AssignmentStatementExecutor.h
-    ExpressionExecutor.h
-    RepeatStatementParser.h
-    WhileStatementParser.h
-    ForStatementParser.h
-    IfStatementParser.h
-    CaseStatementParser.h)
+include_directories (
+  ${PROJECT_SOURCE_DIR}/Parsers
+  ${PROJECT_SOURCE_DIR}/Executors
+  ${PROJECT_SOURCE_DIR}
+)
 
-set(SOURCES
-    main.cpp
-    Frontend.cpp
-    Backend.cpp
-    Pascal.cpp
-    PascalFrontend.cpp
-    Intermediate.cpp
-    IntermediateImpl.cpp
-    Utilities.cpp
-    StatementParser.cpp
-    CompoundStatementParser.cpp
-    AssignmentStatementParser.cpp
-    ExpressionParser.cpp
-    Common.cpp
-    Interpreter.cpp
-    Compiler.cpp
-    StatementExecutor.cpp
-    CompoundStatementExecutor.cpp
-    AssignmentStatementExecutor.cpp
-    ExpressionExecutor.cpp
-    RepeatStatementParser.cpp
-    WhileStatementParser.cpp
-    ForStatementParser.cpp
-    IfStatementParser.cpp
-    CaseStatementParser.cpp)
+file(GLOB HEADERS ${PROJECT_SOURCE_DIR}/*.h ${PROJECT_SOURCE_DIR}/Parsers/*.h ${PROJECT_SOURCE_DIR}/Executors/*.h)
+file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/Parsers/*.cpp ${PROJECT_SOURCE_DIR}/Executors/*.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
-add_executable(CompilerPractice ${SOURCES} ${HEADERS})
+add_executable(CompilerPractice ${HEADERS} ${SOURCES})
 target_link_libraries(CompilerPractice Qt${QT_VERSION_MAJOR}::Core fmt)
