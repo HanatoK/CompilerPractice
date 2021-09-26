@@ -9,6 +9,7 @@ std::set<PascalTokenTypeImpl> initColonEqualsSet() {
   return s;
 }
 
+// FIXME: initialization out-of-order!
 decltype(AssignmentStatementParser::mColonEqualsSet) AssignmentStatementParser::mColonEqualsSet = initColonEqualsSet();
 
 AssignmentStatementParser::AssignmentStatementParser(PascalParserTopDown &parent): PascalSubparserTopDownBase(parent)
