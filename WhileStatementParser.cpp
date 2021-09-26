@@ -3,12 +3,10 @@
 #include "ExpressionParser.h"
 
 std::set<PascalTokenTypeImpl> initDoSet() {
-  std::set<PascalTokenTypeImpl> s = StatementParser::mStatementStartSet;
+  std::set<PascalTokenTypeImpl> s(StatementParser::mStatementStartSet);
   s.insert(PascalTokenTypeImpl::DO);
-  const auto& follow_set = PascalSubparserTopDownBase::mStatementFollowSet;
-  for (auto it = follow_set.begin(); it != follow_set.end(); ++it) {
-    s.insert(*it);
-  }
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
   return s;
 }
 

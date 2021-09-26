@@ -2,12 +2,10 @@
 #include "ExpressionParser.h"
 
 std::set<PascalTokenTypeImpl> initColonEqualsSet() {
-  std::set<PascalTokenTypeImpl> s = ExpressionParser::mExpressionStartSet;
+  std::set<PascalTokenTypeImpl> s(ExpressionParser::mExpressionStartSet);
   s.insert(PascalTokenTypeImpl::COLON_EQUALS);
-  const auto& follow_set = PascalSubparserTopDownBase::mStatementFollowSet;
-  for (auto it = follow_set.begin(); it != follow_set.end(); ++it) {
-    s.insert(*it);
-  }
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
   return s;
 }
 

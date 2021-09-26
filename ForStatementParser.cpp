@@ -5,13 +5,11 @@
 #include "StatementParser.h"
 
 std::set<PascalTokenTypeImpl> initToDowntoSet() {
-  std::set<PascalTokenTypeImpl> s = ExpressionParser::mExpressionStartSet;
+  std::set<PascalTokenTypeImpl> s(ExpressionParser::mExpressionStartSet);
   s.insert(PascalTokenTypeImpl::TO);
   s.insert(PascalTokenTypeImpl::DOWNTO);
-  const auto &follow_set = PascalSubparserTopDownBase::mStatementFollowSet;
-  for (auto it = follow_set.begin(); it != follow_set.end(); ++it) {
-    s.insert(*it);
-  }
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
   return s;
 }
 
