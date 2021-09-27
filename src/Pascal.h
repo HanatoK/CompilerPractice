@@ -7,8 +7,6 @@
 #include "PascalFrontend.h"
 #include "Common.h"
 
-#include <QFile>
-#include <QObject>
 #include <fstream>
 
 class Pascal {
@@ -26,8 +24,6 @@ public:
                           const std::string& error) const;
   void assignmentMessage(const int line_number, const std::string& variable_name, const std::any& value) const;
   void runtimeErrorMessage(const int line_number, const std::string& error_message) const;
-signals:
-  void exit(int exitCode);
 private:
   std::shared_ptr<PascalParserTopDown> mParser;
   std::shared_ptr<Source> mSource;

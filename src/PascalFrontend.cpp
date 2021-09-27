@@ -3,7 +3,7 @@
 #include "IntermediateImpl.h"
 #include "StatementParser.h"
 
-#include <QCoreApplication>
+//#include <QCoreApplication>
 #include <cctype>
 #include <chrono>
 #include <fmt/format.h>
@@ -287,7 +287,7 @@ void PascalErrorHandler::abortTranslation(const PascalErrorCode errorCode,
   const PascalParserTopDown *pascalParser =
       dynamic_cast<const PascalParserTopDown *>(parser);
   pascalParser->syntaxErrorMessage(0, 0, "", fatalText);
-  QCoreApplication::exit(int(errorCode));
+  std::exit(int(errorCode));
 }
 
 int PascalErrorHandler::errorCount() const { return mErrorCount; }
@@ -390,7 +390,7 @@ std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok) {
     }
     return s2->second;
   }
-  const auto s3 = specialWordsMap.find(tokenType);
+  const auto s3 = specialSymbolsMap.find(tokenType);
   if (s3 != specialSymbolsMap.end()) {
     if (ok != nullptr) {
       *ok = true;
@@ -663,11 +663,16 @@ std::string PascalNumberToken::unsignedIntegerDigits(std::string &text) {
   return digits;
 }
 
-qulonglong PascalNumberToken::computeIntegerValue(std::string &digits) {
+unsigned long long PascalNumberToken::computeIntegerValue(const std::string &digits) {
   // does not consume characters
   bool ok = true;
   // TODO: try to implement toInt without Qt
-  const qulonglong result = std::stoull(digits);
+  unsigned long long result = 0;
+  try {
+    result = std::stoull(digits);
+  } catch (const std::exception& e) {
+    ok = false;
+  }
   if (ok) {
     return result;
   } else {
@@ -678,9 +683,9 @@ qulonglong PascalNumberToken::computeIntegerValue(std::string &digits) {
   }
 }
 
-double PascalNumberToken::computeFloatValue(std::string &whole_digits,
-                                            std::string &fraction_digits,
-                                            std::string &exponent_digits,
+double PascalNumberToken::computeFloatValue(const std::string &whole_digits,
+                                            const std::string &fraction_digits,
+                                            const std::string &exponent_digits,
                                             char exponent_sign) {
   std::string s = whole_digits;
   if (!fraction_digits.empty()) {
@@ -691,7 +696,12 @@ double PascalNumberToken::computeFloatValue(std::string &whole_digits,
   }
   bool ok = true;
   // TODO: try to implement toDouble without Qt
-  const double result = std::stod(s);
+  double result = 0;
+  try {
+    result = std::stod(s);
+  } catch (const std::exception& e) {
+    ok = false;
+  }
   if (ok) {
     return result;
   } else {
@@ -708,11 +718,116 @@ const std::set<PascalTokenTypeImpl>
         PascalTokenTypeImpl::FOR,        PascalTokenTypeImpl::IF,
         PascalTokenTypeImpl::REPEAT,     PascalTokenTypeImpl::WHILE,
         PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::SEMICOLON};
+
 const std::set<PascalTokenTypeImpl>
     PascalSubparserTopDownBase::mStatementFollowSet{
         PascalTokenTypeImpl::SEMICOLON, PascalTokenTypeImpl::END,
         PascalTokenTypeImpl::ELSE, PascalTokenTypeImpl::UNTIL,
         PascalTokenTypeImpl::DOT};
+
+const std::set<PascalTokenTypeImpl>
+    PascalSubparserTopDownBase::mExpressionStartSet{
+        PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
+        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,
+        PascalTokenTypeImpl::REAL, PascalTokenTypeImpl::STRING,
+        PascalTokenTypeImpl::NOT, PascalTokenTypeImpl::LEFT_PAREN};
+
+decltype(PascalSubparserTopDownBase::mConstantStartSet)
+    PascalSubparserTopDownBase::mConstantStartSet{
+        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,
+        PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
+        PascalTokenTypeImpl::STRING};
+
+std::set<PascalTokenTypeImpl> initColonEqualsSet() {
+  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::mExpressionStartSet);
+  s.insert(PascalTokenTypeImpl::COLON_EQUALS);
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
+  return s;
+}
+
+decltype(PascalSubparserTopDownBase::mOfSet) initOfSet() {
+  std::remove_const_t<decltype(PascalSubparserTopDownBase::mOfSet)> s(
+      PascalSubparserTopDownBase::mConstantStartSet);
+  s.insert(PascalTokenTypeImpl::OF);
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
+  return s;
+}
+
+decltype(PascalSubparserTopDownBase::mCommaSet) initCommaSet() {
+  std::remove_const_t<decltype(PascalSubparserTopDownBase::mCommaSet)> s(
+      PascalSubparserTopDownBase::mConstantStartSet);
+  s.insert({PascalTokenTypeImpl::COMMA, PascalTokenTypeImpl::COLON});
+  s.insert(PascalSubparserTopDownBase::mStatementStartSet.begin(),
+           PascalSubparserTopDownBase::mStatementStartSet.end());
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
+  return s;
+}
+
+std::set<PascalTokenTypeImpl> initToDowntoSet() {
+  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::mExpressionStartSet);
+  s.insert(PascalTokenTypeImpl::TO);
+  s.insert(PascalTokenTypeImpl::DOWNTO);
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
+  return s;
+}
+
+std::set<PascalTokenTypeImpl> initDoSet() {
+  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::mStatementStartSet);
+  s.insert(PascalTokenTypeImpl::DO);
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
+  return s;
+}
+
+std::set<PascalTokenTypeImpl> initThenSet() {
+  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::mStatementStartSet);
+  s.insert(PascalTokenTypeImpl::THEN);
+  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
+           PascalSubparserTopDownBase::mStatementFollowSet.end());
+  return s;
+}
+
+decltype(PascalSubparserTopDownBase::mColonEqualsSet)
+PascalSubparserTopDownBase::mColonEqualsSet = initColonEqualsSet();
+
+decltype(PascalSubparserTopDownBase::mOfSet)
+PascalSubparserTopDownBase::mOfSet = initOfSet();
+
+decltype(PascalSubparserTopDownBase::mCommaSet)
+PascalSubparserTopDownBase::mCommaSet = initCommaSet();
+
+decltype(PascalSubparserTopDownBase::mToDowntoSet)
+PascalSubparserTopDownBase::mToDowntoSet = initToDowntoSet();
+
+decltype(PascalSubparserTopDownBase::mDoSet)
+PascalSubparserTopDownBase::mDoSet = initDoSet();
+
+decltype(PascalSubparserTopDownBase::mThenSet)
+PascalSubparserTopDownBase::mThenSet = initThenSet();
+
+const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::mRelOpsMap =
+  {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},
+   {PascalTokenTypeImpl::NOT_EQUALS, ICodeNodeTypeImpl::NE},
+   {PascalTokenTypeImpl::LESS_THAN, ICodeNodeTypeImpl::LT},
+   {PascalTokenTypeImpl::LESS_EQUALS, ICodeNodeTypeImpl::LE},
+   {PascalTokenTypeImpl::GREATER_THAN, ICodeNodeTypeImpl::GT},
+   {PascalTokenTypeImpl::GREATER_EQUALS, ICodeNodeTypeImpl::GE}};
+
+const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::mAddOpsMap =
+  {{PascalTokenTypeImpl::PLUS, ICodeNodeTypeImpl::ADD},
+   {PascalTokenTypeImpl::MINUS, ICodeNodeTypeImpl::SUBTRACT},
+   {PascalTokenTypeImpl::OR, ICodeNodeTypeImpl::OR}};
+
+const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::mMultOpsMap =
+  {{PascalTokenTypeImpl::STAR, ICodeNodeTypeImpl::MULTIPLY},
+   {PascalTokenTypeImpl::SLASH, ICodeNodeTypeImpl::FLOAT_DIVIDE},
+   {PascalTokenTypeImpl::DIV, ICodeNodeTypeImpl::INTEGER_DIVIDE},
+   {PascalTokenTypeImpl::MOD, ICodeNodeTypeImpl::MOD},
+   {PascalTokenTypeImpl::AND, ICodeNodeTypeImpl::AND}};
 
 PascalSubparserTopDownBase::PascalSubparserTopDownBase(
     PascalParserTopDown &pascal_parser)

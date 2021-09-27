@@ -1,6 +1,5 @@
 #include "Frontend.h"
 
-#include <QString>
 #include <istream>
 
 Source::Source(std::ifstream &ifs): mStream(ifs)

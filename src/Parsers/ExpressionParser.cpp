@@ -1,31 +1,5 @@
 #include "ExpressionParser.h"
 
-const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParser::mRelOpsMap =
-  {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},
-   {PascalTokenTypeImpl::NOT_EQUALS, ICodeNodeTypeImpl::NE},
-   {PascalTokenTypeImpl::LESS_THAN, ICodeNodeTypeImpl::LT},
-   {PascalTokenTypeImpl::LESS_EQUALS, ICodeNodeTypeImpl::LE},
-   {PascalTokenTypeImpl::GREATER_THAN, ICodeNodeTypeImpl::GT},
-   {PascalTokenTypeImpl::GREATER_EQUALS, ICodeNodeTypeImpl::GE}};
-
-const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParser::mAddOpsMap =
-  {{PascalTokenTypeImpl::PLUS, ICodeNodeTypeImpl::ADD},
-   {PascalTokenTypeImpl::MINUS, ICodeNodeTypeImpl::SUBTRACT},
-   {PascalTokenTypeImpl::OR, ICodeNodeTypeImpl::OR}};
-
-const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> ExpressionParser::mMultOpsMap =
-  {{PascalTokenTypeImpl::STAR, ICodeNodeTypeImpl::MULTIPLY},
-   {PascalTokenTypeImpl::SLASH, ICodeNodeTypeImpl::FLOAT_DIVIDE},
-   {PascalTokenTypeImpl::DIV, ICodeNodeTypeImpl::INTEGER_DIVIDE},
-   {PascalTokenTypeImpl::MOD, ICodeNodeTypeImpl::MOD},
-   {PascalTokenTypeImpl::AND, ICodeNodeTypeImpl::AND}};
-
-const std::set<PascalTokenTypeImpl> ExpressionParser::mExpressionStartSet =
-  {PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
-   PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,
-   PascalTokenTypeImpl::REAL, PascalTokenTypeImpl::STRING,
-   PascalTokenTypeImpl::NOT, PascalTokenTypeImpl::LEFT_PAREN};
-
 ExpressionParser::ExpressionParser(PascalParserTopDown &parent):
   PascalSubparserTopDownBase(parent)
 {

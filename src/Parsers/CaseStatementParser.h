@@ -8,9 +8,6 @@ public:
   explicit CaseStatementParser(PascalParserTopDown &parent);
   virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
   parse(std::shared_ptr<PascalToken> token);
-  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
-  static const std::set<PascalTokenTypeImpl> mOfSet;
-  static const std::set<PascalTokenTypeImpl> mCommaSet;
 private:
   virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
   parseBranch(std::shared_ptr<PascalToken> token,

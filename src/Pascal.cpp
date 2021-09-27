@@ -7,20 +7,22 @@
 #include <iostream>
 #include <fstream>
 #include <fmt/format.h>
+#include <exception>
 
 Pascal::Pascal(const std::string &operation, const std::string &filePath,
                const std::string &flags)
     : mParser(nullptr),
       mSource(nullptr), mICode(nullptr), mSymbolTableStack(nullptr),
       mBackend(nullptr), mTextStream(nullptr) {
-  // what are these flags??
-//    const bool intermediate = flags.indexOf('i') > -1;
-//  const bool xref = flags.indexOf('x') > -1;
   auto search_xref = flags.find('x');
   const bool xref = (search_xref == std::string::npos) ? false : true;
   auto search_i = flags.find('i');
   const bool intermediate = (search_i == std::string::npos) ? false : true;
   mTextStream.open(filePath.c_str());
+  if (!mTextStream.is_open()) {
+    std::cerr << "Cannot open " << filePath << std::endl;
+    throw std::invalid_argument("Invalid filename, please see the error above.");
+  }
   mSource = std::make_shared<Source>(mTextStream);
   mParser = createPascalParser("Pascal", "top-down", mSource);
   mSource->sendMessage.connect(std::bind(&Pascal::sourceMessage, this,

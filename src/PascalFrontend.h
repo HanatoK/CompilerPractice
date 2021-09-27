@@ -68,6 +68,17 @@ public:
                             const std::shared_ptr<PascalToken>& token);
   static const std::set<PascalTokenTypeImpl> mStatementStartSet;
   static const std::set<PascalTokenTypeImpl> mStatementFollowSet;
+  static const std::set<PascalTokenTypeImpl> mExpressionStartSet;
+  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
+  static const std::set<PascalTokenTypeImpl> mColonEqualsSet;
+  static const std::set<PascalTokenTypeImpl> mOfSet;
+  static const std::set<PascalTokenTypeImpl> mCommaSet;
+  static const std::set<PascalTokenTypeImpl> mToDowntoSet;
+  static const std::set<PascalTokenTypeImpl> mDoSet;
+  static const std::set<PascalTokenTypeImpl> mThenSet;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mRelOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mAddOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mMultOpsMap;
 private:
   PascalParserTopDown& mPascalParser;
 };
@@ -123,9 +134,9 @@ public:
   virtual void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
-  unsigned long long computeIntegerValue(std::string& digits);
-  double computeFloatValue(std::string& whole_digits, std::string& fraction_digits,
-                           std::string& exponent_digits, char exponent_sign);
+  unsigned long long computeIntegerValue(const std::string& digits);
+  double computeFloatValue(const std::string &whole_digits, const std::string &fraction_digits,
+                           const std::string &exponent_digits, char exponent_sign);
 };
 
 std::unique_ptr<PascalParserTopDown> createPascalParser(const std::string& language, const std::string& type,

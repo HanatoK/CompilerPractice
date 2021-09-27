@@ -4,36 +4,6 @@
 
 #include <type_traits>
 
-decltype(CaseStatementParser::mConstantStartSet)
-    CaseStatementParser::mConstantStartSet{
-        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,
-        PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
-        PascalTokenTypeImpl::STRING};
-
-decltype(CaseStatementParser::mOfSet) initOfSet() {
-  std::remove_const_t<decltype(CaseStatementParser::mOfSet)> s(
-      CaseStatementParser::mConstantStartSet);
-  s.insert(PascalTokenTypeImpl::OF);
-  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
-           PascalSubparserTopDownBase::mStatementFollowSet.end());
-  return s;
-}
-
-decltype(CaseStatementParser::mCommaSet) initCommaSet() {
-  std::remove_const_t<decltype(CaseStatementParser::mCommaSet)> s(
-      CaseStatementParser::mConstantStartSet);
-  s.insert({PascalTokenTypeImpl::COMMA, PascalTokenTypeImpl::COLON});
-  s.insert(PascalSubparserTopDownBase::mStatementStartSet.begin(),
-           PascalSubparserTopDownBase::mStatementStartSet.end());
-  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
-           PascalSubparserTopDownBase::mStatementFollowSet.end());
-  return s;
-}
-
-decltype(CaseStatementParser::mOfSet) CaseStatementParser::mOfSet = initOfSet();
-decltype(CaseStatementParser::mCommaSet) CaseStatementParser::mCommaSet =
-    initCommaSet();
-
 CaseStatementParser::CaseStatementParser(PascalParserTopDown &parent)
     : PascalSubparserTopDownBase(parent) {}
 

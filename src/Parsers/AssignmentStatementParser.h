@@ -11,7 +11,6 @@ public:
   explicit AssignmentStatementParser(PascalParserTopDown& parent);
   virtual ~AssignmentStatementParser();
   virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token);
-  static const std::set<PascalTokenTypeImpl> mColonEqualsSet;
 };
 
 #endif // ASSIGNMENTSTATEMENTPARSER_H

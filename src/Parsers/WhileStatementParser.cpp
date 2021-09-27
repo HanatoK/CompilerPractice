@@ -2,16 +2,6 @@
 #include "StatementParser.h"
 #include "ExpressionParser.h"
 
-std::set<PascalTokenTypeImpl> initDoSet() {
-  std::set<PascalTokenTypeImpl> s(StatementParser::mStatementStartSet);
-  s.insert(PascalTokenTypeImpl::DO);
-  s.insert(PascalSubparserTopDownBase::mStatementFollowSet.begin(),
-           PascalSubparserTopDownBase::mStatementFollowSet.end());
-  return s;
-}
-
-decltype(WhileStatementParser::mDoSet) WhileStatementParser::mDoSet = initDoSet();
-
 WhileStatementParser::WhileStatementParser(PascalParserTopDown &parent): PascalSubparserTopDownBase(parent)
 {
 
