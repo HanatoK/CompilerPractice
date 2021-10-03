@@ -50,7 +50,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
       break;
     }
     case VariableType::INTEGER: {
-      mValue = -std::any_cast<unsigned long long>(mValue);
+      mValue = -static_cast<long long>(std::any_cast<unsigned long long>(mValue));
       mValueType = VariableType::INTEGER;
       break;
     }
