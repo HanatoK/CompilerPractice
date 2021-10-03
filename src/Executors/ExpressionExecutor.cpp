@@ -111,10 +111,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
   if (search != mArithOps.end()) {
     // arithmetic operators
     if (integer_mode) {
-      const unsigned long long lhs_value_int =
-          std::any_cast<unsigned long long>(lhs_value);
-      const unsigned long long rhs_value_int =
-          std::any_cast<unsigned long long>(rhs_value);
+      const auto lhs_value_int = std::any_cast<unsigned long long>(lhs_value);
+      const auto rhs_value_int = std::any_cast<unsigned long long>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::ADD: {
         mValue = lhs_value_int + rhs_value_int;
@@ -234,19 +232,17 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       break;
     }
     default: {
-      errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
-                           currentExecutor());
-      break;
+//      errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
+//                           currentExecutor());
+//      break;
     }
     }
   } else {
     // relational operators
     mValueType = VariableType::BOOLEAN;
     if (integer_mode) {
-      const unsigned long long lhs_value_int =
-          std::any_cast<unsigned long long>(lhs_value);
-      const unsigned long long rhs_value_int =
-          std::any_cast<unsigned long long>(rhs_value);
+      const auto lhs_value_int = std::any_cast<unsigned long long>(lhs_value);
+      const auto rhs_value_int = std::any_cast<unsigned long long>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::EQ: {
         mValue = (lhs_value_int == rhs_value_int);

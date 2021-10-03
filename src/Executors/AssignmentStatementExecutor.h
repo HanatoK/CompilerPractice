@@ -6,7 +6,7 @@
 class AssignmentStatementExecutor : public SubExecutorBase
 {
 public:
-  AssignmentStatementExecutor(Executor& executor);
+  explicit AssignmentStatementExecutor(Executor& executor);
   virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
 };
 

@@ -6,7 +6,7 @@
 class CompoundStatementExecutor : public SubExecutorBase
 {
 public:
-  CompoundStatementExecutor(Executor& executor);
+  explicit CompoundStatementExecutor(Executor& executor);
   virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node);
 };
 
