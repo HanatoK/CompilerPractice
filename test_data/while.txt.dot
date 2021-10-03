@@ -1,0 +1,72 @@
+digraph "parse tree"
+{
+  rankdir="LR"
+  {
+    node [shape=box, style="rounded"]
+    node0 [label = "COMPOUND\nLINE: 1"]
+    node1 [label = "ASSIGN\nLINE: 2"]
+    node2 [label = "VARIABLE\nID: i"]
+    node3 [label = "INTEGER_CONSTANT\nVALUE: 0"]
+    node4 [label = "ASSIGN\nLINE: 2"]
+    node5 [label = "VARIABLE\nID: j"]
+    node6 [label = "INTEGER_CONSTANT\nVALUE: 0"]
+    node7 [label = "LOOP\nLINE: 4"]
+    node8 [label = "TEST"]
+    node9 [label = "NOT"]
+    node10 [label = "GT"]
+    node11 [label = "VARIABLE\nID: i"]
+    node12 [label = "VARIABLE\nID: j"]
+    node13 [label = "ASSIGN\nLINE: 4"]
+    node14 [label = "VARIABLE\nID: k"]
+    node15 [label = "VARIABLE\nID: i"]
+    node16 [label = "COMPOUND\nLINE: 6"]
+    node17 [label = "ASSIGN\nLINE: 7"]
+    node18 [label = "VARIABLE\nID: number"]
+    node19 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node20 [label = "ASSIGN\nLINE: 8"]
+    node21 [label = "VARIABLE\nID: root"]
+    node22 [label = "VARIABLE\nID: number"]
+    node23 [label = "LOOP\nLINE: 10"]
+    node24 [label = "TEST"]
+    node25 [label = "NOT"]
+    node26 [label = "GT"]
+    node27 [label = "SUBTRACT"]
+    node28 [label = "MULTIPLY"]
+    node29 [label = "VARIABLE\nID: root"]
+    node30 [label = "VARIABLE\nID: root"]
+    node31 [label = "VARIABLE\nID: number"]
+    node32 [label = "REAL_CONSTANT\nVALUE: 0.000001000"]
+    node33 [label = "COMPOUND\nLINE: 10"]
+    node34 [label = "ASSIGN\nLINE: 11"]
+    node35 [label = "VARIABLE\nID: root"]
+    node36 [label = "FLOAT_DIVIDE"]
+    node37 [label = "ADD"]
+    node38 [label = "FLOAT_DIVIDE"]
+    node39 [label = "VARIABLE\nID: number"]
+    node40 [label = "VARIABLE\nID: root"]
+    node41 [label = "VARIABLE\nID: root"]
+    node42 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+  }
+  node1 -> { node2 node3 }
+  node4 -> { node5 node6 }
+  node10 -> { node11 node12 }
+  node9 -> { node10 }
+  node8 -> { node9 }
+  node13 -> { node14 node15 }
+  node7 -> { node8 node13 }
+  node17 -> { node18 node19 }
+  node20 -> { node21 node22 }
+  node28 -> { node29 node30 }
+  node27 -> { node28 node31 }
+  node26 -> { node27 node32 }
+  node25 -> { node26 }
+  node24 -> { node25 }
+  node38 -> { node39 node40 }
+  node37 -> { node38 node41 }
+  node36 -> { node37 node42 }
+  node34 -> { node35 node36 }
+  node33 -> { node34 }
+  node23 -> { node24 node33 }
+  node16 -> { node17 node20 node23 }
+  node0 -> { node1 node4 node7 node16 }
+}

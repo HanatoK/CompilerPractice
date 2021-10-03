@@ -68,7 +68,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
     ExpressionExecutor executor(*currentExecutor());
     executor.execute(operand);
     if (executor.valueType() == VariableType::BOOLEAN) {
-      mValue = !std::any_cast<bool>(mValue);
+      mValue = !std::any_cast<bool>(executor.value());
       mValueType = VariableType::BOOLEAN;
     } else {
       // implicit type conversion?
