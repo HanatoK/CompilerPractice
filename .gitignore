@@ -76,3 +76,5 @@ CMakeLists.txt.user*
 # VS code
 .vscode/
 build/
+
+test_data/*.png

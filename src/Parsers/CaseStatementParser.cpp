@@ -142,7 +142,11 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
   }
   // check for reused constants
   if (constant_node != nullptr) {
-    const auto constant_value =
+    if (constant_node->type() == ICodeNodeTypeImpl::NEGATE) {
+
+    }
+    const auto constant_value = constant_node->type() == ICodeNodeTypeImpl::NEGATE ?
+        std::any(getNegateNodeValue(constant_node)) :
         constant_node->getAttribute(ICodeKeyTypeImpl::VALUE);
     const bool in_constant_set = std::any_of(
         constant_set.begin(), constant_set.end(),
@@ -205,5 +209,19 @@ CaseStatementParser::parseCharacterConstant(std::shared_ptr<PascalToken> token,
       constant_node->setAttribute(ICodeKeyTypeImpl::VALUE, value);
       return std::move(constant_node);
     }
+  }
+}
+
+long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+{
+  if (node->type() == ICodeNodeTypeImpl::NEGATE) {
+    // get the first child node
+    const auto child_node = node->childrenBegin();
+    const auto unsigned_value = std::any_cast<unsigned long long>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
+    // TODO: possible overflow
+    const long long result = -1.0 * static_cast<long long>(unsigned_value);
+    return result;
+  } else {
+    return 0;
   }
 }

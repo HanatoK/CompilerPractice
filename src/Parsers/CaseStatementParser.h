@@ -28,6 +28,7 @@ private:
   virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
   parseCharacterConstant(std::shared_ptr<PascalToken> token,
                          const std::string& value, const PascalTokenTypeImpl sign);
+  long long getNegateNodeValue(const std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node);
 };
 
 #endif // CASESTATEMENTPARSER_H

@@ -1,0 +1,111 @@
+digraph "parse tree"
+{
+  rankdir="LR"
+  {
+    node [shape=box, style="rounded"]
+    node0 [label = "COMPOUND\nLINE: 1"]
+    node1 [label = "ASSIGN\nLINE: 2"]
+    node2 [label = "VARIABLE\nID: i"]
+    node3 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node4 [label = "ASSIGN\nLINE: 2"]
+    node5 [label = "VARIABLE\nID: j"]
+    node6 [label = "INTEGER_CONSTANT\nVALUE: 4"]
+    node7 [label = "IF\nLINE: 4"]
+    node8 [label = "EQ"]
+    node9 [label = "VARIABLE\nID: i"]
+    node10 [label = "VARIABLE\nID: j"]
+    node11 [label = "ASSIGN\nLINE: 4"]
+    node12 [label = "VARIABLE\nID: t"]
+    node13 [label = "INTEGER_CONSTANT\nVALUE: 200"]
+    node14 [label = "ASSIGN\nLINE: 5"]
+    node15 [label = "VARIABLE\nID: f"]
+    node16 [label = "NEGATE"]
+    node17 [label = "INTEGER_CONSTANT\nVALUE: 200"]
+    node18 [label = "IF\nLINE: 7"]
+    node19 [label = "LT"]
+    node20 [label = "VARIABLE\nID: i"]
+    node21 [label = "VARIABLE\nID: j"]
+    node22 [label = "ASSIGN\nLINE: 7"]
+    node23 [label = "VARIABLE\nID: t"]
+    node24 [label = "INTEGER_CONSTANT\nVALUE: 300"]
+    node25 [label = "IF\nLINE: 10"]
+    node26 [label = "EQ"]
+    node27 [label = "VARIABLE\nID: i"]
+    node28 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node29 [label = "ASSIGN\nLINE: 10"]
+    node30 [label = "VARIABLE\nID: f"]
+    node31 [label = "INTEGER_CONSTANT\nVALUE: 10"]
+    node32 [label = "IF\nLINE: 11"]
+    node33 [label = "EQ"]
+    node34 [label = "VARIABLE\nID: i"]
+    node35 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node36 [label = "ASSIGN\nLINE: 11"]
+    node37 [label = "VARIABLE\nID: f"]
+    node38 [label = "INTEGER_CONSTANT\nVALUE: 20"]
+    node39 [label = "IF\nLINE: 12"]
+    node40 [label = "EQ"]
+    node41 [label = "VARIABLE\nID: i"]
+    node42 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node43 [label = "ASSIGN\nLINE: 12"]
+    node44 [label = "VARIABLE\nID: t"]
+    node45 [label = "INTEGER_CONSTANT\nVALUE: 30"]
+    node46 [label = "IF\nLINE: 13"]
+    node47 [label = "EQ"]
+    node48 [label = "VARIABLE\nID: i"]
+    node49 [label = "INTEGER_CONSTANT\nVALUE: 4"]
+    node50 [label = "ASSIGN\nLINE: 13"]
+    node51 [label = "VARIABLE\nID: f"]
+    node52 [label = "INTEGER_CONSTANT\nVALUE: 40"]
+    node53 [label = "ASSIGN\nLINE: 14"]
+    node54 [label = "VARIABLE\nID: f"]
+    node55 [label = "NEGATE"]
+    node56 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node57 [label = "IF\nLINE: 17"]
+    node58 [label = "EQ"]
+    node59 [label = "VARIABLE\nID: i"]
+    node60 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node61 [label = "IF\nLINE: 17"]
+    node62 [label = "EQ"]
+    node63 [label = "VARIABLE\nID: j"]
+    node64 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node65 [label = "ASSIGN\nLINE: 17"]
+    node66 [label = "VARIABLE\nID: t"]
+    node67 [label = "INTEGER_CONSTANT\nVALUE: 500"]
+    node68 [label = "ASSIGN\nLINE: 17"]
+    node69 [label = "VARIABLE\nID: f"]
+    node70 [label = "NEGATE"]
+    node71 [label = "INTEGER_CONSTANT\nVALUE: 500"]
+  }
+  node1 -> { node2 node3 }
+  node4 -> { node5 node6 }
+  node8 -> { node9 node10 }
+  node11 -> { node12 node13 }
+  node16 -> { node17 }
+  node14 -> { node15 node16 }
+  node7 -> { node8 node11 node14 }
+  node19 -> { node20 node21 }
+  node22 -> { node23 node24 }
+  node18 -> { node19 node22 }
+  node26 -> { node27 node28 }
+  node29 -> { node30 node31 }
+  node33 -> { node34 node35 }
+  node36 -> { node37 node38 }
+  node40 -> { node41 node42 }
+  node43 -> { node44 node45 }
+  node47 -> { node48 node49 }
+  node50 -> { node51 node52 }
+  node55 -> { node56 }
+  node53 -> { node54 node55 }
+  node46 -> { node47 node50 node53 }
+  node39 -> { node40 node43 node46 }
+  node32 -> { node33 node36 node39 }
+  node25 -> { node26 node29 node32 }
+  node58 -> { node59 node60 }
+  node62 -> { node63 node64 }
+  node65 -> { node66 node67 }
+  node70 -> { node71 }
+  node68 -> { node69 node70 }
+  node61 -> { node62 node65 node68 }
+  node57 -> { node58 node61 }
+  node0 -> { node1 node4 node7 node18 node25 node57 }
+}

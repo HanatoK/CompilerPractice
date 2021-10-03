@@ -61,7 +61,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // create an assignment with a copy of the control variable to advance the value of it
   auto next_assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::ASSIGN);
-  next_assign_node->addChild(std::move(next_assign_node->copy()));
+  next_assign_node->addChild(std::move(control_variable_node->copy()));
   // create the arithmetic operator node
   // ADD for TO, or SUBTRACT for DOWNTO
   auto arithmetic_op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(

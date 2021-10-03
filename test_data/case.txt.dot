@@ -1,0 +1,185 @@
+digraph "parse tree"
+{
+  rankdir="LR"
+  {
+    node [shape=box, style="rounded"]
+    node0 [label = "COMPOUND\nLINE: 1"]
+    node1 [label = "ASSIGN\nLINE: 2"]
+    node2 [label = "VARIABLE\nID: i"]
+    node3 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node4 [label = "ASSIGN\nLINE: 2"]
+    node5 [label = "VARIABLE\nID: ch"]
+    node6 [label = "STRING_CONSTANT\nVALUE: b"]
+    node7 [label = "SELECT\nLINE: 4"]
+    node8 [label = "ADD"]
+    node9 [label = "VARIABLE\nID: i"]
+    node10 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node11 [label = "SELECT_BRANCH"]
+    node12 [label = "SELECT_CONSTANTS"]
+    node13 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node14 [label = "ASSIGN\nLINE: 5"]
+    node15 [label = "VARIABLE\nID: j"]
+    node16 [label = "VARIABLE\nID: i"]
+    node17 [label = "SELECT_BRANCH"]
+    node18 [label = "SELECT_CONSTANTS"]
+    node19 [label = "INTEGER_CONSTANT\nVALUE: 4"]
+    node20 [label = "ASSIGN\nLINE: 6"]
+    node21 [label = "VARIABLE\nID: j"]
+    node22 [label = "MULTIPLY"]
+    node23 [label = "INTEGER_CONSTANT\nVALUE: 4"]
+    node24 [label = "VARIABLE\nID: i"]
+    node25 [label = "SELECT_BRANCH"]
+    node26 [label = "SELECT_CONSTANTS"]
+    node27 [label = "INTEGER_CONSTANT\nVALUE: 5"]
+    node28 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node29 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node30 [label = "ASSIGN\nLINE: 7"]
+    node31 [label = "VARIABLE\nID: j"]
+    node32 [label = "MULTIPLY"]
+    node33 [label = "INTEGER_CONSTANT\nVALUE: 523"]
+    node34 [label = "VARIABLE\nID: i"]
+    node35 [label = "SELECT\nLINE: 10"]
+    node36 [label = "VARIABLE\nID: ch"]
+    node37 [label = "SELECT_BRANCH"]
+    node38 [label = "SELECT_CONSTANTS"]
+    node39 [label = "STRING_CONSTANT\nVALUE: c"]
+    node40 [label = "STRING_CONSTANT\nVALUE: b"]
+    node41 [label = "ASSIGN\nLINE: 11"]
+    node42 [label = "VARIABLE\nID: str"]
+    node43 [label = "STRING_CONSTANT\nVALUE: p"]
+    node44 [label = "SELECT_BRANCH"]
+    node45 [label = "SELECT_CONSTANTS"]
+    node46 [label = "STRING_CONSTANT\nVALUE: a"]
+    node47 [label = "ASSIGN\nLINE: 12"]
+    node48 [label = "VARIABLE\nID: str"]
+    node49 [label = "STRING_CONSTANT\nVALUE: q"]
+    node50 [label = "COMPOUND\nLINE: 15"]
+    node51 [label = "ASSIGN\nLINE: 15"]
+    node52 [label = "VARIABLE\nID: i"]
+    node53 [label = "NEGATE"]
+    node54 [label = "INTEGER_CONSTANT\nVALUE: 5"]
+    node55 [label = "LOOP"]
+    node56 [label = "TEST"]
+    node57 [label = "GT"]
+    node58 [label = "VARIABLE\nID: i"]
+    node59 [label = "INTEGER_CONSTANT\nVALUE: 15"]
+    node60 [label = "COMPOUND\nLINE: 15"]
+    node61 [label = "SELECT\nLINE: 16"]
+    node62 [label = "VARIABLE\nID: i"]
+    node63 [label = "SELECT_BRANCH"]
+    node64 [label = "SELECT_CONSTANTS"]
+    node65 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node66 [label = "ASSIGN\nLINE: 17"]
+    node67 [label = "VARIABLE\nID: prime"]
+    node68 [label = "VARIABLE\nID: i"]
+    node69 [label = "SELECT_BRANCH"]
+    node70 [label = "SELECT_CONSTANTS"]
+    node71 [label = "NEGATE"]
+    node72 [label = "INTEGER_CONSTANT\nVALUE: 4"]
+    node73 [label = "NEGATE"]
+    node74 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node75 [label = "INTEGER_CONSTANT\nVALUE: 0"]
+    node76 [label = "INTEGER_CONSTANT\nVALUE: 4"]
+    node77 [label = "INTEGER_CONSTANT\nVALUE: 6"]
+    node78 [label = "INTEGER_CONSTANT\nVALUE: 8"]
+    node79 [label = "INTEGER_CONSTANT\nVALUE: 10"]
+    node80 [label = "INTEGER_CONSTANT\nVALUE: 12"]
+    node81 [label = "ASSIGN\nLINE: 18"]
+    node82 [label = "VARIABLE\nID: even"]
+    node83 [label = "VARIABLE\nID: i"]
+    node84 [label = "SELECT_BRANCH"]
+    node85 [label = "SELECT_CONSTANTS"]
+    node86 [label = "NEGATE"]
+    node87 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node88 [label = "NEGATE"]
+    node89 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node90 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node91 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node92 [label = "INTEGER_CONSTANT\nVALUE: 5"]
+    node93 [label = "INTEGER_CONSTANT\nVALUE: 7"]
+    node94 [label = "INTEGER_CONSTANT\nVALUE: 9"]
+    node95 [label = "INTEGER_CONSTANT\nVALUE: 11"]
+    node96 [label = "SELECT\nLINE: 19"]
+    node97 [label = "VARIABLE\nID: i"]
+    node98 [label = "SELECT_BRANCH"]
+    node99 [label = "SELECT_CONSTANTS"]
+    node100 [label = "NEGATE"]
+    node101 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node102 [label = "NEGATE"]
+    node103 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node104 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+    node105 [label = "INTEGER_CONSTANT\nVALUE: 9"]
+    node106 [label = "ASSIGN\nLINE: 20"]
+    node107 [label = "VARIABLE\nID: odd"]
+    node108 [label = "VARIABLE\nID: i"]
+    node109 [label = "SELECT_BRANCH"]
+    node110 [label = "SELECT_CONSTANTS"]
+    node111 [label = "INTEGER_CONSTANT\nVALUE: 2"]
+    node112 [label = "INTEGER_CONSTANT\nVALUE: 3"]
+    node113 [label = "INTEGER_CONSTANT\nVALUE: 5"]
+    node114 [label = "INTEGER_CONSTANT\nVALUE: 7"]
+    node115 [label = "INTEGER_CONSTANT\nVALUE: 11"]
+    node116 [label = "ASSIGN\nLINE: 21"]
+    node117 [label = "VARIABLE\nID: prime"]
+    node118 [label = "VARIABLE\nID: i"]
+    node119 [label = "ASSIGN"]
+    node120 [label = "VARIABLE\nID: i"]
+    node121 [label = "ADD"]
+    node122 [label = "VARIABLE\nID: i"]
+    node123 [label = "INTEGER_CONSTANT\nVALUE: 1"]
+  }
+  node1 -> { node2 node3 }
+  node4 -> { node5 node6 }
+  node8 -> { node9 node10 }
+  node12 -> { node13 }
+  node14 -> { node15 node16 }
+  node11 -> { node12 node14 }
+  node18 -> { node19 }
+  node22 -> { node23 node24 }
+  node20 -> { node21 node22 }
+  node17 -> { node18 node20 }
+  node26 -> { node27 node28 node29 }
+  node32 -> { node33 node34 }
+  node30 -> { node31 node32 }
+  node25 -> { node26 node30 }
+  node7 -> { node8 node11 node17 node25 }
+  node38 -> { node39 node40 }
+  node41 -> { node42 node43 }
+  node37 -> { node38 node41 }
+  node45 -> { node46 }
+  node47 -> { node48 node49 }
+  node44 -> { node45 node47 }
+  node35 -> { node36 node37 node44 }
+  node53 -> { node54 }
+  node51 -> { node52 node53 }
+  node57 -> { node58 node59 }
+  node56 -> { node57 }
+  node64 -> { node65 }
+  node66 -> { node67 node68 }
+  node63 -> { node64 node66 }
+  node71 -> { node72 }
+  node73 -> { node74 }
+  node70 -> { node71 node73 node75 node76 node77 node78 node79 node80 }
+  node81 -> { node82 node83 }
+  node69 -> { node70 node81 }
+  node86 -> { node87 }
+  node88 -> { node89 }
+  node85 -> { node86 node88 node90 node91 node92 node93 node94 node95 }
+  node100 -> { node101 }
+  node102 -> { node103 }
+  node99 -> { node100 node102 node104 node105 }
+  node106 -> { node107 node108 }
+  node98 -> { node99 node106 }
+  node110 -> { node111 node112 node113 node114 node115 }
+  node116 -> { node117 node118 }
+  node109 -> { node110 node116 }
+  node96 -> { node97 node98 node109 }
+  node84 -> { node85 node96 }
+  node61 -> { node62 node63 node69 node84 }
+  node60 -> { node61 }
+  node121 -> { node122 node123 }
+  node119 -> { node120 node121 }
+  node55 -> { node56 node60 node119 }
+  node50 -> { node51 node55 }
+  node0 -> { node1 node4 node7 node35 node50 }
+}
