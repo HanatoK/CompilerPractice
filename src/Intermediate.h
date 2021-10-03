@@ -24,7 +24,7 @@ public:
   typedef typename ChildrenContainerT<std::shared_ptr<ICodeNode<NodeT, KeyT>>>::iterator children_iterator;
   typedef typename ChildrenContainerT<std::shared_ptr<ICodeNode<NodeT, KeyT>>>::const_iterator const_children_iterator;
   ICodeNode() {}
-  ICodeNode(const NodeT& pType) {}
+  explicit ICodeNode(const NodeT& pType) {}
   virtual ~ICodeNode() {}
   virtual NodeT type() const = 0;
   virtual const ICodeNode* setParent(const ICodeNode* new_parent) = 0;
@@ -80,7 +80,7 @@ public:
 template <typename SymbolTableKeyType>
 class SymbolTableEntry {
 public:
-  SymbolTableEntry(const std::string& name, SymbolTable<SymbolTableKeyType>* symbol_table) {}
+  SymbolTableEntry(const std::string&, SymbolTable<SymbolTableKeyType>*) {}
   virtual ~SymbolTableEntry() {}
   virtual std::string name() const = 0;
   virtual SymbolTable<SymbolTableKeyType>* symbolTable() const = 0;
@@ -93,7 +93,7 @@ public:
 template <typename SymbolTableKeyType>
 class SymbolTable {
 public:
-  SymbolTable(int nestingLevel) {}
+  explicit SymbolTable(int) {}
   virtual ~SymbolTable() {}
   virtual int nestingLevel() const = 0;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) const = 0;

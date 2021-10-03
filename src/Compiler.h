@@ -13,7 +13,7 @@ public:
     return "compiler";
   }
   //  void summary(int instructionCount, float elapsedTime);
-  boost::signals2::signal<void(int, float)> summary;
+  boost::signals2::signal<void(int, double)> summary;
 };
 
 #endif // COMPILER_H

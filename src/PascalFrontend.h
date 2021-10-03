@@ -17,7 +17,7 @@ typedef Token<PascalTokenTypeImpl> PascalToken;
 class PascalEofToken: public EofToken<PascalTokenTypeImpl> {
 public:
   PascalEofToken();
-  PascalEofToken(std::shared_ptr<Source> source);
+  explicit PascalEofToken(std::shared_ptr<Source> source);
 };
 
 std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
@@ -25,7 +25,7 @@ std::string typeToStr(const PascalTokenTypeImpl &tokenType, bool *ok = nullptr);
 class PascalScanner: public Scanner<PascalTokenTypeImpl> {
 public:
   PascalScanner();
-  PascalScanner(std::shared_ptr<Source> source);
+  explicit PascalScanner(std::shared_ptr<Source> source);
   virtual ~PascalScanner();
   virtual std::shared_ptr<PascalToken> extractToken();
 private:
@@ -36,7 +36,7 @@ class PascalParserTopDown:
   public Parser<SymbolTableKeyTypeImpl, ICodeNodeTypeImpl,
                 ICodeKeyTypeImpl, PascalTokenTypeImpl, PascalScanner> {
 public:
-  PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
+  explicit PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
   virtual ~PascalParserTopDown();
   virtual void parse();
   virtual int errorCount() const;
@@ -107,28 +107,28 @@ public:
 
 class PascalWordToken: public PascalToken {
 public:
-  PascalWordToken(std::shared_ptr<Source> source);
+  explicit PascalWordToken(std::shared_ptr<Source> source);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalStringToken: public PascalToken {
 public:
-  PascalStringToken(std::shared_ptr<Source> source);
+  explicit PascalStringToken(std::shared_ptr<Source> source);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalSpecialSymbolToken: public PascalToken {
 public:
-  PascalSpecialSymbolToken(std::shared_ptr<Source> source);
+  explicit PascalSpecialSymbolToken(std::shared_ptr<Source> source);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
 };
 
 class PascalNumberToken: public PascalToken {
 public:
-  PascalNumberToken(std::shared_ptr<Source> source);
+  explicit PascalNumberToken(std::shared_ptr<Source> source);
   virtual unique_ptr<PascalToken> clone() const;
   virtual void extract();
   virtual void extractNumber(std::string& text);

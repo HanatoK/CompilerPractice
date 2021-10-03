@@ -32,7 +32,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
   // the assign node adopts the variable node as its child
   assign_node->addChild(std::move(variable_node));
   // consume the identifier token
-  token = nextToken();
+  nextToken();
   token = synchronize(mColonEqualsSet);
   // and look for the := token
   if (token->type() == PascalTokenTypeImpl::COLON_EQUALS) {

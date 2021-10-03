@@ -135,7 +135,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   }
   auto root_node = parseTerm(token);
   if (sign_type == PascalTokenTypeImpl::MINUS) {
-    // create a negate node and adopt the current tree
+    // create a NEGATE node and adopt the current tree
     auto negate_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::NEGATE);
     negate_node->addChild(std::move(root_node));
     root_node = std::move(negate_node);

@@ -13,7 +13,7 @@ typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::
 class ICodeNodeImpl :
   public ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> {
 public:
-  ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
+  explicit ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
   virtual ICodeNodeTypeImpl type() const;
   virtual const ICodeNodeBase* parent() const;
@@ -71,7 +71,7 @@ private:
 
 class SymbolTableImpl : public SymbolTable<SymbolTableKeyTypeImpl> {
 public:
-  SymbolTableImpl(int nestingLevel);
+  explicit SymbolTableImpl(int nestingLevel);
   virtual ~SymbolTableImpl();
   virtual int nestingLevel() const;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>

@@ -2,12 +2,9 @@
 #include "Utilities.h"
 #include "Compiler.h"
 #include "Interpreter.h"
-#include "Compiler.h"
 
 #include <iostream>
-#include <fstream>
 #include <fmt/format.h>
-#include <exception>
 
 Pascal::Pascal(const std::string &operation, const std::string &filePath,
                const std::string &flags)

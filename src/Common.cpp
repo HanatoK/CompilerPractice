@@ -6,7 +6,7 @@ std::string any_to_string(const std::any &a)
 {
   if (a.type() == typeid(bool)) {
     const bool value = std::any_cast<bool>(a);
-    if (value == true) {
+    if (value) {
       return "true";
     } else {
       return "false";
@@ -30,7 +30,7 @@ std::string any_to_string(const std::any &a)
   } else if (a.type() == typeid(unsigned int)) {
     return std::to_string(std::any_cast<unsigned int>(a));
   } else if (a.type() == typeid(const char*)) {
-    return std::string(std::any_cast<const char*>(a));
+    return std::string{std::any_cast<const char*>(a)};
   } else {
     return "Failed to cast std::any!";
   }
@@ -39,7 +39,7 @@ std::string any_to_string(const std::any &a)
 void clear_line_ending(std::string& line) {
   const auto ending = line.find_last_of("\r\n");
   if (ending != std::string::npos) {
-    line.erase(line.begin() + ending);
+    line.erase(line.begin() + static_cast<int>(ending));
   }
 }
 

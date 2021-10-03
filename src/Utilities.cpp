@@ -1,5 +1,4 @@
 #include "Utilities.h"
-#include "IntermediateImpl.h"
 
 #include <fmt/format.h>
 #include <string>
@@ -31,7 +30,7 @@ void CrossReferencer::printSymbolTable(
 }
 
 ParseTreePrinter::ParseTreePrinter(std::ostream &os)
-    : mOutputStream(os), mLength(0), mLineIndentation(""), mLine("") {
+    : mOutputStream(os), mLength(0) {
   mIndentSpaces = "";
   for (int i = 0; i < INDENT_WIDTH; ++i) {
     mIndentSpaces += " ";
@@ -143,7 +142,7 @@ void ParseTreePrinter::printTypeSpec(
         &node) {}
 
 void ParseTreePrinter::appendOutputLine(const std::string &text) {
-  const int text_length = text.size();
+  const auto text_length = text.size();
   bool line_break = false;
   if (mLength + text_length > LINE_WIDTH) {
     printLine();
@@ -219,7 +218,7 @@ std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode
       node_label += "\\n" + key_string + ": " + any_to_string(value);
     }
   }
-  const std::string node_name = "node" + std::to_string(mIndex++) + " ";
+  std::string node_name = "node" + std::to_string(mIndex++) + " ";
   const std::string node_style_line = node_name + "[label = \"" + node_label + "\"]";
   mNodeStyleLines.push_back(node_style_line);
   if (node->numChildren() > 0) {

@@ -11,7 +11,7 @@ Source::Source(std::ifstream &ifs): mStream(ifs)
 
 char Source::currentChar()
 {
-  if (mCurrentPos == -2) {
+  if (mCurrentPos == -2 || mCurrentPos > mLine.length()) {
     // first time?
     readLine();
     return nextChar();
@@ -21,10 +21,6 @@ char Source::currentChar()
   } else if ((mCurrentPos == -1) || (mCurrentPos == mLine.size())) {
     // at the end of line?
     return EOL;
-  } else if (mCurrentPos > mLine.length()) {
-    // need to read the next line?
-    readLine();
-    return nextChar();
   } else {
     return mLine.at(mCurrentPos);
   }

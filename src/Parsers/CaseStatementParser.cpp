@@ -2,8 +2,6 @@
 #include "ExpressionParser.h"
 #include "StatementParser.h"
 
-#include <type_traits>
-
 CaseStatementParser::CaseStatementParser(PascalParserTopDown &parent)
     : PascalSubparserTopDownBase(parent) {}
 
@@ -219,7 +217,7 @@ long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNod
     const auto child_node = node->childrenBegin();
     const auto unsigned_value = std::any_cast<unsigned long long>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
     // TODO: possible overflow
-    const long long result = -1.0 * static_cast<long long>(unsigned_value);
+    const long long result = -1 * static_cast<long long>(unsigned_value);
     return result;
   } else {
     return 0;

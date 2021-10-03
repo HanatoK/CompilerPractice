@@ -136,7 +136,7 @@ std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key, b
     if (ok) {
       *ok = false;
     }
-    return std::any();
+    return std::any{};
   }
 }
 

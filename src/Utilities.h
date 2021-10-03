@@ -19,7 +19,7 @@ void printSymbolTable(const std::shared_ptr<const SymbolTable<SymbolTableKeyType
 class ParseTreePrinter {
 private:
   std::ostream& mOutputStream;
-  int mLength;
+  size_t mLength;
   std::string mIndentSpaces;
   std::string mLineIndentation;
   std::string mLine;

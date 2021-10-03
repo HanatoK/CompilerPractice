@@ -13,7 +13,7 @@ public:
     return "interpreter";
   }
   //  void summary(int executionCount, int runtimeErrors, float elapsedTime);
-  boost::signals2::signal<void(const int, const int, const float)> summary;
+  boost::signals2::signal<void(const int, const int, const double)> summary;
   boost::signals2::signal<void(const int)> sourceLineMessage;
   boost::signals2::signal<void(const int, const std::string&, const std::any&)> assignmentMessage;
   friend class SubExecutorBase;
