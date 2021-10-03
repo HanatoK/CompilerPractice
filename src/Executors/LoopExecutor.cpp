@@ -1,0 +1,37 @@
+#include "LoopExecutor.h"
+#include "ExpressionExecutor.h"
+#include "StatementExecutor.h"
+
+LoopExecutor::LoopExecutor(Executor &executor): SubExecutorBase(executor)
+{
+
+}
+
+std::shared_ptr<SubExecutorBase> LoopExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+{
+  bool exit_loop = false;
+  std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> expr_node = nullptr;
+  ExpressionExecutor expression_executor(*currentExecutor());
+  StatementExecutor statement_executor(*currentExecutor());
+  while (!exit_loop) {
+    // execute the children of the LOOP node
+    for (auto it_loop_children = node->childrenBegin();
+         it_loop_children != node->childrenEnd(); ++it_loop_children) {
+      const auto child_type = (*it_loop_children)->type();
+      if (child_type == ICodeNodeTypeImpl::TEST) {
+        if (expr_node == nullptr) {
+          expr_node = *((*it_loop_children)->childrenBegin());
+        }
+        expression_executor.execute(expr_node);
+        exit_loop = std::any_cast<bool>(expression_executor.value());
+      } else {
+        // statement node
+        statement_executor.execute(*it_loop_children);
+      }
+      if (exit_loop) {
+        break;
+      }
+    }
+  }
+  return nullptr;
+}

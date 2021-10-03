@@ -29,6 +29,7 @@ public:
   RuntimeErrorHandler();
   void flag(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node,
             const RuntimeErrorCode error_code, const Backend *backend);
+  int errorCount() const;
 private:
   static const int MAX_ERRORS = 5;
   int mErrorCount;

@@ -32,9 +32,7 @@ void Executor::process(
   executor.execute(root_node);
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time = end_time - start_time;
-  const int executionCount = 0;
-  const int runtimeErrors = 0;
-  summary(executionCount, runtimeErrors, elapsed_time.count());
+  summary(mExecutionCount, mErrorHandler->errorCount(), elapsed_time.count());
 }
 
 SubExecutorBase::SubExecutorBase(Executor &executor): mExecutor(executor)

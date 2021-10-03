@@ -39,6 +39,11 @@ void RuntimeErrorHandler::flag(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl
   }
 }
 
+int RuntimeErrorHandler::errorCount() const
+{
+  return mErrorCount;
+}
+
 std::string runtimeErrorCodeToString(const RuntimeErrorCode& code)
 {
   switch (code) {
