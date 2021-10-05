@@ -1,8 +1,6 @@
 #include "AssignmentStatementParser.h"
 #include "ExpressionParser.h"
 
-// FIXME: initialization out-of-order!
-
 AssignmentStatementParser::AssignmentStatementParser(PascalParserTopDown &parent): PascalSubparserTopDownBase(parent)
 {
 
