@@ -14,6 +14,7 @@ std::shared_ptr<SubExecutorBase> LoopExecutor::execute(const std::shared_ptr<ICo
   ExpressionExecutor expression_executor(*currentExecutor());
   StatementExecutor statement_executor(*currentExecutor());
   while (!exit_loop) {
+    ++executionCount();
     // execute the children of the LOOP node
     for (auto it_loop_children = node->childrenBegin();
          it_loop_children != node->childrenEnd(); ++it_loop_children) {

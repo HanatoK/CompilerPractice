@@ -11,6 +11,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
 ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // cosume the FOR
   token = nextToken();
+  const auto target_token = token;
   // create the COMPOUND, LOOP and TEST nodes
   auto compound_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::COMPOUND);
@@ -22,7 +23,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   AssignmentStatementParser assignment_parser(*currentParser());
   auto init_assign_node = assignment_parser.parse(token);
   // set the current line number attribute
-  setLineNumber(init_assign_node, token);
+  setLineNumber(init_assign_node, target_token);
   // synchronize at the TO or DOWNTO
   token = synchronize(mToDowntoSet);
   auto direction = token->type();
@@ -74,6 +75,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   arithmetic_op_node->addChild(std::move(one_node));
   // the next ASSIGN node adopts the arithmetic operator node as its second child,
   next_assign_node->addChild(std::move(arithmetic_op_node));
+  setLineNumber(next_assign_node, target_token);
   loop_node->addChild(std::move(next_assign_node));
   compound_node->addChild(std::move(init_assign_node));
   compound_node->addChild(std::move(loop_node));
