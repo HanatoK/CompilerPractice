@@ -634,7 +634,7 @@ void PascalNumberToken::extractNumber(std::string &text) {
     exponent_digits = PascalNumberToken::unsignedIntegerDigits(text);
   }
   if (mType == PascalTokenTypeImpl::INTEGER) {
-    const unsigned long long integer_value = computeIntegerValue(whole_digits);
+    const long long integer_value = computeIntegerValue(whole_digits);
     if (mType != PascalTokenTypeImpl::ERROR) {
       mValue = integer_value;
     }
@@ -663,13 +663,13 @@ std::string PascalNumberToken::unsignedIntegerDigits(std::string &text) {
   return digits;
 }
 
-unsigned long long PascalNumberToken::computeIntegerValue(const std::string &digits) {
+long long PascalNumberToken::computeIntegerValue(const std::string &digits) {
   // does not consume characters
   bool ok = true;
   // TODO: try to implement toInt without Qt
-  unsigned long long result = 0;
+  long long result = 0;
   try {
-    result = std::stoull(digits);
+    result = std::stoll(digits);
   } catch (const std::exception& e) {
     ok = false;
   }

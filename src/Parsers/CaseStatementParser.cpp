@@ -175,7 +175,7 @@ CaseStatementParser::parseIntegerConstant(const std::string &value,
                                           const PascalTokenTypeImpl sign) {
   auto constant_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::INTEGER_CONSTANT);
-  const auto int_value = std::stoull(value);
+  const auto int_value = std::stoll(value);
   constant_node->setAttribute(ICodeKeyTypeImpl::VALUE, int_value);
   // this differs from the book!
   if (sign == PascalTokenTypeImpl::MINUS) {
@@ -215,9 +215,9 @@ long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNod
   if (node->type() == ICodeNodeTypeImpl::NEGATE) {
     // get the first child node
     const auto child_node = node->childrenBegin();
-    const auto unsigned_value = std::any_cast<unsigned long long>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
+    const auto positive_value = std::any_cast<long long>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
     // TODO: possible overflow
-    const long long result = -1 * static_cast<long long>(unsigned_value);
+    const long long result = -1 * positive_value;
     return result;
   } else {
     return 0;

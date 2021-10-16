@@ -71,7 +71,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   arithmetic_op_node->addChild(std::move(control_variable_node->copy()));
   auto one_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::INTEGER_CONSTANT);
-  one_node->setAttribute(ICodeKeyTypeImpl::VALUE, 1ull);
+  one_node->setAttribute(ICodeKeyTypeImpl::VALUE, 1ll);
   arithmetic_op_node->addChild(std::move(one_node));
   // the next ASSIGN node adopts the arithmetic operator node as its second child,
   next_assign_node->addChild(std::move(arithmetic_op_node));

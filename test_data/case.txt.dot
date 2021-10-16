@@ -122,7 +122,7 @@ digraph "parse tree"
     node116 [label = "ASSIGN\nLINE: 21"]
     node117 [label = "VARIABLE\nID: prime"]
     node118 [label = "VARIABLE\nID: i"]
-    node119 [label = "ASSIGN"]
+    node119 [label = "ASSIGN\nLINE: 15"]
     node120 [label = "VARIABLE\nID: i"]
     node121 [label = "ADD"]
     node122 [label = "VARIABLE\nID: i"]

@@ -134,7 +134,7 @@ public:
   virtual void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
-  unsigned long long computeIntegerValue(const std::string& digits);
+  long long computeIntegerValue(const std::string& digits);
   double computeFloatValue(const std::string &whole_digits, const std::string &fraction_digits,
                            const std::string &exponent_digits, char exponent_sign);
 };

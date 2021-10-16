@@ -50,7 +50,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
       break;
     }
     case VariableType::INTEGER: {
-      mValue = -static_cast<long long>(std::any_cast<unsigned long long>(mValue));
+      mValue = -std::any_cast<long long>(mValue);
       mValueType = VariableType::INTEGER;
       break;
     }
@@ -111,8 +111,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
   if (search != mArithOps.end()) {
     // arithmetic operators
     if (integer_mode) {
-      const auto lhs_value_int = std::any_cast<unsigned long long>(lhs_value);
-      const auto rhs_value_int = std::any_cast<unsigned long long>(rhs_value);
+      const auto lhs_value_int = std::any_cast<long long>(lhs_value);
+      const auto rhs_value_int = std::any_cast<long long>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::ADD: {
         mValue = lhs_value_int + rhs_value_int;
@@ -176,12 +176,12 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       const double lhs_value_float =
           (type_lhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<unsigned long long>(lhs_value))
+                    std::any_cast<long long>(lhs_value))
               : std::any_cast<double>(lhs_value);
       const double rhs_value_float =
           (type_rhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<unsigned long long>(rhs_value))
+                    std::any_cast<long long>(rhs_value))
               : std::any_cast<double>(rhs_value);
       mValueType = VariableType::FLOAT;
       switch (node_type) {
@@ -241,8 +241,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
     // relational operators
     mValueType = VariableType::BOOLEAN;
     if (integer_mode) {
-      const auto lhs_value_int = std::any_cast<unsigned long long>(lhs_value);
-      const auto rhs_value_int = std::any_cast<unsigned long long>(rhs_value);
+      const auto lhs_value_int = std::any_cast<long long>(lhs_value);
+      const auto rhs_value_int = std::any_cast<long long>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::EQ: {
         mValue = (lhs_value_int == rhs_value_int);
@@ -278,12 +278,12 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       const double lhs_value_float =
           (type_lhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<unsigned long long>(lhs_value))
+                    std::any_cast<long long>(lhs_value))
               : std::any_cast<double>(lhs_value);
       const double rhs_value_float =
           (type_rhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<unsigned long long>(rhs_value))
+                    std::any_cast<long long>(rhs_value))
               : std::any_cast<double>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::EQ: {
