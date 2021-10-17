@@ -39,44 +39,51 @@ std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > SelectExecutor:
 bool SelectExecutor::searchConstants(const ExpressionExecutor& expression_result,
                                      const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& branch_node)
 {
-  auto expression_type = expression_result.valueType();
-  bool integer_mode = (expression_type == VariableType::INTEGER) ? true : false;
-  auto constant_node = (*branch_node->childrenBegin());
-  if (integer_mode) {
-    if (!std::holds_alternative<long long>(expression_result.value())) {
-      std::cerr << "BUG: SelectExecutor::searchConstants does not execute an expression returning a long long value!" << std::endl;
-    }
-    auto select_value = std::get<long long>(expression_result.value());
-    for (auto it = constant_node->childrenBegin(); it != constant_node->childrenEnd(); ++it) {
-      if ((*it)->type() == ICodeNodeTypeImpl::NEGATE) {
-        auto value_obj = (*((*it)->childrenBegin()))->getAttribute(ICodeKeyTypeImpl::VALUE);
-        auto value = -std::any_cast<long long>(value_obj);
-//        std::cout << "Internal compared value = " << value << " ; target value = " << select_value << std::endl;
-        if (select_value == value) {
-          return true;
-        }
-      } else {
-//        auto select_value = std::get<long long>(expression_result.value());
-        auto value_obj = (*it)->getAttribute(ICodeKeyTypeImpl::VALUE);
-        auto value = std::any_cast<long long>(value_obj);
-//        std::cout << "Internal compared value = " << value << " ; target value = " << select_value << std::endl;
-        if (select_value == value) {
-          return true;
-        }
-      }
-    }
-  } else {
-    if (!std::holds_alternative<std::string>(expression_result.value())) {
-      std::cerr << "BUG: SelectExecutor::searchConstants does not execute an expression returning an std::string value!" << std::endl;
-    }
-    auto select_value = std::get<std::string>(expression_result.value());
-    for (auto it = constant_node->childrenBegin(); it != constant_node->childrenEnd(); ++it) {
-      auto value_obj = (*it)->getAttribute(ICodeKeyTypeImpl::VALUE);
-      auto value = std::any_cast<std::string>(value_obj);
-      if (select_value == value) {
-        return true;
-      }
+  const auto constant_node = (*branch_node->childrenBegin());
+  const auto select_value = expression_result.value();
+  ExpressionExecutor constant_expression_executor(*currentExecutor());
+  for (auto it = constant_node->childrenBegin(); it != constant_node->childrenEnd(); ++it) {
+    constant_expression_executor.execute(*it);
+    if (constant_expression_executor.value() == select_value) {
+      return true;
     }
   }
   return false;
+}
+
+SelectExecutorOpt::SelectExecutorOpt(Executor& executor): SubExecutorBase(executor)
+{
+
+}
+
+std::shared_ptr<SubExecutorBase> SelectExecutorOpt::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node)
+{
+  const auto it_select_child = node->childrenBegin();
+  if (mJumpCache.find(node) == mJumpCache.end()) {
+    ExpressionExecutor constant_expression_executor(*currentExecutor());
+    for (auto it = it_select_child + 1; it != node->childrenEnd(); ++it) {
+      const auto branch_node = *it;
+      const auto constant_node = *(branch_node->childrenBegin());
+      const auto statement_node = *(branch_node->childrenBegin() + 1);
+      for (auto it_constant_node = constant_node->childrenBegin();
+           it_constant_node != constant_node->childrenEnd();
+           ++it_constant_node) {
+        constant_expression_executor.execute(*it_constant_node);
+        auto value = constant_expression_executor.value();
+        mJumpCache[node][value] = statement_node;
+      }
+    }
+  }
+//  auto it_select_child = node->childrenBegin();
+  auto expr_node = *it_select_child;
+  ExpressionExecutor expression_executor(*currentExecutor());
+  expression_executor.execute(expr_node);
+  auto select_value = expression_executor.value();
+  auto jump_entry = mJumpCache.at(node);
+  if (jump_entry.find(select_value) != jump_entry.end()) {
+    StatementExecutor statement_executor(*currentExecutor());
+    statement_executor.execute(jump_entry.at(select_value));
+  }
+  ++executionCount();
+  return nullptr;
 }

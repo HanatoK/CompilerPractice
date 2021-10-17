@@ -32,7 +32,8 @@ std::shared_ptr<SubExecutorBase> StatementExecutor::execute(const std::shared_pt
     return if_executor.execute(node);
   }
   case ICodeNodeTypeImpl::SELECT: {
-    SelectExecutor select_executor(*currentExecutor());
+//    SelectExecutor select_executor(*currentExecutor());
+    SelectExecutorOpt select_executor(*currentExecutor());
     return select_executor.execute(node);
   }
   case ICodeNodeTypeImpl::NO_OP: {
