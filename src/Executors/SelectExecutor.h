@@ -17,4 +17,11 @@ private:
                        const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& branch_node);
 };
 
+class SelectExecutorOpt : public SubExecutorBase
+{
+public:
+  explicit SelectExecutorOpt(Executor& executor);
+  // TODO
+};
+
 #endif // SELECTEXECUTOR_H

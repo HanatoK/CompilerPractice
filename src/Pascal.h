@@ -22,7 +22,7 @@ public:
                     const std::string& text, const std::any& value) const;
   void syntaxErrorMessage(const int lineNumber, const int position, const std::string& text,
                           const std::string& error) const;
-  void assignmentMessage(const int line_number, const std::string& variable_name, const std::any& value) const;
+  void assignmentMessage(const int line_number, const std::string& variable_name, const VariableValueT& value) const;
   void runtimeErrorMessage(const int line_number, const std::string& error_message) const;
 private:
   std::shared_ptr<PascalParserTopDown> mParser;

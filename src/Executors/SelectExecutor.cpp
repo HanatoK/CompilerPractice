@@ -43,9 +43,12 @@ bool SelectExecutor::searchConstants(const ExpressionExecutor& expression_result
   bool integer_mode = (expression_type == VariableType::INTEGER) ? true : false;
   auto constant_node = (*branch_node->childrenBegin());
   if (integer_mode) {
+    if (!std::holds_alternative<long long>(expression_result.value())) {
+      std::cerr << "BUG: SelectExecutor::searchConstants does not execute an expression returning a long long value!" << std::endl;
+    }
+    auto select_value = std::get<long long>(expression_result.value());
     for (auto it = constant_node->childrenBegin(); it != constant_node->childrenEnd(); ++it) {
       if ((*it)->type() == ICodeNodeTypeImpl::NEGATE) {
-        auto select_value = std::any_cast<long long>(expression_result.value());
         auto value_obj = (*((*it)->childrenBegin()))->getAttribute(ICodeKeyTypeImpl::VALUE);
         auto value = -std::any_cast<long long>(value_obj);
 //        std::cout << "Internal compared value = " << value << " ; target value = " << select_value << std::endl;
@@ -53,7 +56,7 @@ bool SelectExecutor::searchConstants(const ExpressionExecutor& expression_result
           return true;
         }
       } else {
-        auto select_value = std::any_cast<long long>(expression_result.value());
+//        auto select_value = std::get<long long>(expression_result.value());
         auto value_obj = (*it)->getAttribute(ICodeKeyTypeImpl::VALUE);
         auto value = std::any_cast<long long>(value_obj);
 //        std::cout << "Internal compared value = " << value << " ; target value = " << select_value << std::endl;
@@ -63,7 +66,10 @@ bool SelectExecutor::searchConstants(const ExpressionExecutor& expression_result
       }
     }
   } else {
-    auto select_value = std::any_cast<std::string>(expression_result.value());
+    if (!std::holds_alternative<std::string>(expression_result.value())) {
+      std::cerr << "BUG: SelectExecutor::searchConstants does not execute an expression returning an std::string value!" << std::endl;
+    }
+    auto select_value = std::get<std::string>(expression_result.value());
     for (auto it = constant_node->childrenBegin(); it != constant_node->childrenEnd(); ++it) {
       auto value_obj = (*it)->getAttribute(ICodeKeyTypeImpl::VALUE);
       auto value = std::any_cast<std::string>(value_obj);

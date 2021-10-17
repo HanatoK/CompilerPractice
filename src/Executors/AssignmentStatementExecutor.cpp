@@ -18,7 +18,28 @@ std::shared_ptr<SubExecutorBase> AssignmentStatementExecutor::execute(const std:
   expression_executor.execute(expression_node);
   auto expression_value = expression_executor.value();
   const auto variable_id = std::any_cast<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(variable_node->getAttribute(ICodeKeyTypeImpl::ID));
-  variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, expression_value);
+  switch (expression_executor.valueType()) {
+    case VariableType::INTEGER: {
+      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<long long>(expression_value));
+      break;
+    }
+    case VariableType::BOOLEAN: {
+      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<bool>(expression_value));
+      break;
+    }
+    case VariableType::FLOAT: {
+      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<double>(expression_value));
+      break;
+    }
+    case VariableType::STRING: {
+      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<std::string>(expression_value));
+      break;
+    }
+    default: {
+      errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE, currentExecutor());
+      break;
+    }
+  }
   variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_TYPE, expression_executor.valueType());
   const auto line_number_attribute = node->getAttribute(ICodeKeyTypeImpl::LINE);
   if (line_number_attribute.has_value()) {

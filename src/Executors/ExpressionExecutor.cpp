@@ -17,23 +17,47 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
     const auto entry = std::any_cast<
         std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(
         node->getAttribute(ICodeKeyTypeImpl::ID));
-    mValue = entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE);
+//    mValue = entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE);
     mValueType = std::any_cast<VariableType>(
         entry->getAttribute(SymbolTableKeyTypeImpl::DATA_TYPE));
+    switch (mValueType) {
+      case VariableType::INTEGER: {
+        mValue = std::any_cast<long long>(entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE));
+        break;
+      }
+      case VariableType::FLOAT: {
+        mValue = std::any_cast<double>(entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE));
+        break;
+      }
+      case VariableType::BOOLEAN: {
+        mValue = std::any_cast<bool>(entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE));
+        break;
+      }
+      case VariableType::STRING: {
+        mValue = std::any_cast<std::string>(entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE));
+        break;
+      }
+      default: {
+        errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
+                             currentExecutor());
+        mValue = 0;
+        break;
+      }
+    }
     break;
   }
   case ICodeNodeTypeImpl::INTEGER_CONSTANT: {
-    mValue = node->getAttribute(ICodeKeyTypeImpl::VALUE);
+    mValue = std::any_cast<long long>(node->getAttribute(ICodeKeyTypeImpl::VALUE));
     mValueType = VariableType::INTEGER;
     break;
   }
   case ICodeNodeTypeImpl::REAL_CONSTANT: {
-    mValue = node->getAttribute(ICodeKeyTypeImpl::VALUE);
+    mValue = std::any_cast<double>(node->getAttribute(ICodeKeyTypeImpl::VALUE));
     mValueType = VariableType::FLOAT;
     break;
   }
   case ICodeNodeTypeImpl::STRING_CONSTANT: {
-    mValue = node->getAttribute(ICodeKeyTypeImpl::VALUE);
+    mValue = std::any_cast<std::string>(node->getAttribute(ICodeKeyTypeImpl::VALUE));
     mValueType = VariableType::STRING;
     break;
   }
@@ -45,12 +69,12 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
     mValue = executor.value();
     switch (executor.valueType()) {
     case VariableType::FLOAT: {
-      mValue = -std::any_cast<double>(mValue);
+      mValue = -std::get<double>(mValue);
       mValueType = VariableType::FLOAT;
       break;
     }
     case VariableType::INTEGER: {
-      mValue = -std::any_cast<long long>(mValue);
+      mValue = -std::get<long long>(mValue);
       mValueType = VariableType::INTEGER;
       break;
     }
@@ -68,7 +92,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
     ExpressionExecutor executor(*currentExecutor());
     executor.execute(operand);
     if (executor.valueType() == VariableType::BOOLEAN) {
-      mValue = !std::any_cast<bool>(executor.value());
+      mValue = !std::get<bool>(executor.value());
       mValueType = VariableType::BOOLEAN;
     } else {
       // implicit type conversion?
@@ -84,7 +108,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
   return nullptr;
 }
 
-std::any ExpressionExecutor::value() const { return mValue; }
+VariableValueT ExpressionExecutor::value() const { return mValue; }
 
 VariableType ExpressionExecutor::valueType() const { return mValueType; }
 
@@ -111,8 +135,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
   if (search != mArithOps.end()) {
     // arithmetic operators
     if (integer_mode) {
-      const auto lhs_value_int = std::any_cast<long long>(lhs_value);
-      const auto rhs_value_int = std::any_cast<long long>(rhs_value);
+      const auto lhs_value_int = std::get<long long>(lhs_value);
+      const auto rhs_value_int = std::get<long long>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::ADD: {
         mValue = lhs_value_int + rhs_value_int;
@@ -176,13 +200,13 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       const double lhs_value_float =
           (type_lhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<long long>(lhs_value))
-              : std::any_cast<double>(lhs_value);
+                    std::get<long long>(lhs_value))
+              : std::get<double>(lhs_value);
       const double rhs_value_float =
           (type_rhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<long long>(rhs_value))
-              : std::any_cast<double>(rhs_value);
+                    std::get<long long>(rhs_value))
+              : std::get<double>(rhs_value);
       mValueType = VariableType::FLOAT;
       switch (node_type) {
       case ICodeNodeTypeImpl::ADD: {
@@ -219,8 +243,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
   } else if (node_type == ICodeNodeTypeImpl::AND ||
              node_type == ICodeNodeTypeImpl::OR) {
     // and and or
-    const bool lhs_value_bool = std::any_cast<bool>(lhs_value);
-    const bool rhs_value_bool = std::any_cast<bool>(rhs_value);
+    const bool lhs_value_bool = std::get<bool>(lhs_value);
+    const bool rhs_value_bool = std::get<bool>(rhs_value);
     mValueType = VariableType::BOOLEAN;
     switch (node_type) {
     case ICodeNodeTypeImpl::AND: {
@@ -241,31 +265,31 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
     // relational operators
     mValueType = VariableType::BOOLEAN;
     if (integer_mode) {
-      const auto lhs_value_int = std::any_cast<long long>(lhs_value);
-      const auto rhs_value_int = std::any_cast<long long>(rhs_value);
+      const auto lhs_value_int = std::get<long long>(lhs_value);
+      const auto rhs_value_int = std::get<long long>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::EQ: {
-        mValue = (lhs_value_int == rhs_value_int);
+        mValue = bool(lhs_value_int == rhs_value_int);
         break;
       }
       case ICodeNodeTypeImpl::NE: {
-        mValue = (lhs_value_int != rhs_value_int);
+        mValue = bool(lhs_value_int != rhs_value_int);
         break;
       }
       case ICodeNodeTypeImpl::LT: {
-        mValue = (lhs_value_int < rhs_value_int);
+        mValue = bool(lhs_value_int < rhs_value_int);
         break;
       }
       case ICodeNodeTypeImpl::LE: {
-        mValue = (lhs_value_int <= rhs_value_int);
+        mValue = bool(lhs_value_int <= rhs_value_int);
         break;
       }
       case ICodeNodeTypeImpl::GT: {
-        mValue = (lhs_value_int > rhs_value_int);
+        mValue = bool(lhs_value_int > rhs_value_int);
         break;
       }
       case ICodeNodeTypeImpl::GE: {
-        mValue = (lhs_value_int >= rhs_value_int);
+        mValue = bool(lhs_value_int >= rhs_value_int);
         break;
       }
       default: {
@@ -278,36 +302,36 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       const double lhs_value_float =
           (type_lhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<long long>(lhs_value))
-              : std::any_cast<double>(lhs_value);
+                    std::get<long long>(lhs_value))
+              : std::get<double>(lhs_value);
       const double rhs_value_float =
           (type_rhs == VariableType::INTEGER)
               ? static_cast<double>(
-                    std::any_cast<long long>(rhs_value))
-              : std::any_cast<double>(rhs_value);
+                    std::get<long long>(rhs_value))
+              : std::get<double>(rhs_value);
       switch (node_type) {
       case ICodeNodeTypeImpl::EQ: {
-        mValue = (lhs_value_float == rhs_value_float);
+        mValue = bool(lhs_value_float == rhs_value_float);
         break;
       }
       case ICodeNodeTypeImpl::NE: {
-        mValue = (lhs_value_float != rhs_value_float);
+        mValue = bool(lhs_value_float != rhs_value_float);
         break;
       }
       case ICodeNodeTypeImpl::LT: {
-        mValue = (lhs_value_float < rhs_value_float);
+        mValue = bool(lhs_value_float < rhs_value_float);
         break;
       }
       case ICodeNodeTypeImpl::LE: {
-        mValue = (lhs_value_float <= rhs_value_float);
+        mValue = bool(lhs_value_float <= rhs_value_float);
         break;
       }
       case ICodeNodeTypeImpl::GT: {
-        mValue = (lhs_value_float > rhs_value_float);
+        mValue = bool(lhs_value_float > rhs_value_float);
         break;
       }
       case ICodeNodeTypeImpl::GE: {
-        mValue = (lhs_value_float >= rhs_value_float);
+        mValue = bool(lhs_value_float >= rhs_value_float);
         break;
       }
       default: {

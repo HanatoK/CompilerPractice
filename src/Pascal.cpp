@@ -131,9 +131,9 @@ void Pascal::syntaxErrorMessage(const int lineNumber, const int position, const 
   fmt::print("***{} [at \"{}\"]\n", error, text);
 }
 
-void Pascal::assignmentMessage(const int line_number, const std::string& variable_name, const std::any& value) const
+void Pascal::assignmentMessage(const int line_number, const std::string& variable_name, const VariableValueT& value) const
 {
-  fmt::print("LINE {:3d}: {} = {}\n", line_number, variable_name, any_to_string(value));
+  fmt::print("LINE {:3d}: {} = {}\n", line_number, variable_name, variable_value_to_string(value));
 }
 
 void Pascal::runtimeErrorMessage(const int line_number, const std::string& error_message) const

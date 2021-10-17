@@ -24,7 +24,10 @@ std::shared_ptr<SubExecutorBase> LoopExecutor::execute(const std::shared_ptr<ICo
           expr_node = *((*it_loop_children)->childrenBegin());
         }
         expression_executor.execute(expr_node);
-        exit_loop = std::any_cast<bool>(expression_executor.value());
+        if (!std::holds_alternative<bool>(expression_executor.value())) {
+          std::cerr << "BUG: LoopExecutor::execute does not execute an expression returning a boolean value!" << std::endl;
+        }
+        exit_loop = std::get<bool>(expression_executor.value());
       } else {
         // statement node
         statement_executor.execute(*it_loop_children);

@@ -5,6 +5,7 @@
 #include <any>
 #include <string>
 #include <type_traits>
+#include <variant>
 #include <boost/algorithm/string.hpp>
 #include <boost/current_function.hpp>
 
@@ -123,6 +124,8 @@ enum class VariableType {
   INTEGER, FLOAT, BOOLEAN, STRING, UNKNOWN
 };
 
+typedef std::variant<bool, long long, double, std::string> VariableValueT;
+
 extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
 extern std::map<std::string, PascalTokenTypeImpl> reservedWordsMapRev;
 extern std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap;
@@ -141,6 +144,8 @@ std::map<T2, T1> reverse_map(const std::map<T1, T2>& map_in) {
 }
 
 std::string any_to_string(const std::any& a);
+
+std::string variable_value_to_string(const VariableValueT& a);
 
 bool compare_any(const std::any& a, const std::any& b);
 

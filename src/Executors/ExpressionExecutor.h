@@ -4,6 +4,7 @@
 #include "Interpreter.h"
 
 #include <set>
+#include <variant>
 
 class ExpressionExecutor : public SubExecutorBase {
 public:
@@ -11,12 +12,12 @@ public:
   virtual std::shared_ptr<SubExecutorBase>
   execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
               &node);
-  std::any value() const;
+  VariableValueT value() const;
   VariableType valueType() const;
 
 private:
   static const std::set<ICodeNodeTypeImpl> mArithOps;
-  std::any mValue;
+  VariableValueT mValue;
   VariableType mValueType;
   std::shared_ptr<SubExecutorBase> executeBinaryOperator(
       const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>

@@ -109,3 +109,19 @@ bool compare_any(const std::any &a, const std::any &b)
     }
   }
 }
+
+std::string variable_value_to_string(const VariableValueT& a)
+{
+  std::string result;
+  std::visit([&result](auto&& arg){
+    using T = std::decay_t<decltype (arg)>;
+    if constexpr (std::is_floating_point_v<T>) {
+      result = fmt::format("{:.9f}", arg);
+    } else if constexpr (std::is_integral_v<T>) {
+      result = std::to_string(arg);
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      result = arg;
+    }
+  }, a);
+  return result;
+}
