@@ -848,13 +848,11 @@ std::shared_ptr<PascalToken> PascalSubparserTopDownBase::synchronize(
   return mPascalParser.synchronize(sync_set);
 }
 
-std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
-PascalSubparserTopDownBase::getSymbolTableStack() {
+std::shared_ptr<SymbolTableStackImplBase> PascalSubparserTopDownBase::getSymbolTableStack() {
   return mPascalParser.getSymbolTableStack();
 }
 
-std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-PascalSubparserTopDownBase::getICode() const {
+std::shared_ptr<ICodeImplBase> PascalSubparserTopDownBase::getICode() const {
   return mPascalParser.getICode();
 }
 
@@ -875,7 +873,7 @@ PascalParserTopDown *PascalSubparserTopDownBase::currentParser() {
 }
 
 void PascalSubparserTopDownBase::setLineNumber(
-    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> &node,
+    std::unique_ptr<ICodeNodeImplBase> &node,
     const std::shared_ptr<PascalToken> &token) {
   if (node != nullptr) {
     node->setAttribute(ICodeKeyTypeImpl::LINE, token->lineNum());

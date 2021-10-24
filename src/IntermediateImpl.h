@@ -8,20 +8,24 @@
 #include <memory>
 #include <unordered_map>
 
-typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> ICodeNodeBase;
+typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> ICodeNodeImplBase;
+typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> ICodeImplBase;
+typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableEntryImplBase;
+typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableImplBase;
+typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableStackImplBase;
+typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> TypeSpecImplBase;
 
-class ICodeNodeImpl :
-  public ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> {
+class ICodeNodeImpl : public ICodeNodeImplBase {
 public:
   explicit ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
   virtual ICodeNodeTypeImpl type() const;
-  virtual const ICodeNodeBase* parent() const;
-  virtual const ICodeNodeBase* setParent(const ICodeNodeBase* new_parent);
-  virtual std::shared_ptr<ICodeNodeBase> addChild(std::shared_ptr<ICodeNodeBase> node);
+  virtual const ICodeNodeImplBase* parent() const;
+  virtual const ICodeNodeImplBase* setParent(const ICodeNodeImplBase* new_parent);
+  virtual std::shared_ptr<ICodeNodeImplBase> addChild(std::shared_ptr<ICodeNodeImplBase> node);
   virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value);
   virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const;
-  virtual std::unique_ptr<ICodeNodeBase> copy() const;
+  virtual std::unique_ptr<ICodeNodeImplBase> copy() const;
   virtual std::string toString() const;
 protected:
   virtual AttributeMapTImpl& attributeMap();
@@ -30,100 +34,100 @@ protected:
   virtual const ChildrenContainerTImpl& children() const;
 private:
   ICodeNodeTypeImpl mType;
-  const ICodeNodeBase *mParent;
+  const ICodeNodeImplBase *mParent;
   AttributeMapTImpl mHashTable;
   ChildrenContainerTImpl mChildren;
 };
 
-class ICodeImpl : public ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> {
+class ICodeImpl : public ICodeImplBase {
 public:
   ICodeImpl();
   virtual ~ICodeImpl();
-  virtual std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-  setRoot(std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> node);
-  virtual std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-  getRoot() const;
+  virtual std::shared_ptr<ICodeNodeImplBase> setRoot(std::shared_ptr<ICodeNodeImplBase> node);
+  virtual std::shared_ptr<ICodeNodeImplBase> getRoot() const;
 
 private:
-  std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mRoot;
+  std::shared_ptr<ICodeNodeImplBase> mRoot;
 };
 
-class SymbolTableEntryImpl : public SymbolTableEntry<SymbolTableKeyTypeImpl> {
+class SymbolTableEntryImpl : public SymbolTableEntryImplBase {
 public:
-  SymbolTableEntryImpl(const std::string &name,
-                       SymbolTable<SymbolTableKeyTypeImpl> *symbol_table);
+  SymbolTableEntryImpl(const std::string &name, SymbolTableImplBase *symbol_table);
   virtual ~SymbolTableEntryImpl();
   virtual std::string name() const;
-  virtual SymbolTable<SymbolTableKeyTypeImpl> *symbolTable() const;
+  virtual SymbolTableImplBase *symbolTable() const;
   virtual void appendLineNumber(int line_number);
   virtual std::vector<int> lineNumbers() const;
-  virtual void setAttribute(const SymbolTableKeyTypeImpl &key,
-                            const std::any &value);
-  virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key,
-                                bool *ok = nullptr) const;
-
+  virtual void setAttribute(const SymbolTableKeyTypeImpl &key, const std::any &value);
+  virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok = nullptr) const;
+  virtual void setDefinition(const DefinitionImpl& definition);
+  virtual DefinitionImpl getDefinition() const;
+  virtual void setTypeSpec(std::shared_ptr<TypeSpecImplBase> type_spec);
+  virtual std::shared_ptr<TypeSpecImplBase> getTypeSpec() const;
 private:
-  SymbolTable<SymbolTableKeyTypeImpl> *mSymbolTable;
+  SymbolTableImplBase *mSymbolTable;
   std::vector<int> mLineNumbers;
   std::string mName;
   std::unordered_map<SymbolTableKeyTypeImpl, std::any> mEntryMap;
+  DefinitionImpl mDefinition;
+  std::shared_ptr<TypeSpecImplBase> mTypeSpec;
 };
 
-class SymbolTableImpl : public SymbolTable<SymbolTableKeyTypeImpl> {
+class SymbolTableImpl : public SymbolTableImplBase {
 public:
   explicit SymbolTableImpl(int nestingLevel);
   virtual ~SymbolTableImpl();
   virtual int nestingLevel() const;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookup(const std::string &name) const;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  enter(const std::string &name);
-  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
-  sortedEntries() const;
-
+  virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const;
+  virtual std::shared_ptr<SymbolTableEntryImplBase> enter(const std::string &name);
+  virtual std::vector<std::shared_ptr<SymbolTableEntryImplBase>> sortedEntries() const;
 private:
   int mNestingLevel;
-  std::map<std::string, std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>
-      mSymbolMap;
+  std::map<std::string, std::shared_ptr<SymbolTableEntryImplBase>> mSymbolMap;
 };
 
-class SymbolTableStackImpl : public SymbolTableStack<SymbolTableKeyTypeImpl> {
+class SymbolTableStackImpl : public SymbolTableStackImplBase {
 public:
   SymbolTableStackImpl();
   virtual ~SymbolTableStackImpl();
   virtual int currentNestingLevel() const;
-  virtual std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>>
-  localSymbolTable() const;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  enterLocal(const std::string &name);
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookupLocal(const std::string &name) const;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
-  lookup(const std::string &name) const;
-
+  virtual std::shared_ptr<SymbolTableImplBase> localSymbolTable() const;
+  virtual std::shared_ptr<SymbolTableEntryImplBase> enterLocal(const std::string &name);
+  virtual std::shared_ptr<SymbolTableEntryImplBase> lookupLocal(const std::string &name) const;
+  virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const;
 private:
   int mCurrentNestingLevel;
-  std::vector<std::shared_ptr<SymbolTable<SymbolTableKeyTypeImpl>>> mStack;
+  std::vector<std::shared_ptr<SymbolTableImplBase>> mStack;
+};
+
+class TypeSpecImpl : public TypeSpecImplBase {
+public:
+  explicit TypeSpecImpl(TypeFormImpl form);
+  explicit TypeSpecImpl(const std::string& value);
+private:
+  TypeFormImpl mForm;
+  SymbolTableEntryImplBase* mIdentifier;
+  std::unordered_map<TypeKeyImpl, std::any> mTypeSpecMap;
 };
 
 template <>
-std::unique_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>
+std::unique_ptr<SymbolTableEntryImplBase>
 createSymbolTableEntry(const std::string &name,
-                       SymbolTable<SymbolTableKeyTypeImpl> *symbolTable);
+                       SymbolTableImplBase *symbolTable);
 
 template <>
-std::unique_ptr<SymbolTable<SymbolTableKeyTypeImpl>>
-createSymbolTable(int nestingLevel);
+std::unique_ptr<SymbolTableImplBase> createSymbolTable(int nestingLevel);
 
 template <>
-std::unique_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
-createSymbolTableStack();
+std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack();
 
 template <>
-std::unique_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> createICode();
+std::unique_ptr<ICodeImplBase> createICode();
 
 template <>
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-createICodeNode(const ICodeNodeTypeImpl &type);
+std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type);
+
+template <>
+std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form);
 
 #endif // INTERMEDIATEIMPL_H

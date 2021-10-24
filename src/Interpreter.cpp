@@ -22,7 +22,7 @@ Executor::~Executor()
 
 void Executor::process(
     std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const> iCode,
-    std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>>
+    std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>>
         symbol_table_stack) {
   mICode = iCode;
   mSymbolTableStack = symbol_table_stack;

@@ -17,7 +17,7 @@ std::shared_ptr<SubExecutorBase> AssignmentStatementExecutor::execute(const std:
   ExpressionExecutor expression_executor(*currentExecutor());
   expression_executor.execute(expression_node);
   auto expression_value = expression_executor.value();
-  const auto variable_id = std::any_cast<std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(variable_node->getAttribute(ICodeKeyTypeImpl::ID));
+  const auto variable_id = std::any_cast<std::shared_ptr<SymbolTableEntryImplBase>>(variable_node->getAttribute(ICodeKeyTypeImpl::ID));
   switch (expression_executor.valueType()) {
     case VariableType::INTEGER: {
       variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<long long>(expression_value));

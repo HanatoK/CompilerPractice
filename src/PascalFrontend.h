@@ -3,6 +3,8 @@
 
 #include "Frontend.h"
 #include "Intermediate.h"
+#include "IntermediateImpl.h"
+#include "Predefined.h"
 #include "Common.h"
 
 #include <boost/signals2/connection.hpp>
@@ -33,7 +35,7 @@ private:
 };
 
 class PascalParserTopDown:
-  public Parser<SymbolTableKeyTypeImpl, ICodeNodeTypeImpl,
+  public Parser<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ICodeNodeTypeImpl,
                 ICodeKeyTypeImpl, PascalTokenTypeImpl, PascalScanner> {
 public:
   explicit PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
@@ -57,14 +59,14 @@ public:
   std::shared_ptr<PascalToken> currentToken() const;
   std::shared_ptr<PascalToken> nextToken();
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
-  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> getSymbolTableStack();
-  std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> getICode() const;
+  std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack();
+  std::shared_ptr<ICodeImplBase> getICode() const;
   std::shared_ptr<PascalScanner> scanner() const;
   int errorCount();
   PascalErrorHandler* errorHandler();
   PascalParserTopDown* currentParser();
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token) = 0;
-  static void setLineNumber(std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node,
+  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) = 0;
+  static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
   static const std::set<PascalTokenTypeImpl> mStatementStartSet;
   static const std::set<PascalTokenTypeImpl> mStatementFollowSet;

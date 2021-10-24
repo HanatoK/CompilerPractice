@@ -2,13 +2,14 @@
 #define INTERPRETER_H
 
 #include "Backend.h"
+#include "IntermediateImpl.h"
 
 class Executor: public Backend {
 public:
   Executor();
   virtual ~Executor();
-  virtual void process(std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > iCode,
-                       std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack);
+  virtual void process(std::shared_ptr<const ICodeImplBase> iCode,
+                       std::shared_ptr<SymbolTableStackImplBase> symbol_table_stack);
   virtual std::string getType() const {
     return "interpreter";
   }

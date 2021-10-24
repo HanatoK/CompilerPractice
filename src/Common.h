@@ -126,6 +126,24 @@ enum class VariableType {
 
 typedef std::variant<bool, long long, double, std::string> VariableValueT;
 
+enum class TypeFormImpl {
+  SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD
+};
+
+enum class TypeKeyImpl {
+  ENUMERATION_CONSTANTS,
+  SUBRANGE_BASE_TYPE, SUBRANGE_MIN_VALUE, SUBRANGE_MAX_VALUE,
+  ARRAY_INDEX_TYPE, ARRAY_ELEMENT_TYPE, ARRAY_ELEMENT_COUNT,
+  RECORD_SYMTAB
+};
+
+enum class DefinitionImpl {
+  CONSTANT, ENUMERATION_CONSTANT,
+  TYPE, VARIABLE, FIELD, VALUE_PARM,
+  VAR_PARM, PROGRAM_PARM, PROGRAM,
+  PROCEDURE, FUNCTION, UNDEFINED
+};
+
 extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
 extern std::map<std::string, PascalTokenTypeImpl> reservedWordsMapRev;
 extern std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap;
@@ -150,5 +168,7 @@ std::string variable_value_to_string(const VariableValueT& a);
 bool compare_any(const std::any& a, const std::any& b);
 
 void clear_line_ending(std::string& line);
+
+std::string TypeFormImplToStr(TypeFormImpl t);
 
 #endif // COMMON_H

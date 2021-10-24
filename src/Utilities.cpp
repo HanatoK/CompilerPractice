@@ -3,7 +3,7 @@
 #include <fmt/format.h>
 #include <string>
 
-void CrossReferencer::print(const std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl> > &symbol_table_stack) {
+void CrossReferencer::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) {
   fmt::print("{:=^{}}\n", "CROSS-REFERENCE TABLE", NAME_WIDTH * 4);
   printColumnHeadings();
   printSymbolTable(symbol_table_stack->localSymbolTable());
@@ -15,8 +15,7 @@ void CrossReferencer::printColumnHeadings() {
   fmt::print("{:->{}}\n", "", NAME_WIDTH * 4);
 }
 
-void CrossReferencer::printSymbolTable(
-    const std::shared_ptr<const SymbolTable<SymbolTableKeyTypeImpl>>& symbol_table) {
+void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableImplBase>& symbol_table) {
   auto sorted_list = symbol_table->sortedEntries();
   for (const auto &elem : sorted_list) {
     const auto line_numbers = elem->lineNumbers();
@@ -37,9 +36,7 @@ ParseTreePrinter::ParseTreePrinter(std::ostream &os)
   }
 }
 
-void ParseTreePrinter::print(
-    const std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const>
-        &intermediate_code) {
+void ParseTreePrinter::print(const std::shared_ptr<const ICodeImplBase>& intermediate_code) {
   const auto tmp_line_width = LINE_WIDTH;
   mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
   printNode(intermediate_code->getRoot());
@@ -48,7 +45,7 @@ void ParseTreePrinter::print(
 }
 
 void ParseTreePrinter::printNode(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const>
+    const std::shared_ptr<ICodeNodeImplBase const>
         &node) {
   // opening tag
   appendOutputLine(mLineIndentation);
@@ -68,9 +65,7 @@ void ParseTreePrinter::printNode(
   printLine();
 }
 
-void ParseTreePrinter::printAttributes(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const>
-        &node) {
+void ParseTreePrinter::printAttributes(const std::shared_ptr<const ICodeNodeImplBase>& node) {
   const auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
   //  const auto& attribute_table = node->attributeTable();
@@ -122,9 +117,7 @@ void ParseTreePrinter::printAttributes(const std::string &key,
   }
 }
 
-void ParseTreePrinter::printChildNodes(
-    const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-        &parent_node) {
+void ParseTreePrinter::printChildNodes(const std::shared_ptr<const ICodeNodeImplBase>& parent_node) {
   auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
   //  for (const auto& elem: parent_node) {
@@ -138,7 +131,7 @@ void ParseTreePrinter::printChildNodes(
 }
 
 void ParseTreePrinter::printTypeSpec(
-    const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+    const std::shared_ptr<const ICodeNodeImplBase>
         &node) {}
 
 void ParseTreePrinter::appendOutputLine(const std::string &text) {
@@ -169,7 +162,7 @@ ParseTreePrinterDot::ParseTreePrinterDot(std::ostream &os): mOutputStream(os), m
 
 }
 
-void ParseTreePrinterDot::print(const std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &intermediate_code)
+void ParseTreePrinterDot::print(const std::shared_ptr<const ICodeImplBase> &intermediate_code)
 {
   auto root_node = intermediate_code->getRoot();
   printNode(root_node);
@@ -187,7 +180,7 @@ void ParseTreePrinterDot::print(const std::shared_ptr<const ICode<ICodeNodeTypeI
   mOutputStream << "}";
 }
 
-std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNodeImplBase>& node)
 {
   // print current node
   std::string node_label = node->toString();
@@ -209,9 +202,9 @@ std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode
     }
     }
     if (value.type() ==
-        typeid(std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>)) {
+        typeid(std::shared_ptr<SymbolTableEntryImplBase>)) {
       const auto tmp_value = std::any_cast<
-          std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(value);
+          std::shared_ptr<SymbolTableEntryImplBase>>(value);
 
       node_label += "\\n" + key_string + ": " + tmp_value->name();
     } else {

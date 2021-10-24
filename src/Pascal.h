@@ -5,6 +5,7 @@
 #include "Frontend.h"
 #include "Intermediate.h"
 #include "PascalFrontend.h"
+#include "Predefined.h"
 #include "Common.h"
 
 #include <fstream>
@@ -28,7 +29,7 @@ private:
   std::shared_ptr<PascalParserTopDown> mParser;
   std::shared_ptr<Source> mSource;
   std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
-  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> mSymbolTableStack;
+  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>> mSymbolTableStack;
   std::shared_ptr<Backend> mBackend;
   std::ifstream mTextStream;
 };

@@ -2,6 +2,7 @@
 #define FRONTEND_H
 
 #include "Intermediate.h"
+#include "IntermediateImpl.h"
 #include "Common.h"
 
 #include <iostream>
@@ -200,7 +201,9 @@ template <typename TokenT> char Scanner<TokenT>::nextChar() {
   return mSource->nextChar();
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 class Parser {
 public:
@@ -210,69 +213,81 @@ public:
   virtual int errorCount() const = 0;
   std::shared_ptr<Token<TokenT>> currentToken() const;
   std::shared_ptr<Token<TokenT>> nextToken();
-  std::shared_ptr<SymbolTableStack<SymbolTableKeyT>>
+  std::shared_ptr<SymbolTableStackImplBase>
   getSymbolTableStack() const;
   std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> getICode() const;
   std::shared_ptr<ScannerT> scanner() const;
 
 protected:
-  std::shared_ptr<SymbolTableStack<SymbolTableKeyT>> mSymbolTableStack;
+  std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
   std::shared_ptr<ScannerT> mScanner;
   std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> mICode;
 };
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::Parser(
+Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::Parser(
     std::shared_ptr<ScannerT> scanner)
     : mSymbolTableStack(nullptr), mScanner(std::move(scanner)), mICode(nullptr) {
   mSymbolTableStack = createSymbolTableStack<SymbolTableKeyT>();
   //  scanner->setParent(this);
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::~Parser() {
+Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::~Parser() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 std::shared_ptr<Token<TokenT>>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::currentToken()
+Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::currentToken()
     const {
   return mScanner->currentToken();
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 std::shared_ptr<Token<TokenT>>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::nextToken() {
+Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::nextToken() {
   return mScanner->nextToken();
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
-std::shared_ptr<SymbolTableStack<SymbolTableKeyT>>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT,
-       ScannerT>::getSymbolTableStack() const {
+std::shared_ptr<SymbolTableStackImplBase> Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::getSymbolTableStack() const {
   return mSymbolTableStack;
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::getICode()
+Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::getICode()
     const {
   return mICode;
 }
 
-template <typename SymbolTableKeyT, typename ICodeNodeT, typename ICodeKeyT,
+template <typename SymbolTableKeyT, typename DefinitionT,
+          typename TypeFormT, typename TypeKeyT,
+          typename ICodeNodeT, typename ICodeKeyT,
           typename TokenT, typename ScannerT>
 std::shared_ptr<ScannerT>
-Parser<SymbolTableKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::scanner()
+Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::scanner()
     const {
   return mScanner;
 }

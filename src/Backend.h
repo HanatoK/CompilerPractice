@@ -2,6 +2,7 @@
 #define BACKEND_H
 
 #include "Intermediate.h"
+#include "IntermediateImpl.h"
 #include "Common.h"
 
 #include <boost/signals2.hpp>
@@ -44,14 +45,14 @@ public:
 #endif
   }
   virtual void process(std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
-                       std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> symbol_table_stack) = 0;
+                       std::shared_ptr<SymbolTableStackImplBase> symbol_table_stack) = 0;
   virtual std::string getType() const {
     return "unknown";
   }
   boost::signals2::signal<void(const int, const std::string&)> runtimeErrorMessage;
 protected:
   std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
-  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl>> mSymbolTableStack;
+  std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
 };
 
 std::unique_ptr<Backend> createBackend(const std::string& operation);

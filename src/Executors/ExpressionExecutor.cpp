@@ -15,7 +15,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
   switch (node_type) {
   case ICodeNodeTypeImpl::VARIABLE: {
     const auto entry = std::any_cast<
-        std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(
+        std::shared_ptr<SymbolTableEntryImplBase>>(
         node->getAttribute(ICodeKeyTypeImpl::ID));
 //    mValue = entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE);
     mValueType = std::any_cast<VariableType>(

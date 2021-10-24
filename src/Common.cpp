@@ -125,3 +125,13 @@ std::string variable_value_to_string(const VariableValueT& a)
   }, a);
   return result;
 }
+
+std::string TypeFormImplToStr(TypeFormImpl t) {
+  switch (t) {
+    case TypeFormImpl::ARRAY:       return std::string{"array"};
+    case TypeFormImpl::ENUMERATION: return std::string{"enumeration"};
+    case TypeFormImpl::RECORD:      return std::string{"record"};
+    case TypeFormImpl::SCALAR:      return std::string{"scalar"};
+    case TypeFormImpl::SUBRANGE:    return std::string{"subrange"};
+  }
+}

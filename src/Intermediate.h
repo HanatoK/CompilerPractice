@@ -8,9 +8,6 @@
 #include <vector>
 #include <unordered_map>
 
-template <typename SymbolTableKeyType>
-class SymbolTable;
-
 template <typename NodeT,
           typename KeyT,
           template <typename...> typename AttributeMapT = std::unordered_map,
@@ -77,55 +74,84 @@ public:
   virtual std::shared_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>> getRoot() const = 0;
 };
 
-template <typename SymbolTableKeyType>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+class SymbolTable;
+
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+class TypeSpec;
+
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
 class SymbolTableEntry {
 public:
-  SymbolTableEntry(const std::string&, SymbolTable<SymbolTableKeyType>*) {}
+  SymbolTableEntry(const std::string&, SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>*) {}
   virtual ~SymbolTableEntry() {}
   virtual std::string name() const = 0;
-  virtual SymbolTable<SymbolTableKeyType>* symbolTable() const = 0;
+  virtual SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* symbolTable() const = 0;
   virtual void appendLineNumber(int line_number) = 0;
   virtual std::vector<int> lineNumbers() const = 0;
-  virtual void setAttribute(const SymbolTableKeyType& key, const std::any& value) = 0;
-  virtual std::any getAttribute(const SymbolTableKeyType& key, bool* ok = nullptr) const = 0;
+  virtual void setAttribute(const SymbolTableKeyT& key, const std::any& value) = 0;
+  virtual std::any getAttribute(const SymbolTableKeyT& key, bool* ok = nullptr) const = 0;
+  virtual void setDefinition(const DefinitionT&) = 0;
+  virtual DefinitionT getDefinition() const = 0;
+  virtual void setTypeSpec(std::shared_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> type_spec) = 0;
+  virtual std::shared_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> getTypeSpec() const = 0;
 };
 
-template <typename SymbolTableKeyType>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
 class SymbolTable {
 public:
   explicit SymbolTable(int) {}
   virtual ~SymbolTable() {}
   virtual int nestingLevel() const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enter(const std::string& name) = 0;
-  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>>> sortedEntries() const = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> lookup(const std::string& name) const = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> enter(const std::string& name) = 0;
+  virtual std::vector<std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>>> sortedEntries() const = 0;
 };
 
-template <typename SymbolTableKeyType>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
 class SymbolTableStack {
 public:
   SymbolTableStack() {}
   virtual ~SymbolTableStack() {}
   virtual int currentNestingLevel() const = 0;
-  virtual std::shared_ptr<SymbolTable<SymbolTableKeyType>> localSymbolTable() const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> enterLocal(const std::string& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookupLocal(const std::string& name) const = 0;
-  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyType>> lookup(const std::string& name) const = 0;
+  virtual std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> localSymbolTable() const = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> enterLocal(const std::string& name) = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> lookupLocal(const std::string& name) const = 0;
+  virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> lookup(const std::string& name) const = 0;
 };
 
-template <typename SymbolTableKeyType>
-std::unique_ptr<SymbolTableEntry<SymbolTableKeyType>> createSymbolTableEntry(const std::string& name, SymbolTable<SymbolTableKeyType>* symbolTable);
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+class TypeSpec {
+public:
+  explicit TypeSpec(TypeFormT);
+  explicit TypeSpec(const std::string&);
+  virtual ~TypeSpec() {}
+  virtual TypeFormT form() const;
+  // raw pointers are used to avoid the circular dependency
+  virtual void setIdentifier(SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* identifier);
+  virtual SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* getIdentifier() const;
+  virtual void setAttribute(TypeKeyT key, const std::any& value);
+  virtual std::any getAttribute(TypeKeyT key) const;
+  virtual bool isPascalString() const;
+  TypeSpec baseType() const;
+};
 
-template <typename SymbolTableKeyType>
-std::unique_ptr<SymbolTable<SymbolTableKeyType>> createSymbolTable(int nestingLevel);
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+std::unique_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createSymbolTableEntry(const std::string& name, SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* symbolTable);
 
-template <typename SymbolTableKeyType>
-std::unique_ptr<SymbolTableStack<SymbolTableKeyType>> createSymbolTableStack();
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+std::unique_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createSymbolTable(int nestingLevel);
+
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+std::unique_ptr<SymbolTableStack<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createSymbolTableStack();
 
 template <typename ICodeNodeType, typename ICodeKeyType>
 std::unique_ptr<ICode<ICodeNodeType, ICodeKeyType>> createICode();
 
 template <typename ICodeNodeType, typename ICodeKeyType>
 std::unique_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>> createICodeNode(const ICodeNodeType& type);
+
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
 
 #endif // INTERMEDIATE_H
