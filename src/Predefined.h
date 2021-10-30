@@ -4,7 +4,7 @@
 #include "IntermediateImpl.h"
 
 class Predefined {
-private:
+public:
   // predefined types
   std::shared_ptr<TypeSpecImplBase> integerType;
   std::shared_ptr<TypeSpecImplBase> realType;
@@ -22,11 +22,11 @@ private:
 public:
   Predefined(Predefined const&) = delete;
   void operator=(Predefined const&) = delete;
-  static Predefined& instance(std::shared_ptr<SymbolTableStackImpl>& symbol_table_stack);
+  static Predefined& instance(std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
   // this overload can only be called after initialization!
   static Predefined& instance();
 private:
-  void initialize(std::shared_ptr<SymbolTableStackImpl>& symbol_table_stack);
+  void initialize(std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
   Predefined();
 };
 

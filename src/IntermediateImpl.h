@@ -104,6 +104,14 @@ class TypeSpecImpl : public TypeSpecImplBase {
 public:
   explicit TypeSpecImpl(TypeFormImpl form);
   explicit TypeSpecImpl(const std::string& value);
+  virtual ~TypeSpecImpl();
+  virtual TypeFormImpl form() const;
+  virtual void setIdentifier(SymbolTableEntryImplBase* identifier);
+  virtual SymbolTableEntryImplBase* getIdentifier() const;
+  virtual void setAttribute(TypeKeyImpl key, const std::any& value);
+  virtual std::any getAttribute(TypeKeyImpl key) const;
+  virtual bool isPascalString() const;
+  TypeSpecImplBase* baseType();
 private:
   TypeFormImpl mForm;
   SymbolTableEntryImplBase* mIdentifier;
@@ -127,7 +135,7 @@ std::unique_ptr<ICodeImplBase> createICode();
 template <>
 std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type);
 
-template <>
-std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form);
+//template <>
+//std::unique_ptr<TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>> createType(const TypeFormImpl& form);
 
 #endif // INTERMEDIATEIMPL_H

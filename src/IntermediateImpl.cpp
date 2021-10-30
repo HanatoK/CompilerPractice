@@ -1,4 +1,5 @@
 #include "IntermediateImpl.h"
+#include "Predefined.h"
 
 #include <iostream>
 
@@ -81,6 +82,8 @@ SymbolTableEntryImpl::~SymbolTableEntryImpl() {
   //#ifdef DEBUG_DESTRUCTOR
   //  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
   //#endif
+  // this pointer is for access only, so don't delete it.
+  mSymbolTable = nullptr;
 }
 
 std::string SymbolTableEntryImpl::name() const { return mName; }
@@ -341,14 +344,80 @@ TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
       mForm(form), mIdentifier(nullptr) {}
 
 TypeSpecImpl::TypeSpecImpl(const std::string& value)
-    : TypeSpecImplBase(value) {
+    : TypeSpecImplBase(value), mIdentifier(nullptr) {
   mForm = TypeFormImpl::ARRAY;
   TypeSpecImpl index_type(TypeFormImpl::SUBRANGE);
   // TODO: predefined types
-
+  index_type.setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
+  index_type.setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
+  index_type.setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<long long>(value.size()));
+  setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
+  setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, Predefined::instance().charType);
+  setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<long long>(value.size()));
 }
 
-std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
+TypeSpecImpl::~TypeSpecImpl()
 {
-  return std::make_unique<TypeSpecImpl>(form);
+  mIdentifier = nullptr;
 }
+
+TypeFormImpl TypeSpecImpl::form() const
+{
+  return mForm;
+}
+
+void TypeSpecImpl::setIdentifier(SymbolTableEntryImplBase* identifier)
+{
+  mIdentifier = identifier;
+}
+
+SymbolTableEntryImplBase* TypeSpecImpl::getIdentifier() const
+{
+  return mIdentifier;
+}
+
+void TypeSpecImpl::setAttribute(TypeKeyImpl key, const std::any& value)
+{
+  mTypeSpecMap[key] = value;
+}
+
+std::any TypeSpecImpl::getAttribute(TypeKeyImpl key) const
+{
+  auto search = mTypeSpecMap.find(key);
+  if (search != mTypeSpecMap.end()) {
+    return *search;
+  } else {
+    return nullptr;
+  }
+}
+
+bool TypeSpecImpl::isPascalString() const
+{
+  if (mForm == TypeFormImpl::ARRAY) {
+    const auto element_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT));
+    const auto index_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE));
+    if (element_type == Predefined::instance().charType &&
+        index_type == Predefined::instance().integerType) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+TypeSpecImplBase* TypeSpecImpl::baseType()
+{
+  if (mForm == TypeFormImpl::SUBRANGE) {
+    return std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE)).get();
+  } else {
+    return this;
+  }
+}
+
+// TODO: figure out why this does not work
+//std::unique_ptr<TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>> createType(const TypeFormImpl& form)
+//{
+//  return std::make_unique<TypeSpecImpl>(form);
+//}

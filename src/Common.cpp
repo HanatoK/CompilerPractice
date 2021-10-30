@@ -133,5 +133,6 @@ std::string TypeFormImplToStr(TypeFormImpl t) {
     case TypeFormImpl::RECORD:      return std::string{"record"};
     case TypeFormImpl::SCALAR:      return std::string{"scalar"};
     case TypeFormImpl::SUBRANGE:    return std::string{"subrange"};
+    default:                        return std::string{"unknown"};
   }
 }

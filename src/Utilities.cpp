@@ -1,4 +1,5 @@
 #include "Utilities.h"
+#include "IntermediateImpl.h"
 
 #include <fmt/format.h>
 #include <string>
@@ -97,9 +98,9 @@ void ParseTreePrinter::printAttributes(const std::string &key,
   // else just use the value string
   std::string value_string;
   if (value.type() ==
-      typeid(std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>)) {
+      typeid(std::shared_ptr<SymbolTableEntryImplBase>)) {
     const auto tmp_value = std::any_cast<
-        std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(value);
+        std::shared_ptr<SymbolTableEntryImplBase>>(value);
     value_string = tmp_value->name();
   } else {
     value_string = any_to_string(value);
@@ -109,9 +110,9 @@ void ParseTreePrinter::printAttributes(const std::string &key,
   appendOutputLine(" ");
   appendOutputLine(text);
   if (value.type() ==
-      typeid(std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>)) {
+      typeid(std::shared_ptr<SymbolTableEntryImplBase>)) {
     const auto tmp_value = std::any_cast<
-        std::shared_ptr<SymbolTableEntry<SymbolTableKeyTypeImpl>>>(value);
+        std::shared_ptr<SymbolTableEntryImplBase>>(value);
     const int level = tmp_value->symbolTable()->nestingLevel();
     printAttributes("LEVEL", level);
   }

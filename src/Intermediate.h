@@ -123,17 +123,17 @@ public:
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
 class TypeSpec {
 public:
-  explicit TypeSpec(TypeFormT);
-  explicit TypeSpec(const std::string&);
+  explicit TypeSpec(TypeFormT) {}
+  explicit TypeSpec(const std::string&) {}
   virtual ~TypeSpec() {}
-  virtual TypeFormT form() const;
+  virtual TypeFormT form() const = 0;
   // raw pointers are used to avoid the circular dependency
-  virtual void setIdentifier(SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* identifier);
-  virtual SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* getIdentifier() const;
-  virtual void setAttribute(TypeKeyT key, const std::any& value);
-  virtual std::any getAttribute(TypeKeyT key) const;
-  virtual bool isPascalString() const;
-  TypeSpec baseType() const;
+  virtual void setIdentifier(SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* identifier) = 0;
+  virtual SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* getIdentifier() const = 0;
+  virtual void setAttribute(TypeKeyT key, const std::any& value) = 0;
+  virtual std::any getAttribute(TypeKeyT key) const = 0;
+  virtual bool isPascalString() const = 0;
+  virtual TypeSpec* baseType() = 0;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
@@ -151,7 +151,7 @@ std::unique_ptr<ICode<ICodeNodeType, ICodeKeyType>> createICode();
 template <typename ICodeNodeType, typename ICodeKeyType>
 std::unique_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>> createICodeNode(const ICodeNodeType& type);
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
+//template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+//std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
 
 #endif // INTERMEDIATE_H

@@ -1,7 +1,7 @@
 #include "Predefined.h"
 #include <stdexcept>
 
-Predefined& Predefined::instance(std::shared_ptr<SymbolTableStackImpl>& symbol_table_stack)
+Predefined& Predefined::instance(std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack)
 {
   static Predefined s;
   static bool firsttime = true;
@@ -25,12 +25,12 @@ Predefined::Predefined()
 {
 }
 
-void Predefined::initialize(std::shared_ptr<SymbolTableStackImpl> &symbol_table_stack) {
-  integerType = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SCALAR);
-  realType = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SCALAR);
-  booleanType = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::ENUMERATION);
-  charType = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SCALAR);
-  undefinedType = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SCALAR);
+void Predefined::initialize(std::shared_ptr<SymbolTableStackImplBase> &symbol_table_stack) {
+  integerType = std::make_unique<TypeSpecImpl>(TypeFormImpl::SCALAR);
+  realType = std::make_unique<TypeSpecImpl>(TypeFormImpl::SCALAR);
+  booleanType = std::make_unique<TypeSpecImpl>(TypeFormImpl::ENUMERATION);
+  charType = std::make_unique<TypeSpecImpl>(TypeFormImpl::SCALAR);
+  undefinedType = std::make_unique<TypeSpecImpl>(TypeFormImpl::SCALAR);
   integerId = symbol_table_stack->enterLocal("integer");
   realId = symbol_table_stack->enterLocal("real");
   booleanId = symbol_table_stack->enterLocal("boolean");

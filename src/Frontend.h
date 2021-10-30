@@ -4,6 +4,7 @@
 #include "Intermediate.h"
 #include "IntermediateImpl.h"
 #include "Common.h"
+#include "Predefined.h"
 
 #include <iostream>
 #include <fstream>
@@ -231,7 +232,8 @@ template <typename SymbolTableKeyT, typename DefinitionT,
 Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::Parser(
     std::shared_ptr<ScannerT> scanner)
     : mSymbolTableStack(nullptr), mScanner(std::move(scanner)), mICode(nullptr) {
-  mSymbolTableStack = createSymbolTableStack<SymbolTableKeyT>();
+  mSymbolTableStack = createSymbolTableStack<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>();
+  Predefined::instance(mSymbolTableStack);
   //  scanner->setParent(this);
 }
 
