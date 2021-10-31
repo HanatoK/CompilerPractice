@@ -216,13 +216,13 @@ public:
   std::shared_ptr<Token<TokenT>> nextToken();
   std::shared_ptr<SymbolTableStackImplBase>
   getSymbolTableStack() const;
-  std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> getICode() const;
+//  std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> getICode() const;
   std::shared_ptr<ScannerT> scanner() const;
 
 protected:
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
   std::shared_ptr<ScannerT> mScanner;
-  std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> mICode;
+//  std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> mICode;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT,
@@ -231,7 +231,7 @@ template <typename SymbolTableKeyT, typename DefinitionT,
           typename TokenT, typename ScannerT>
 Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::Parser(
     std::shared_ptr<ScannerT> scanner)
-    : mSymbolTableStack(nullptr), mScanner(std::move(scanner)), mICode(nullptr) {
+    : mSymbolTableStack(nullptr), mScanner(std::move(scanner)) {
   mSymbolTableStack = createSymbolTableStack<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>();
   Predefined::instance(mSymbolTableStack);
   //  scanner->setParent(this);
@@ -274,15 +274,15 @@ std::shared_ptr<SymbolTableStackImplBase> Parser<SymbolTableKeyT, DefinitionT, T
   return mSymbolTableStack;
 }
 
-template <typename SymbolTableKeyT, typename DefinitionT,
-          typename TypeFormT, typename TypeKeyT,
-          typename ICodeNodeT, typename ICodeKeyT,
-          typename TokenT, typename ScannerT>
-std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>>
-Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::getICode()
-    const {
-  return mICode;
-}
+//template <typename SymbolTableKeyT, typename DefinitionT,
+//          typename TypeFormT, typename TypeKeyT,
+//          typename ICodeNodeT, typename ICodeKeyT,
+//          typename TokenT, typename ScannerT>
+//std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>>
+//Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::getICode()
+//    const {
+//  return mICode;
+//}
 
 template <typename SymbolTableKeyT, typename DefinitionT,
           typename TypeFormT, typename TypeKeyT,

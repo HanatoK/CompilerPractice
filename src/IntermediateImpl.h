@@ -34,6 +34,7 @@ protected:
   virtual const ChildrenContainerTImpl& children() const;
 private:
   ICodeNodeTypeImpl mType;
+  // TODO: do I need to use weak pointer here?
   const ICodeNodeImplBase *mParent;
   AttributeMapTImpl mHashTable;
   ChildrenContainerTImpl mChildren;
@@ -65,6 +66,7 @@ public:
   virtual void setTypeSpec(std::shared_ptr<TypeSpecImplBase> type_spec);
   virtual std::shared_ptr<TypeSpecImplBase> getTypeSpec() const;
 private:
+  // TODO: do I need to use weak pointer here?
   SymbolTableImplBase *mSymbolTable;
   std::vector<int> mLineNumbers;
   std::string mName;
@@ -95,9 +97,19 @@ public:
   virtual std::shared_ptr<SymbolTableEntryImplBase> enterLocal(const std::string &name);
   virtual std::shared_ptr<SymbolTableEntryImplBase> lookupLocal(const std::string &name) const;
   virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const;
+  virtual void setProgramId(SymbolTableEntryImplBase* entry);
+  virtual SymbolTableEntryImplBase* programId() const;
+  virtual std::shared_ptr<SymbolTableImplBase> push();
+  virtual std::shared_ptr<SymbolTableImplBase> push(std::shared_ptr<SymbolTableImplBase> symbol_table);
+  virtual std::shared_ptr<SymbolTableImplBase> pop();
 private:
+  // why is it necessary to maintain a standalone variable for recording the nesting level?
+  // Isn't mStack.size() enough?
   int mCurrentNestingLevel;
   std::vector<std::shared_ptr<SymbolTableImplBase>> mStack;
+  // entry for the main program identifier
+  // TODO: do I need to use weak pointer here?
+  SymbolTableEntryImplBase* mProgramId;
 };
 
 class TypeSpecImpl : public TypeSpecImplBase {

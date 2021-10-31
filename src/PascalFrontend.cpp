@@ -1,7 +1,8 @@
 #include "PascalFrontend.h"
 #include "Common.h"
 #include "IntermediateImpl.h"
-#include "StatementParser.h"
+#include "Parsers/StatementParser.h"
+#include "Parsers/BlockParser.h"
 
 //#include <QCoreApplication>
 #include <cctype>
@@ -109,7 +110,7 @@ std::map<std::string, PascalTokenTypeImpl> specialWordsMapRev =
     reverse_map(specialWordsMap);
 
 PascalParserTopDown::PascalParserTopDown(std::shared_ptr<PascalScanner> scanner)
-    : Parser(scanner), mErrorHandler(nullptr) {
+    : Parser(scanner), mErrorHandler(nullptr), mRoutineId(nullptr) {
   mErrorHandler = new PascalErrorHandler();
 }
 
@@ -125,46 +126,63 @@ PascalParserTopDown::~PascalParserTopDown() {
 
 void PascalParserTopDown::parse() {
   const auto start_time = std::chrono::high_resolution_clock::now();
-  mICode = createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>();
+  std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> intermediate_code = createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>();
+  // create a dummy program identifier symbol table entry
+  mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
+  mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
+  mSymbolTableStack->setProgramId(mRoutineId.get());
+  // push a new symbol table into the stack and set the routine's symbol table and iCode
+  mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB, mSymbolTableStack->push());
+  mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_CODE, intermediate_code);
+  // TODO: block parser
+  BlockParser block_parser(*this);
   auto token = nextToken();
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node =
-      nullptr;
-  while (!token->isEof()) {
-    if (token->type() != PascalTokenTypeImpl::ERROR) {
-      if (token->type() == PascalTokenTypeImpl::BEGIN) {
-        StatementParser statement_parser(*this);
-        root_node = statement_parser.parse(token);
-        token = currentToken();
-      } else {
-        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, this);
-      }
-      if (token->type() != PascalTokenTypeImpl::DOT) {
-        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, this);
-      }
-      token = currentToken();
-      if (root_node != nullptr) {
-        mICode->setRoot(std::move(root_node));
-      }
-      //      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
-      //        const std::string name =
-      //        boost::algorithm::to_lower_copy(token->text()); auto
-      //        symbol_table_stack =
-      //            dynamic_cast<SymbolTableStackImpl
-      //            *>(mSymbolTableStack.get());
-      //        auto entry = symbol_table_stack->lookup(name);
-      //        if (entry == nullptr) {
-      //          entry = symbol_table_stack->enterLocal(name);
-      //        }
-      //        entry->appendLineNumber(token->lineNum());
-      //      }
-      pascalTokenMessage(token->lineNum(), token->position(), token->type(),
-                         token->text(), token->value());
-    } else {
-      mErrorHandler->flag(token, std::any_cast<PascalErrorCode>(token->value()),
-                          this);
-    }
-    token = nextToken();
+  // parse a block
+  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node = block_parser.parse(token, mRoutineId);
+  intermediate_code->setRoot(std::move(root_node));
+  mSymbolTableStack->pop();
+  // look for the final .
+  token = currentToken();
+  if (token->type() != PascalTokenTypeImpl::DOT) {
+    mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, this);
   }
+  token = currentToken();
+//  while (!token->isEof()) {
+//    if (token->type() != PascalTokenTypeImpl::ERROR) {
+//      if (token->type() == PascalTokenTypeImpl::BEGIN) {
+//        StatementParser statement_parser(*this);
+//        root_node = statement_parser.parse(token);
+//        token = currentToken();
+//      } else {
+//        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, this);
+//      }
+//      if (token->type() != PascalTokenTypeImpl::DOT) {
+//        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, this);
+//      }
+//      token = currentToken();
+//      if (root_node != nullptr) {
+//        mICode->setRoot(std::move(root_node));
+//      }
+//      //      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
+//      //        const std::string name =
+//      //        boost::algorithm::to_lower_copy(token->text()); auto
+//      //        symbol_table_stack =
+//      //            dynamic_cast<SymbolTableStackImpl
+//      //            *>(mSymbolTableStack.get());
+//      //        auto entry = symbol_table_stack->lookup(name);
+//      //        if (entry == nullptr) {
+//      //          entry = symbol_table_stack->enterLocal(name);
+//      //        }
+//      //        entry->appendLineNumber(token->lineNum());
+//      //      }
+//      pascalTokenMessage(token->lineNum(), token->position(), token->type(),
+//                         token->text(), token->value());
+//    } else {
+//      mErrorHandler->flag(token, std::any_cast<PascalErrorCode>(token->value()),
+//                          this);
+//    }
+//    token = nextToken();
+//  }
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time_sec = end_time - start_time;
   parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());
@@ -870,6 +888,16 @@ PascalErrorHandler *PascalSubparserTopDownBase::errorHandler() {
 
 PascalParserTopDown *PascalSubparserTopDownBase::currentParser() {
   return &mPascalParser;
+}
+
+std::unique_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(std::shared_ptr<PascalToken> token)
+{
+  // should not enter this function
+  // the parser does not implement parse(std::shared_ptr<PascalToken>)!
+  std::cerr << "BUG: Unimplemented parse!\n";
+  std::cerr << BOOST_CURRENT_FUNCTION << '\n';
+  std::abort();
+  return nullptr;
 }
 
 void PascalSubparserTopDownBase::setLineNumber(

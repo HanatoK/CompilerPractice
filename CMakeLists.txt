@@ -21,6 +21,7 @@ include_directories (
   ${PROJECT_SOURCE_DIR}
 )
 
+# TODO: avoid using GLOB
 file(GLOB HEADERS ${PROJECT_SOURCE_DIR}/*.h ${PROJECT_SOURCE_DIR}/Parsers/*.h ${PROJECT_SOURCE_DIR}/Executors/*.h)
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/Parsers/*.cpp ${PROJECT_SOURCE_DIR}/Executors/*.cpp)
 

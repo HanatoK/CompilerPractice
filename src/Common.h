@@ -169,6 +169,8 @@ bool compare_any(const std::any& a, const std::any& b);
 
 void clear_line_ending(std::string& line);
 
-std::string TypeFormImplToStr(TypeFormImpl t);
+std::string typeformimpl_to_string(TypeFormImpl a);
+
+std::string definitionimpl_to_string(DefinitionImpl a);
 
 #endif // COMMON_H

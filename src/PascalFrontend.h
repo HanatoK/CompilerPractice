@@ -49,6 +49,7 @@ public:
   boost::signals2::signal<void(const int, const int, const std::string&, const std::string&)> syntaxErrorMessage;
   friend class PascalSubparserTopDownBase;
 protected:
+  std::shared_ptr<SymbolTableEntryImplBase> mRoutineId;
   PascalErrorHandler* mErrorHandler;
 };
 
@@ -65,7 +66,7 @@ public:
   int errorCount();
   PascalErrorHandler* errorHandler();
   PascalParserTopDown* currentParser();
-  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) = 0;
+  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
   static const std::set<PascalTokenTypeImpl> mStatementStartSet;

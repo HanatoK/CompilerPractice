@@ -2,6 +2,7 @@
 #include "Predefined.h"
 
 #include <iostream>
+#include <boost/range/adaptor/reversed.hpp>
 
 SymbolTableStackImpl::SymbolTableStackImpl() : SymbolTableStack() {
   mCurrentNestingLevel = 0;
@@ -13,6 +14,7 @@ SymbolTableStackImpl::~SymbolTableStackImpl() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
+  mProgramId = nullptr;
 }
 
 int SymbolTableStackImpl::currentNestingLevel() const {
@@ -33,7 +35,46 @@ SymbolTableStackImpl::lookupLocal(const std::string &name) const {
 }
 
 std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std::string &name) const {
-  return lookupLocal(name);
+  std::shared_ptr<SymbolTableEntryImplBase> result = nullptr;
+  for (const auto& table: boost::adaptors::reverse(mStack)) {
+    result = table->lookup(name);
+    if (result != nullptr) {
+      break;
+    }
+  }
+  return result;
+}
+
+void SymbolTableStackImpl::setProgramId(SymbolTableEntryImplBase* entry)
+{
+  mProgramId = entry;
+}
+
+SymbolTableEntryImplBase* SymbolTableStackImpl::programId() const
+{
+  return mProgramId;
+}
+
+std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push()
+{
+  auto symbol_table = createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(++mCurrentNestingLevel);
+  mStack.push_back(std::move(symbol_table));
+  return mStack.back();
+}
+
+std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push(std::shared_ptr<SymbolTableImplBase> symbol_table)
+{
+  ++mCurrentNestingLevel;
+  mStack.push_back(std::move(symbol_table));
+  return mStack.back();
+}
+
+std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::pop()
+{
+  auto symbol_table = mStack.at(mCurrentNestingLevel);
+  mStack.erase(mStack.begin() + mCurrentNestingLevel);
+  --mCurrentNestingLevel;
+  return symbol_table;
 }
 
 SymbolTableImpl::SymbolTableImpl(int nesting_level)
@@ -351,9 +392,9 @@ TypeSpecImpl::TypeSpecImpl(const std::string& value)
   index_type.setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
   index_type.setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
   index_type.setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<long long>(value.size()));
-  setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
-  setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, Predefined::instance().charType);
-  setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<long long>(value.size()));
+  TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
+  TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, Predefined::instance().charType);
+  TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<long long>(value.size()));
 }
 
 TypeSpecImpl::~TypeSpecImpl()

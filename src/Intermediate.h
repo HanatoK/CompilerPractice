@@ -117,7 +117,19 @@ public:
   virtual std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> localSymbolTable() const = 0;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> enterLocal(const std::string& name) = 0;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> lookupLocal(const std::string& name) const = 0;
+  // lookup an existing symbol table entry throughout the stack
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> lookup(const std::string& name) const = 0;
+  // set the symbol table entry for the main program identifer
+  virtual void setProgramId(SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* entry) = 0;
+  // get the symbol table entry for the main program identifier
+  virtual SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>* programId() const = 0;
+  // push a new symbol table into the stack,
+  // and return the pushed symbol table
+  virtual std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> push() = 0;
+  // overloaded function. Push a symbol table into the stack
+  virtual std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> push(std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>>) = 0;
+  // pop a symbol table off the stack
+  virtual std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> pop() = 0;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
