@@ -756,6 +756,13 @@ decltype(PascalSubparserTopDownBase::mConstantStartSet)
         PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
         PascalTokenTypeImpl::STRING};
 
+decltype(PascalSubparserTopDownBase::mDeclarationStartSet)
+PascalSubparserTopDownBase::mDeclarationStartSet{
+  PascalTokenTypeImpl::CONST, PascalTokenTypeImpl::TYPE,
+  PascalTokenTypeImpl::VAR, PascalTokenTypeImpl::PROCEDURE,
+  PascalTokenTypeImpl::FUNCTION, PascalTokenTypeImpl::BEGIN
+};
+
 std::set<PascalTokenTypeImpl> initColonEqualsSet() {
   std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::mExpressionStartSet);
   s.insert(PascalTokenTypeImpl::COLON_EQUALS);
@@ -809,6 +816,25 @@ std::set<PascalTokenTypeImpl> initThenSet() {
   return s;
 }
 
+std::set<PascalTokenTypeImpl> initTypeStartSet() {
+  auto s = PascalSubparserTopDownBase::mTypeStartSet;
+  s.erase(PascalTokenTypeImpl::CONST);
+  return s;
+}
+
+std::set<PascalTokenTypeImpl> initVarStartSet() {
+  auto s = PascalSubparserTopDownBase::mTypeStartSet;
+  s.erase(PascalTokenTypeImpl::TYPE);
+  return s;
+}
+
+std::set<PascalTokenTypeImpl> initRoutineStartSet() {
+  auto s = PascalSubparserTopDownBase::mTypeStartSet;
+  s.erase(PascalTokenTypeImpl::TYPE);
+  s.erase(PascalTokenTypeImpl::VAR);
+  return s;
+}
+
 decltype(PascalSubparserTopDownBase::mColonEqualsSet)
 PascalSubparserTopDownBase::mColonEqualsSet = initColonEqualsSet();
 
@@ -826,6 +852,15 @@ PascalSubparserTopDownBase::mDoSet = initDoSet();
 
 decltype(PascalSubparserTopDownBase::mThenSet)
 PascalSubparserTopDownBase::mThenSet = initThenSet();
+
+decltype(PascalSubparserTopDownBase::mTypeStartSet)
+PascalSubparserTopDownBase::mTypeStartSet = initTypeStartSet();
+
+decltype(PascalSubparserTopDownBase::mVarStartSet)
+PascalSubparserTopDownBase::mVarStartSet = initVarStartSet();
+
+decltype(PascalSubparserTopDownBase::mRoutineStartSet)
+PascalSubparserTopDownBase::mRoutineStartSet = initRoutineStartSet();
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::mRelOpsMap =
   {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},

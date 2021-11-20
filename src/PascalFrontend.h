@@ -79,6 +79,10 @@ public:
   static const std::set<PascalTokenTypeImpl> mToDowntoSet;
   static const std::set<PascalTokenTypeImpl> mDoSet;
   static const std::set<PascalTokenTypeImpl> mThenSet;
+  static const std::set<PascalTokenTypeImpl> mDeclarationStartSet;
+  static const std::set<PascalTokenTypeImpl> mTypeStartSet;
+  static const std::set<PascalTokenTypeImpl> mVarStartSet;
+  static const std::set<PascalTokenTypeImpl> mRoutineStartSet;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mRelOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mAddOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mMultOpsMap;

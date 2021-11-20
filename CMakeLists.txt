@@ -21,9 +21,76 @@ include_directories (
   ${PROJECT_SOURCE_DIR}
 )
 
-# TODO: avoid using GLOB
-file(GLOB HEADERS ${PROJECT_SOURCE_DIR}/*.h ${PROJECT_SOURCE_DIR}/Parsers/*.h ${PROJECT_SOURCE_DIR}/Executors/*.h)
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/Parsers/*.cpp ${PROJECT_SOURCE_DIR}/Executors/*.cpp)
+# avoid using GLOB (see https://cmake.org/cmake/help/latest/command/file.html?highlight=glob#file)
+#file(GLOB HEADERS ${PROJECT_SOURCE_DIR}/*.h ${PROJECT_SOURCE_DIR}/Parsers/*.h ${PROJECT_SOURCE_DIR}/Executors/*.h)
+#file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/Parsers/*.cpp ${PROJECT_SOURCE_DIR}/Executors/*.cpp)
+
+set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
+            ${PROJECT_SOURCE_DIR}/Common.h
+            ${PROJECT_SOURCE_DIR}/Compiler.h
+            ${PROJECT_SOURCE_DIR}/Frontend.h
+            ${PROJECT_SOURCE_DIR}/Intermediate.h
+            ${PROJECT_SOURCE_DIR}/IntermediateImpl.h
+            ${PROJECT_SOURCE_DIR}/Interpreter.h
+            ${PROJECT_SOURCE_DIR}/Pascal.h
+            ${PROJECT_SOURCE_DIR}/PascalFrontend.h
+            ${PROJECT_SOURCE_DIR}/Predefined.h
+            ${PROJECT_SOURCE_DIR}/Utilities.h
+            ${PROJECT_SOURCE_DIR}/Parsers/AssignmentStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/BlockParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/CaseStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/CompoundStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/ConstantDefinitionsParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclarationsParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/StatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/TypeDefinitionsParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/WhileStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableDeclarationsParser.h
+            ${PROJECT_SOURCE_DIR}/Executors/AssignmentStatementExecutor.h
+            ${PROJECT_SOURCE_DIR}/Executors/CompoundStatementExecutor.h
+            ${PROJECT_SOURCE_DIR}/Executors/ExpressionExecutor.h
+            ${PROJECT_SOURCE_DIR}/Executors/IfExecutor.h
+            ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.h
+            ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.h
+            ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.h)
+
+set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
+            ${PROJECT_SOURCE_DIR}/Backend.cpp
+            ${PROJECT_SOURCE_DIR}/Common.cpp
+            ${PROJECT_SOURCE_DIR}/Compiler.cpp
+            ${PROJECT_SOURCE_DIR}/Frontend.cpp
+            ${PROJECT_SOURCE_DIR}/Intermediate.cpp
+            ${PROJECT_SOURCE_DIR}/IntermediateImpl.cpp
+            ${PROJECT_SOURCE_DIR}/Interpreter.cpp
+            ${PROJECT_SOURCE_DIR}/Pascal.cpp
+            ${PROJECT_SOURCE_DIR}/PascalFrontend.cpp
+            ${PROJECT_SOURCE_DIR}/Predefined.cpp
+            ${PROJECT_SOURCE_DIR}/Utilities.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/AssignmentStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/BlockParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/CaseStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/CompoundStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/ConstantDefinitionsParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclarationsParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/StatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/TypeDefinitionsParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/WhileStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableDeclarationsParser.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/AssignmentStatementExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/CompoundStatementExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/ExpressionExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/IfExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 #find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
