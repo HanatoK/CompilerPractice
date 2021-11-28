@@ -95,7 +95,7 @@ enum class SymbolTableKeyTypeImpl {
   ROUTINE_CODE, ROUTINE_SYMTAB, ROUTINE_ICODE,
   ROUTINE_PARMS, ROUTINE_ROUTINES,
   // Variable or record field value
-  DATA_VALUE, DATA_TYPE
+  DATA_VALUE, DATA_INTERNAL_TYPE
 };
 
 enum class ICodeKeyTypeImpl {
@@ -120,8 +120,8 @@ enum class ICodeNodeTypeImpl {
   STRING_CONSTANT, BOOLEAN_CONSTANT
 };
 
-enum class VariableType {
-  INTEGER, FLOAT, BOOLEAN, STRING, UNKNOWN
+enum class VariableInternalType {
+  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
 };
 
 typedef std::variant<bool, long long, double, std::string> VariableValueT;
@@ -172,5 +172,15 @@ void clear_line_ending(std::string& line);
 std::string typeformimpl_to_string(TypeFormImpl a);
 
 std::string definitionimpl_to_string(DefinitionImpl a);
+
+template <typename T>
+bool any_is(const std::any& a) {
+  try {
+    std::any_cast<T>(a);
+    return true;
+  } catch (const std::bad_any_cast& e) {
+    return false;
+  }
+}
 
 #endif // COMMON_H

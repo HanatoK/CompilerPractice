@@ -24,22 +24,22 @@ begin
 end;
 =============================================
  */
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 BlockParser::parse(std::shared_ptr<PascalToken> token,
                    std::shared_ptr<SymbolTableEntryImplBase> routine_id) {
   DeclarationsParser declarations_parser(*currentParser());
   StatementParser statement_parser(*currentParser());
   // parse any declarations
   declarations_parser.parse(token);
-  token = synchronize(mStatementStartSet);
+  token = synchronize(statementStartSet);
   const auto token_type = token->type();
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node = nullptr;
+  std::unique_ptr<ICodeNodeImplBase> root_node = nullptr;
   if (token_type == PascalTokenTypeImpl::BEGIN) {
     root_node = statement_parser.parse(token);
   } else {
     // missing BEGIN: attempt to parse anyway if possible
     errorHandler()->flag(token, PascalErrorCode::MISSING_BEGIN, currentParser());
-    if (mStatementStartSet.contains(token_type)) {
+    if (statementStartSet.contains(token_type)) {
       root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::COMPOUND);
       statement_parser.parseList(token, root_node, PascalTokenTypeImpl::END, PascalErrorCode::MISSING_END);
     }

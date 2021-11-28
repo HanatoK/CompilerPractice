@@ -18,8 +18,7 @@ StatementParser::~StatementParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-StatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::unique_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
       statement_node = nullptr;
   switch (token->type()) {
@@ -68,12 +67,10 @@ StatementParser::parse(std::shared_ptr<PascalToken> token) {
   return std::move(statement_node);
 }
 
-void StatementParser::parseList(
-    std::shared_ptr<PascalToken> token,
-    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-        &parent_node,
+void StatementParser::parseList(std::shared_ptr<PascalToken> token,
+    std::unique_ptr<ICodeNodeImplBase>& parent_node,
     const PascalTokenTypeImpl& terminator, const PascalErrorCode& error_code) {
-  auto terminator_set = mStatementStartSet;
+  auto terminator_set = statementStartSet;
   terminator_set.insert(terminator);
   while (!token->isEof() && token->type() != terminator) {
     auto statement_node = parse(token);
@@ -84,8 +81,8 @@ void StatementParser::parseList(
       token = nextToken();
     } else {
       // if at the start of the next statement, then missing a semicolon
-      const auto search = mStatementStartSet.find(token_type);
-      if (search != mStatementStartSet.end()) {
+      const auto search = statementStartSet.find(token_type);
+      if (search != statementStartSet.end()) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
       }
     }

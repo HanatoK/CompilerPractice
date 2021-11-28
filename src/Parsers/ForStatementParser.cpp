@@ -7,8 +7,7 @@
 ForStatementParser::ForStatementParser(PascalParserTopDown &parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // cosume the FOR
   token = nextToken();
   const auto target_token = token;
@@ -25,7 +24,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // set the current line number attribute
   setLineNumber(init_assign_node, target_token);
   // synchronize at the TO or DOWNTO
-  token = synchronize(mToDowntoSet);
+  token = synchronize(toDowntoSet);
   auto direction = token->type();
   if (direction == PascalTokenTypeImpl::TO ||
       direction == PascalTokenTypeImpl::DOWNTO) {
@@ -49,7 +48,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   test_node->addChild(std::move(rel_op_node));
   loop_node->addChild(std::move(test_node));
   // synchronize to the DO set
-  token = synchronize(mDoSet);
+  token = synchronize(doSet);
   if (token->type() == PascalTokenTypeImpl::DO) {
     // consume the DO token
     token = nextToken();

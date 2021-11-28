@@ -147,7 +147,9 @@ std::unique_ptr<ICodeImplBase> createICode();
 template <>
 std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type);
 
-//template <>
-//std::unique_ptr<TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>> createType(const TypeFormImpl& form);
+template <>
+std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form);
+
+std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value);
 
 #endif // INTERMEDIATEIMPL_H

@@ -12,7 +12,7 @@ CompoundStatementParser::~CompoundStatementParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > CompoundStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> CompoundStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the BEGIN
   token = nextToken();

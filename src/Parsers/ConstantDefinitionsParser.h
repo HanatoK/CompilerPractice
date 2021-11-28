@@ -9,7 +9,12 @@ class ConstantDefinitionsParser : public PascalSubparserTopDownBase
 public:
   explicit ConstantDefinitionsParser(PascalParserTopDown& parent);
   virtual ~ConstantDefinitionsParser();
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token);
+  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
+protected:
+  virtual std::any parseConstant(std::shared_ptr<PascalToken>& token);
+  virtual std::any parseIdentifierConstant(std::shared_ptr<PascalToken>& token, int sign);
+  virtual std::shared_ptr<TypeSpecImplBase> getConstantType(const std::any& value) const;
+  virtual std::shared_ptr<TypeSpecImplBase> getConstantType(std::shared_ptr<PascalToken>& token);
 };
 
 #endif // CONSTANTDEFINITIONSPARSER_H

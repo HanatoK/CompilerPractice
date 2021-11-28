@@ -61,7 +61,7 @@ public:
   std::shared_ptr<PascalToken> nextToken();
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack();
-  std::shared_ptr<ICodeImplBase> getICode() const;
+//  std::shared_ptr<ICodeImplBase> getICode() const;
   std::shared_ptr<PascalScanner> scanner() const;
   int errorCount();
   PascalErrorHandler* errorHandler();
@@ -69,23 +69,28 @@ public:
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
-  static const std::set<PascalTokenTypeImpl> mStatementStartSet;
-  static const std::set<PascalTokenTypeImpl> mStatementFollowSet;
-  static const std::set<PascalTokenTypeImpl> mExpressionStartSet;
-  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
-  static const std::set<PascalTokenTypeImpl> mColonEqualsSet;
-  static const std::set<PascalTokenTypeImpl> mOfSet;
-  static const std::set<PascalTokenTypeImpl> mCommaSet;
-  static const std::set<PascalTokenTypeImpl> mToDowntoSet;
-  static const std::set<PascalTokenTypeImpl> mDoSet;
-  static const std::set<PascalTokenTypeImpl> mThenSet;
-  static const std::set<PascalTokenTypeImpl> mDeclarationStartSet;
-  static const std::set<PascalTokenTypeImpl> mTypeStartSet;
-  static const std::set<PascalTokenTypeImpl> mVarStartSet;
-  static const std::set<PascalTokenTypeImpl> mRoutineStartSet;
-  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mRelOpsMap;
-  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mAddOpsMap;
-  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mMultOpsMap;
+  static const std::set<PascalTokenTypeImpl> statementStartSet;
+  static const std::set<PascalTokenTypeImpl> statementFollowSet;
+  static const std::set<PascalTokenTypeImpl> expressionStartSet;
+  // constantStartSet is used by both CaseStatementParser and ConstantDefinitionsParser!
+  static const std::set<PascalTokenTypeImpl> constantStartSet;
+  static const std::set<PascalTokenTypeImpl> colonEqualsSet;
+  static const std::set<PascalTokenTypeImpl> ofSet;
+  static const std::set<PascalTokenTypeImpl> commaSet;
+  static const std::set<PascalTokenTypeImpl> toDowntoSet;
+  static const std::set<PascalTokenTypeImpl> doSet;
+  static const std::set<PascalTokenTypeImpl> thenSet;
+  static const std::set<PascalTokenTypeImpl> declarationStartSet;
+  static const std::set<PascalTokenTypeImpl> typeStartSet;
+  static const std::set<PascalTokenTypeImpl> varStartSet;
+  static const std::set<PascalTokenTypeImpl> routineStartSet;
+  static const std::set<PascalTokenTypeImpl> identifierSet;
+//  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
+  static const std::set<PascalTokenTypeImpl> equalsSet;
+  static const std::set<PascalTokenTypeImpl> nextStartSet;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;
 private:
   PascalParserTopDown& mPascalParser;
 };

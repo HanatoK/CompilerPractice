@@ -7,5 +7,10 @@ VariableDeclarationsParser::~VariableDeclarationsParser()
 {
 //#ifdef DEBUG_DESTRUCTOR
 //  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
-//#endif
+  //#endif
+}
+
+std::unique_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(std::shared_ptr<PascalToken> token)
+{
+
 }

@@ -458,7 +458,11 @@ TypeSpecImplBase* TypeSpecImpl::baseType()
 }
 
 // TODO: figure out why this does not work
-//std::unique_ptr<TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>> createType(const TypeFormImpl& form)
-//{
-//  return std::make_unique<TypeSpecImpl>(form);
-//}
+std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
+{
+  return std::make_unique<TypeSpecImpl>(form);
+}
+
+std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value) {
+  return std::make_unique<TypeSpecImpl>(value);
+}

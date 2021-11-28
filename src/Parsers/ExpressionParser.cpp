@@ -13,16 +13,16 @@ ExpressionParser::~ExpressionParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parse(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parse(std::shared_ptr<PascalToken> token)
 {
   // parse a simple expression and make the root of its tree the root node
   auto root_node = parseSimpleExpression(token);
   token = currentToken();
   const auto token_type = token->type();
-  const auto search = mRelOpsMap.find(token_type);
-  if (search != mRelOpsMap.end()) {
+  const auto search = relOpsMap.find(token_type);
+  if (search != relOpsMap.end()) {
     // relational operator found
-    const auto node_type = mRelOpsMap.at(token_type);
+    const auto node_type = relOpsMap.at(token_type);
     auto op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
     op_node->addChild(std::move(root_node));
     // now root_node should be nullptr
@@ -35,7 +35,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   return std::move(root_node);
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parseFactor(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr<PascalToken> token)
 {
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>  root_node = nullptr;
   auto token_type = token->type();
@@ -104,14 +104,14 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   return std::move(root_node);
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parseTerm(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseTerm(std::shared_ptr<PascalToken> token)
 {
   // parse a factor and make its node the root node
   auto root_node = parseFactor(token);
   token = currentToken();
   auto token_type = token->type();
-  while (mMultOpsMap.find(token_type) != mMultOpsMap.end()) {
-    const auto node_type = mMultOpsMap.at(token_type);
+  while (multOpsMap.find(token_type) != multOpsMap.end()) {
+    const auto node_type = multOpsMap.at(token_type);
     auto op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
     op_node->addChild(std::move(root_node));
     token = nextToken();
@@ -123,7 +123,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   return std::move(root_node);
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParser::parseSimpleExpression(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::shared_ptr<PascalToken> token)
 {
   auto token_type = token->type();
   auto sign_type = PascalTokenTypeImpl::UNKNOWN;
@@ -143,10 +143,10 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ExpressionParse
   token = currentToken();
   token_type = token->type();
   // loop over additive operators
-  while (mAddOpsMap.find(token_type) != mAddOpsMap.end()) {
+  while (addOpsMap.find(token_type) != addOpsMap.end()) {
     // create a new operator node and adopt the current tree
     // as its first child
-    const auto node_type = mAddOpsMap.at(token_type);
+    const auto node_type = addOpsMap.at(token_type);
     auto op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
     op_node->addChild(std::move(root_node));
     // consume the operator

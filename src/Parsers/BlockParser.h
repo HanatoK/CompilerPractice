@@ -7,7 +7,7 @@ class BlockParser : public PascalSubparserTopDownBase
 {
 public:
   explicit BlockParser(PascalParserTopDown &parent);
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+  virtual std::unique_ptr<ICodeNodeImplBase>
   parse(std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> routine_id);
 };
 

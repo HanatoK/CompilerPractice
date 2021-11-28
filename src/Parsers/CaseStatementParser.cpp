@@ -5,7 +5,7 @@
 CaseStatementParser::CaseStatementParser(PascalParserTopDown &parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // consume the CASE
   token = nextToken();
@@ -13,10 +13,12 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   auto select_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::SELECT);
   // parse the CASE expression
+  // I use the expression parser here, which is different from the book.
+  // Maybe I need something like constant expression in C++?
   ExpressionParser expression_parser(*currentParser());
   select_node->addChild(expression_parser.parse(token));
   // synchronize to OF
-  token = synchronize(mOfSet);
+  token = synchronize(ofSet);
   if (token->type() == PascalTokenTypeImpl::OF) {
     // consume OF
     token = nextToken();
@@ -35,9 +37,9 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
       // consume ;
       token = nextToken();
     } else {
-      const auto search = mConstantStartSet.find(token_type);
+      const auto search = constantStartSet.find(token_type);
       // if start at the next constant, then missing ;
-      if (search != mConstantStartSet.end()) {
+      if (search != constantStartSet.end()) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON,
                              currentParser());
       }
@@ -53,7 +55,7 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   return std::move(select_node);
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
                                  std::vector<std::any> &constant_set) {
   // create an SELECT_BRANCH node and a SELECT_CONSTANTS node
@@ -78,39 +80,36 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
   return std::move(branch_node);
 }
 
-void CaseStatementParser::parseConstantList(
-    std::shared_ptr<PascalToken> token,
-    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-        &constants_node,
+void CaseStatementParser::parseConstantList(std::shared_ptr<PascalToken> token,
+    std::unique_ptr<ICodeNodeImplBase>& constants_node,
     std::vector<std::any> &constant_set) {
   // loop to parse each constant
-  auto search = mConstantStartSet.find(token->type());
-  while (search != mConstantStartSet.end()) {
+  auto search = constantStartSet.find(token->type());
+  while (search != constantStartSet.end()) {
     // the constants list node adopts the constant node
     constants_node->addChild(parseConstant(token, constant_set));
     // synchronize to the COMMA
-    token = synchronize(mCommaSet);
+    token = synchronize(commaSet);
     // look for the COMMA
     if (token->type() == PascalTokenTypeImpl::COMMA) {
       // consume ,
       token = nextToken();
     } else {
-      search = mConstantStartSet.find(token->type());
-      if (search != mConstantStartSet.end()) {
+      search = constantStartSet.find(token->type());
+      if (search != constantStartSet.end()) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA,
                              currentParser());
       }
     }
-    search = mConstantStartSet.find(token->type());
+    search = constantStartSet.find(token->type());
   }
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
                                    std::vector<std::any> &constant_set) {
-  token = synchronize(mConstantStartSet);
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-      constant_node = nullptr;
+  token = synchronize(constantStartSet);
+  std::unique_ptr<ICodeNodeImplBase> constant_node = nullptr;
   auto sign = PascalTokenTypeImpl::UNKNOWN;
   if (token->type() == PascalTokenTypeImpl::PLUS ||
       token->type() == PascalTokenTypeImpl::MINUS) {
@@ -161,7 +160,7 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
   return std::move(constant_node);
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseIdentifierConstant(std::shared_ptr<PascalToken> token,
                                              const PascalTokenTypeImpl sign) {
   // don't allow for now
@@ -170,8 +169,7 @@ CaseStatementParser::parseIdentifierConstant(std::shared_ptr<PascalToken> token,
   return nullptr;
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-CaseStatementParser::parseIntegerConstant(const std::string &value,
+std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseIntegerConstant(const std::string &value,
                                           const PascalTokenTypeImpl sign) {
   auto constant_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::INTEGER_CONSTANT);
@@ -188,8 +186,7 @@ CaseStatementParser::parseIntegerConstant(const std::string &value,
   }
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-CaseStatementParser::parseCharacterConstant(std::shared_ptr<PascalToken> token,
+std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseCharacterConstant(std::shared_ptr<PascalToken> token,
                                             const std::string &value,
                                             const PascalTokenTypeImpl sign) {
   if (sign != PascalTokenTypeImpl::UNKNOWN) {
@@ -210,7 +207,7 @@ CaseStatementParser::parseCharacterConstant(std::shared_ptr<PascalToken> token,
   }
 }
 
-long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNodeImplBase> &node)
 {
   if (node->type() == ICodeNodeTypeImpl::NEGATE) {
     // get the first child node

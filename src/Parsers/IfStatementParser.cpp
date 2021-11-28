@@ -7,7 +7,7 @@ IfStatementParser::IfStatementParser(PascalParserTopDown &parent): PascalSubpars
 
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > IfStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the IF
   token = nextToken();
@@ -18,7 +18,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > IfStatementPars
   ExpressionParser expression_parser(*currentParser());
   if_node->addChild(expression_parser.parse(token));
   // synchronize to the THEN set
-  token = synchronize(mThenSet);
+  token = synchronize(thenSet);
   if (token->type() == PascalTokenTypeImpl::THEN) {
     // consume it
     token = nextToken();

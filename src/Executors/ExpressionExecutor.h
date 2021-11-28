@@ -13,12 +13,12 @@ public:
   execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
               &node);
   VariableValueT value() const;
-  VariableType valueType() const;
+  VariableInternalType valueType() const;
 
 private:
   static const std::set<ICodeNodeTypeImpl> mArithOps;
   VariableValueT mValue;
-  VariableType mValueType;
+  VariableInternalType mValueType;
   std::shared_ptr<SubExecutorBase> executeBinaryOperator(
       const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
           &node,

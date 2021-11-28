@@ -163,7 +163,7 @@ std::unique_ptr<ICode<ICodeNodeType, ICodeKeyType>> createICode();
 template <typename ICodeNodeType, typename ICodeKeyType>
 std::unique_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>> createICodeNode(const ICodeNodeType& type);
 
-//template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-//std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
 
 #endif // INTERMEDIATE_H
