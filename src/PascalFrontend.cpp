@@ -763,26 +763,24 @@ PascalSubparserTopDownBase::declarationStartSet{
   PascalTokenTypeImpl::FUNCTION, PascalTokenTypeImpl::BEGIN
 };
 
-std::set<PascalTokenTypeImpl> initColonEqualsSet() {
-  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::expressionStartSet);
+auto initColonEqualsSet() {
+  auto s(PascalSubparserTopDownBase::expressionStartSet);
   s.insert(PascalTokenTypeImpl::COLON_EQUALS);
   s.insert(PascalSubparserTopDownBase::statementFollowSet.begin(),
            PascalSubparserTopDownBase::statementFollowSet.end());
   return s;
 }
 
-decltype(PascalSubparserTopDownBase::ofSet) initOfSet() {
-  std::remove_const_t<decltype(PascalSubparserTopDownBase::ofSet)> s(
-      PascalSubparserTopDownBase::constantStartSet);
+auto initOfSet() {
+  auto s(PascalSubparserTopDownBase::constantStartSet);
   s.insert(PascalTokenTypeImpl::OF);
   s.insert(PascalSubparserTopDownBase::statementFollowSet.begin(),
            PascalSubparserTopDownBase::statementFollowSet.end());
   return s;
 }
 
-decltype(PascalSubparserTopDownBase::commaSet) initCommaSet() {
-  std::remove_const_t<decltype(PascalSubparserTopDownBase::commaSet)> s(
-      PascalSubparserTopDownBase::constantStartSet);
+auto initCommaSet() {
+  auto s(PascalSubparserTopDownBase::constantStartSet);
   s.insert({PascalTokenTypeImpl::COMMA, PascalTokenTypeImpl::COLON});
   s.insert(PascalSubparserTopDownBase::statementStartSet.begin(),
            PascalSubparserTopDownBase::statementStartSet.end());
@@ -791,8 +789,8 @@ decltype(PascalSubparserTopDownBase::commaSet) initCommaSet() {
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initToDowntoSet() {
-  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::expressionStartSet);
+auto initToDowntoSet() {
+  auto s(PascalSubparserTopDownBase::expressionStartSet);
   s.insert(PascalTokenTypeImpl::TO);
   s.insert(PascalTokenTypeImpl::DOWNTO);
   s.insert(PascalSubparserTopDownBase::statementFollowSet.begin(),
@@ -800,48 +798,48 @@ std::set<PascalTokenTypeImpl> initToDowntoSet() {
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initDoSet() {
-  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::statementStartSet);
+auto initDoSet() {
+  auto s(PascalSubparserTopDownBase::statementStartSet);
   s.insert(PascalTokenTypeImpl::DO);
   s.insert(PascalSubparserTopDownBase::statementFollowSet.begin(),
            PascalSubparserTopDownBase::statementFollowSet.end());
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initThenSet() {
-  std::set<PascalTokenTypeImpl> s(PascalSubparserTopDownBase::statementStartSet);
+auto initThenSet() {
+  auto s(PascalSubparserTopDownBase::statementStartSet);
   s.insert(PascalTokenTypeImpl::THEN);
   s.insert(PascalSubparserTopDownBase::statementFollowSet.begin(),
            PascalSubparserTopDownBase::statementFollowSet.end());
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initTypeStartSet() {
+auto initTypeStartSet() {
   auto s = PascalSubparserTopDownBase::typeStartSet;
   s.erase(PascalTokenTypeImpl::CONST);
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initVarStartSet() {
+auto initVarStartSet() {
   auto s = PascalSubparserTopDownBase::typeStartSet;
   s.erase(PascalTokenTypeImpl::TYPE);
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initRoutineStartSet() {
+auto initRoutineStartSet() {
   auto s = PascalSubparserTopDownBase::typeStartSet;
   s.erase(PascalTokenTypeImpl::TYPE);
   s.erase(PascalTokenTypeImpl::VAR);
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initIdentifierSet() {
+auto initIdentifierSet() {
   auto s = PascalSubparserTopDownBase::typeStartSet;
   s.insert(PascalTokenTypeImpl::IDENTIFIER);
   return s;
 }
 
-std::set<PascalTokenTypeImpl> initEqualsSet() {
+auto initEqualsSet() {
   auto s = PascalSubparserTopDownBase::constantStartSet;
   s.insert(PascalTokenTypeImpl::EQUALS);
   s.insert(PascalTokenTypeImpl::SEMICOLON);
@@ -851,6 +849,14 @@ std::set<PascalTokenTypeImpl> initEqualsSet() {
 auto initNextStartSet() {
   auto s = PascalSubparserTopDownBase::typeStartSet;
   s.insert(PascalTokenTypeImpl::IDENTIFIER);
+  s.insert(PascalTokenTypeImpl::SEMICOLON);
+  return s;
+}
+
+auto initSimpleTypeStartSet() {
+  auto s = PascalSubparserTopDownBase::constantStartSet;
+  s.insert(PascalTokenTypeImpl::LEFT_PAREN);
+  s.insert(PascalTokenTypeImpl::COMMA);
   s.insert(PascalTokenTypeImpl::SEMICOLON);
   return s;
 }
@@ -887,6 +893,9 @@ PascalSubparserTopDownBase::equalsSet = initEqualsSet();
 
 decltype(PascalSubparserTopDownBase::nextStartSet)
 PascalSubparserTopDownBase::nextStartSet = initNextStartSet();
+
+decltype(PascalSubparserTopDownBase::simpleTypeStartSet)
+PascalSubparserTopDownBase::simpleTypeStartSet = initSimpleTypeStartSet();
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::relOpsMap =
   {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},

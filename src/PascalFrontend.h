@@ -66,6 +66,7 @@ public:
   int errorCount();
   PascalErrorHandler* errorHandler();
   PascalParserTopDown* currentParser();
+  // TODO: what exactly does this function return??
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
@@ -88,6 +89,7 @@ public:
 //  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
   static const std::set<PascalTokenTypeImpl> equalsSet;
   static const std::set<PascalTokenTypeImpl> nextStartSet;
+  static const std::set<PascalTokenTypeImpl> simpleTypeStartSet;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;
