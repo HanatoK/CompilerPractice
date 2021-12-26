@@ -52,7 +52,7 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   } else {
     errorHandler()->flag(token, PascalErrorCode::MISSING_END, currentParser());
   }
-  return std::move(select_node);
+  return select_node;
 }
 
 std::unique_ptr<ICodeNodeImplBase>
@@ -77,7 +77,7 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
   // parse the branch statement
   StatementParser statement_parser(*currentParser());
   branch_node->addChild(statement_parser.parse(token));
-  return std::move(branch_node);
+  return branch_node;
 }
 
 void CaseStatementParser::parseConstantList(std::shared_ptr<PascalToken> token,
@@ -157,7 +157,7 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
   }
   // consume the constant
   nextToken();
-  return std::move(constant_node);
+  return constant_node;
 }
 
 std::unique_ptr<ICodeNodeImplBase>
@@ -180,9 +180,9 @@ std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseIntegerConstant(con
     auto negate_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
         ICodeNodeTypeImpl::NEGATE);
     negate_node->addChild(std::move(constant_node));
-    return std::move(negate_node);
+    return negate_node;
   } else {
-    return std::move(constant_node);
+    return constant_node;
   }
 }
 
@@ -202,7 +202,7 @@ std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseCharacterConstant(s
       auto constant_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
           ICodeNodeTypeImpl::STRING_CONSTANT);
       constant_node->setAttribute(ICodeKeyTypeImpl::VALUE, value);
-      return std::move(constant_node);
+      return constant_node;
     }
   }
 }

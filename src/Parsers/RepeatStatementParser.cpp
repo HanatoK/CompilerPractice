@@ -23,5 +23,5 @@ std::unique_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(std::shared_ptr<
   ExpressionParser expression_parser(*currentParser());
   test_node->addChild(expression_parser.parse(token));
   loop_node->addChild(std::move(test_node));
-  return std::move(loop_node);
+  return loop_node;
 }

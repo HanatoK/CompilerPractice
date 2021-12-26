@@ -64,7 +64,7 @@ std::unique_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<Pascal
     }
   }
   setLineNumber(statement_node, token);
-  return std::move(statement_node);
+  return statement_node;
 }
 
 void StatementParser::parseList(std::shared_ptr<PascalToken> token,

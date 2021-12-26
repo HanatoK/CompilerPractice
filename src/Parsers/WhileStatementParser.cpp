@@ -33,5 +33,5 @@ std::unique_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<P
   // parse the statements
   StatementParser statement_parser(*currentParser());
   loop_node->addChild(statement_parser.parse(token));
-  return std::move(loop_node);
+  return loop_node;
 }

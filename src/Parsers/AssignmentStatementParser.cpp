@@ -42,5 +42,5 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
   // parse the expression
   ExpressionParser expression_parser(*currentParser());
   assign_node->addChild(expression_parser.parse(token));
-  return std::move(assign_node);
+  return assign_node;
 }

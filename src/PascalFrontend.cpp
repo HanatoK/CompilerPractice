@@ -768,6 +768,12 @@ PascalSubparserTopDownBase::enumConstantStartSet{
   PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::COMMA
 };
 
+decltype(PascalSubparserTopDownBase::rightBracketSet)
+PascalSubparserTopDownBase::rightBracketSet{
+  PascalTokenTypeImpl::RIGHT_BRACKET, PascalTokenTypeImpl::OF,
+  PascalTokenTypeImpl::SEMICOLON
+};
+
 auto initColonEqualsSet() {
   auto s(PascalSubparserTopDownBase::expressionStartSet);
   s.insert(PascalTokenTypeImpl::COLON_EQUALS);
@@ -820,7 +826,7 @@ auto initThenSet() {
 }
 
 auto initTypeStartSet() {
-  auto s = PascalSubparserTopDownBase::typeStartSet;
+  auto s = PascalSubparserTopDownBase::declarationStartSet;
   s.erase(PascalTokenTypeImpl::CONST);
   return s;
 }
@@ -873,6 +879,20 @@ auto initEnumDefinitionFollowSet() {
   return s;
 }
 
+auto initLeftBracketSet() {
+  auto s = PascalSubparserTopDownBase::simpleTypeStartSet;
+  s.insert(PascalTokenTypeImpl::LEFT_BRACKET);
+  s.insert(PascalTokenTypeImpl::RIGHT_BRACKET);
+  return s;
+}
+
+auto initArrayTypeOfSet() {
+  auto s = PascalSubparserTopDownBase::typeStartSet;
+  s.insert(PascalTokenTypeImpl::OF);
+  s.insert(PascalTokenTypeImpl::SEMICOLON);
+  return s;
+}
+
 decltype(PascalSubparserTopDownBase::colonEqualsSet)
 PascalSubparserTopDownBase::colonEqualsSet = initColonEqualsSet();
 
@@ -912,25 +932,31 @@ PascalSubparserTopDownBase::simpleTypeStartSet = initSimpleTypeStartSet();
 decltype(PascalSubparserTopDownBase::enumDefinitionFollowSet)
 PascalSubparserTopDownBase::enumDefinitionFollowSet = initEnumDefinitionFollowSet();
 
+decltype(PascalSubparserTopDownBase::leftBracketSet)
+PascalSubparserTopDownBase::leftBracketSet = initLeftBracketSet();
+
+decltype(PascalSubparserTopDownBase::arrayTypeOfSet)
+PascalSubparserTopDownBase::arrayTypeOfSet = initArrayTypeOfSet();
+
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::relOpsMap =
-  {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},
-   {PascalTokenTypeImpl::NOT_EQUALS, ICodeNodeTypeImpl::NE},
-   {PascalTokenTypeImpl::LESS_THAN, ICodeNodeTypeImpl::LT},
-   {PascalTokenTypeImpl::LESS_EQUALS, ICodeNodeTypeImpl::LE},
-   {PascalTokenTypeImpl::GREATER_THAN, ICodeNodeTypeImpl::GT},
-   {PascalTokenTypeImpl::GREATER_EQUALS, ICodeNodeTypeImpl::GE}};
+  {{PascalTokenTypeImpl::EQUALS,          ICodeNodeTypeImpl::EQ},
+   {PascalTokenTypeImpl::NOT_EQUALS,      ICodeNodeTypeImpl::NE},
+   {PascalTokenTypeImpl::LESS_THAN,       ICodeNodeTypeImpl::LT},
+   {PascalTokenTypeImpl::LESS_EQUALS,     ICodeNodeTypeImpl::LE},
+   {PascalTokenTypeImpl::GREATER_THAN,    ICodeNodeTypeImpl::GT},
+   {PascalTokenTypeImpl::GREATER_EQUALS,  ICodeNodeTypeImpl::GE}};
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::addOpsMap =
-  {{PascalTokenTypeImpl::PLUS, ICodeNodeTypeImpl::ADD},
+  {{PascalTokenTypeImpl::PLUS,  ICodeNodeTypeImpl::ADD},
    {PascalTokenTypeImpl::MINUS, ICodeNodeTypeImpl::SUBTRACT},
-   {PascalTokenTypeImpl::OR, ICodeNodeTypeImpl::OR}};
+   {PascalTokenTypeImpl::OR,    ICodeNodeTypeImpl::OR}};
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::multOpsMap =
-  {{PascalTokenTypeImpl::STAR, ICodeNodeTypeImpl::MULTIPLY},
+  {{PascalTokenTypeImpl::STAR,  ICodeNodeTypeImpl::MULTIPLY},
    {PascalTokenTypeImpl::SLASH, ICodeNodeTypeImpl::FLOAT_DIVIDE},
-   {PascalTokenTypeImpl::DIV, ICodeNodeTypeImpl::INTEGER_DIVIDE},
-   {PascalTokenTypeImpl::MOD, ICodeNodeTypeImpl::MOD},
-   {PascalTokenTypeImpl::AND, ICodeNodeTypeImpl::AND}};
+   {PascalTokenTypeImpl::DIV,   ICodeNodeTypeImpl::INTEGER_DIVIDE},
+   {PascalTokenTypeImpl::MOD,   ICodeNodeTypeImpl::MOD},
+   {PascalTokenTypeImpl::AND,   ICodeNodeTypeImpl::AND}};
 
 PascalSubparserTopDownBase::PascalSubparserTopDownBase(
     PascalParserTopDown &pascal_parser)

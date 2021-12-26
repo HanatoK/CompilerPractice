@@ -36,5 +36,5 @@ std::unique_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
     // parse the ELSE statement
     if_node->addChild(statement_parser.parse(token));
   }
-  return std::move(if_node);
+  return if_node;
 }

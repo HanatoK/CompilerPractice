@@ -21,5 +21,5 @@ std::unique_ptr<ICodeNodeImplBase> CompoundStatementParser::parse(std::shared_pt
   // parse the statement list terminated by the END token
   StatementParser statement_parser(*currentParser());
   statement_parser.parseList(token, compound_node, PascalTokenTypeImpl::END, PascalErrorCode::MISSING_END);
-  return std::move(compound_node);
+  return compound_node;
 }

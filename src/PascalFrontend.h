@@ -92,6 +92,10 @@ public:
   static const std::set<PascalTokenTypeImpl> simpleTypeStartSet;
   static const std::set<PascalTokenTypeImpl> enumConstantStartSet;
   static const std::set<PascalTokenTypeImpl> enumDefinitionFollowSet;
+  static const std::set<PascalTokenTypeImpl> leftBracketSet;
+  static const std::set<PascalTokenTypeImpl> rightBracketSet;
+  static const std::set<PascalTokenTypeImpl> arrayTypeOfSet; // synchronization set of OF in ARRAY type
+  static const std::set<PascalTokenTypeImpl> indexStartSet;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;

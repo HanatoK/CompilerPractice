@@ -32,7 +32,7 @@ std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parse(std::shared_ptr<Pasca
     op_node->addChild(parseSimpleExpression(token));
     root_node = std::move(op_node);
   }
-  return std::move(root_node);
+  return root_node;
 }
 
 std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr<PascalToken> token)
@@ -101,7 +101,7 @@ std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
       break;
     }
   }
-  return std::move(root_node);
+  return root_node;
 }
 
 std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseTerm(std::shared_ptr<PascalToken> token)
@@ -120,7 +120,7 @@ std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseTerm(std::shared_ptr<P
     token = currentToken();
     token_type = token->type();
   }
-  return std::move(root_node);
+  return root_node;
 }
 
 std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::shared_ptr<PascalToken> token)
@@ -157,5 +157,5 @@ std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
     token = currentToken();
     token_type = token->type();
   }
-  return std::move(root_node);
+  return root_node;
 }
