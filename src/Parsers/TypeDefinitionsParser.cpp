@@ -61,4 +61,5 @@ std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<
     }
     token = synchronize(identifierSet);
   }
+  return nullptr;
 }

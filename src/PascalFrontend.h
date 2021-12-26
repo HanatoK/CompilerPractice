@@ -90,6 +90,8 @@ public:
   static const std::set<PascalTokenTypeImpl> equalsSet;
   static const std::set<PascalTokenTypeImpl> nextStartSet;
   static const std::set<PascalTokenTypeImpl> simpleTypeStartSet;
+  static const std::set<PascalTokenTypeImpl> enumConstantStartSet;
+  static const std::set<PascalTokenTypeImpl> enumDefinitionFollowSet;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;

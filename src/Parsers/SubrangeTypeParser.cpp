@@ -62,3 +62,20 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
   subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, max_val);
   return subrange_type;
 }
+
+std::any SubrangeTypeParser::checkValueType(
+    const std::shared_ptr<PascalToken>& token,
+    const std::any& value, const std::shared_ptr<TypeSpecImplBase>& type)
+{
+  if (type == nullptr) return value;
+  if (type == Predefined::instance().integerType) return value;
+  else if (type == Predefined::instance().charType) {
+    const char ch = std::any_cast<std::string>(value)[0];
+    return int(ch);
+  } else if (type->form() == TypeFormImpl::ENUMERATION) {
+    return value;
+  } else {
+    errorHandler()->flag(token, PascalErrorCode::INVALID_SUBRANGE_TYPE, currentParser());
+    return value;
+  }
+}

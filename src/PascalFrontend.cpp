@@ -731,36 +731,41 @@ PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits
 }
 
 const std::set<PascalTokenTypeImpl>
-    PascalSubparserTopDownBase::statementStartSet{
-        PascalTokenTypeImpl::BEGIN,      PascalTokenTypeImpl::CASE,
-        PascalTokenTypeImpl::FOR,        PascalTokenTypeImpl::IF,
-        PascalTokenTypeImpl::REPEAT,     PascalTokenTypeImpl::WHILE,
-        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::SEMICOLON};
+PascalSubparserTopDownBase::statementStartSet{
+  PascalTokenTypeImpl::BEGIN,      PascalTokenTypeImpl::CASE,
+  PascalTokenTypeImpl::FOR,        PascalTokenTypeImpl::IF,
+  PascalTokenTypeImpl::REPEAT,     PascalTokenTypeImpl::WHILE,
+  PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::SEMICOLON};
 
 const std::set<PascalTokenTypeImpl>
-    PascalSubparserTopDownBase::statementFollowSet{
-        PascalTokenTypeImpl::SEMICOLON, PascalTokenTypeImpl::END,
-        PascalTokenTypeImpl::ELSE, PascalTokenTypeImpl::UNTIL,
-        PascalTokenTypeImpl::DOT};
+PascalSubparserTopDownBase::statementFollowSet{
+  PascalTokenTypeImpl::SEMICOLON, PascalTokenTypeImpl::END,
+  PascalTokenTypeImpl::ELSE,      PascalTokenTypeImpl::UNTIL,
+  PascalTokenTypeImpl::DOT};
 
 const std::set<PascalTokenTypeImpl>
-    PascalSubparserTopDownBase::expressionStartSet{
-        PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
-        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,
-        PascalTokenTypeImpl::REAL, PascalTokenTypeImpl::STRING,
-        PascalTokenTypeImpl::NOT, PascalTokenTypeImpl::LEFT_PAREN};
+PascalSubparserTopDownBase::expressionStartSet{
+  PascalTokenTypeImpl::PLUS,        PascalTokenTypeImpl::MINUS,
+  PascalTokenTypeImpl::IDENTIFIER,  PascalTokenTypeImpl::INTEGER,
+  PascalTokenTypeImpl::REAL,        PascalTokenTypeImpl::STRING,
+  PascalTokenTypeImpl::NOT,         PascalTokenTypeImpl::LEFT_PAREN};
 
 decltype(PascalSubparserTopDownBase::constantStartSet)
-    PascalSubparserTopDownBase::constantStartSet{
-        PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::INTEGER,
-        PascalTokenTypeImpl::PLUS, PascalTokenTypeImpl::MINUS,
-        PascalTokenTypeImpl::STRING};
+PascalSubparserTopDownBase::constantStartSet{
+  PascalTokenTypeImpl::IDENTIFIER,  PascalTokenTypeImpl::INTEGER,
+  PascalTokenTypeImpl::PLUS,        PascalTokenTypeImpl::MINUS,
+  PascalTokenTypeImpl::STRING};
 
 decltype(PascalSubparserTopDownBase::declarationStartSet)
 PascalSubparserTopDownBase::declarationStartSet{
-  PascalTokenTypeImpl::CONST, PascalTokenTypeImpl::TYPE,
-  PascalTokenTypeImpl::VAR, PascalTokenTypeImpl::PROCEDURE,
-  PascalTokenTypeImpl::FUNCTION, PascalTokenTypeImpl::BEGIN
+  PascalTokenTypeImpl::CONST,     PascalTokenTypeImpl::TYPE,
+  PascalTokenTypeImpl::VAR,       PascalTokenTypeImpl::PROCEDURE,
+  PascalTokenTypeImpl::FUNCTION,  PascalTokenTypeImpl::BEGIN
+};
+
+decltype(PascalSubparserTopDownBase::enumConstantStartSet)
+PascalSubparserTopDownBase::enumConstantStartSet{
+  PascalTokenTypeImpl::IDENTIFIER, PascalTokenTypeImpl::COMMA
 };
 
 auto initColonEqualsSet() {
@@ -861,6 +866,13 @@ auto initSimpleTypeStartSet() {
   return s;
 }
 
+auto initEnumDefinitionFollowSet() {
+  auto s = PascalSubparserTopDownBase::varStartSet;
+  s.insert(PascalTokenTypeImpl::RIGHT_PAREN);
+  s.insert(PascalTokenTypeImpl::SEMICOLON);
+  return s;
+}
+
 decltype(PascalSubparserTopDownBase::colonEqualsSet)
 PascalSubparserTopDownBase::colonEqualsSet = initColonEqualsSet();
 
@@ -896,6 +908,9 @@ PascalSubparserTopDownBase::nextStartSet = initNextStartSet();
 
 decltype(PascalSubparserTopDownBase::simpleTypeStartSet)
 PascalSubparserTopDownBase::simpleTypeStartSet = initSimpleTypeStartSet();
+
+decltype(PascalSubparserTopDownBase::enumDefinitionFollowSet)
+PascalSubparserTopDownBase::enumDefinitionFollowSet = initEnumDefinitionFollowSet();
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::relOpsMap =
   {{PascalTokenTypeImpl::EQUALS, ICodeNodeTypeImpl::EQ},

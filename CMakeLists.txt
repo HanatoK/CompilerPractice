@@ -36,15 +36,18 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/PascalFrontend.h
             ${PROJECT_SOURCE_DIR}/Predefined.h
             ${PROJECT_SOURCE_DIR}/Utilities.h
+            ${PROJECT_SOURCE_DIR}/Parsers/ArrayTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/AssignmentStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/BlockParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/CaseStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/CompoundStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/ConstantDefinitionsParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/DeclarationsParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/EnumerationTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/RecordTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/SimpleTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/StatementParser.h
@@ -73,15 +76,18 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/PascalFrontend.cpp
             ${PROJECT_SOURCE_DIR}/Predefined.cpp
             ${PROJECT_SOURCE_DIR}/Utilities.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/ArrayTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/AssignmentStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/BlockParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/CaseStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/CompoundStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ConstantDefinitionsParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/DeclarationsParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/EnumerationTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/RecordTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/SimpleTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/StatementParser.cpp

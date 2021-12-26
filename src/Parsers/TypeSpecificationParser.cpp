@@ -1,11 +1,14 @@
 #include "TypeSpecificationParser.h"
+#include "SimpleTypeParser.h"
+#include "RecordTypeParser.h"
+#include "ArrayTypeParser.h"
 
 TypeSpecificationParser::TypeSpecificationParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
 {
 
 }
 
-std::unique_ptr<TypeSpecImplBase> TypeSpecificationParser::parseSpec(std::shared_ptr<PascalToken> token)
+std::shared_ptr<TypeSpecImplBase> TypeSpecificationParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
   token = synchronize(typeStartSet);
   switch (token->type()) {

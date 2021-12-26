@@ -4,6 +4,15 @@
 #include "PascalFrontend.h"
 #include "Intermediate.h"
 
+// Pascal subrange type:
+// =================================================================
+// type
+//   MonthInt = 1 .. 12;
+//   Capital = 'A' .. 'Z';
+//   ControlChar = ^A .. ^Z;  { `^A' = `Chr (1)' is a BP extension }
+// begin
+// end.
+
 class SubrangeTypeParser : public PascalSubparserTopDownBase
 {
 public:

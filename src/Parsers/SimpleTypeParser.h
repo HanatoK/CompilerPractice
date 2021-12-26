@@ -9,7 +9,7 @@ class SimpleTypeParser : public PascalSubparserTopDownBase
 public:
   explicit SimpleTypeParser(PascalParserTopDown& parent);
   virtual ~SimpleTypeParser();
-  std::unique_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
+  std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
 };
 
 #endif // SIMPLETYPEPARSER_H
