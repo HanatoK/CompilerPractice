@@ -51,7 +51,7 @@ private:
 template <typename T> class Token {
 public:
   Token();
-  Token(std::shared_ptr<Source> source, bool use_default_extract = true);
+  explicit Token(std::shared_ptr<Source> source, bool use_default_extract = true);
   virtual ~Token();
   int lineNum() const;
   int position() const;
@@ -59,7 +59,7 @@ public:
   const std::string &text() const;
   virtual bool isEof() const;
   virtual T type() const;
-
+  virtual std::unique_ptr<Token<T>> clone() const;
 protected:
   // default method to extract only one-character tokens from the source
   virtual void extract();
@@ -125,13 +125,20 @@ template <typename T> int Token<T>::position() const { return mPosition; }
 
 template <typename T> int Token<T>::lineNum() const { return mLineNum; }
 
+template <typename T>
+std::unique_ptr<Token<T>> Token<T>::clone() const {
+  std::unique_ptr<Token<T>> result = std::make_unique<Token<T>>(this->mSource, true);
+  return result;
+}
+
 template <typename T> class EofToken : public Token<T> {
 public:
   EofToken();
-  EofToken(std::shared_ptr<Source> source);
-  virtual void extract();
+  explicit EofToken(std::shared_ptr<Source> source);
+  virtual void extract() override;
   virtual ~EofToken();
-  virtual bool isEof() const;
+  virtual bool isEof() const override;
+  virtual std::unique_ptr<Token<T>> clone() const override;
 };
 
 template <typename T> EofToken<T>::EofToken() {}
@@ -151,6 +158,12 @@ template <typename T> EofToken<T>::~EofToken() {
 }
 
 template <typename T> bool EofToken<T>::isEof() const { return true; }
+
+template <typename T>
+std::unique_ptr<Token<T>> EofToken<T>::clone() const {
+  std::unique_ptr<Token<T>> result = std::make_unique<EofToken<T>>(this->mSource);
+  return result;
+}
 
 template <typename TokenT> class Scanner {
 public:

@@ -115,36 +115,36 @@ public:
   PascalErrorToken();
   PascalErrorToken(std::shared_ptr<Source> source, const PascalErrorCode errorCode,
                    const std::string& tokenText);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalWordToken: public PascalToken {
 public:
   explicit PascalWordToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalStringToken: public PascalToken {
 public:
   explicit PascalStringToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalSpecialSymbolToken: public PascalToken {
 public:
   explicit PascalSpecialSymbolToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalNumberToken: public PascalToken {
 public:
   explicit PascalNumberToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
   virtual void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
