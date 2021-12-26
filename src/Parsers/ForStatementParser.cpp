@@ -78,5 +78,5 @@ std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
   loop_node->addChild(std::move(next_assign_node));
   compound_node->addChild(std::move(init_assign_node));
   compound_node->addChild(std::move(loop_node));
-  return std::move(compound_node);
+  return compound_node;
 }

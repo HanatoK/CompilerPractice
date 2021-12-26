@@ -207,14 +207,14 @@ std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseCharacterConstant(s
   }
 }
 
-long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNodeImplBase> &node)
+PascalInteger CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNodeImplBase> &node)
 {
   if (node->type() == ICodeNodeTypeImpl::NEGATE) {
     // get the first child node
     const auto child_node = node->childrenBegin();
-    const auto positive_value = std::any_cast<long long>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
+    const auto positive_value = std::any_cast<PascalInteger>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
     // TODO: possible overflow
-    const long long result = -1 * positive_value;
+    const PascalInteger result = -1 * positive_value;
     return result;
   } else {
     return 0;

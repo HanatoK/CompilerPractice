@@ -148,9 +148,10 @@ public:
   virtual void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
-  long long computeIntegerValue(const std::string& digits);
-  double computeFloatValue(const std::string &whole_digits, const std::string &fraction_digits,
-                           const std::string &exponent_digits, char exponent_sign);
+  PascalInteger computeIntegerValue(const std::string& digits);
+  PascalFloat computeFloatValue(
+      const std::string &whole_digits, const std::string &fraction_digits,
+      const std::string &exponent_digits, char exponent_sign);
 };
 
 std::unique_ptr<PascalParserTopDown> createPascalParser(const std::string& language, const std::string& type,

@@ -652,12 +652,12 @@ void PascalNumberToken::extractNumber(std::string &text) {
     exponent_digits = PascalNumberToken::unsignedIntegerDigits(text);
   }
   if (mType == PascalTokenTypeImpl::INTEGER) {
-    const long long integer_value = computeIntegerValue(whole_digits);
+    const auto integer_value = computeIntegerValue(whole_digits);
     if (mType != PascalTokenTypeImpl::ERROR) {
       mValue = integer_value;
     }
   } else {
-    const double float_value = computeFloatValue(
+    const PascalFloat float_value = computeFloatValue(
         whole_digits, fraction_digits, exponent_digits, exponent_sign);
     if (mType != PascalTokenTypeImpl::ERROR) {
       mValue = float_value;
@@ -681,11 +681,11 @@ std::string PascalNumberToken::unsignedIntegerDigits(std::string &text) {
   return digits;
 }
 
-long long PascalNumberToken::computeIntegerValue(const std::string &digits) {
+PascalInteger PascalNumberToken::computeIntegerValue(const std::string &digits) {
   // does not consume characters
   bool ok = true;
   // TODO: try to implement toInt without Qt
-  long long result = 0;
+  PascalInteger result = 0;
   try {
     result = std::stoll(digits);
   } catch (const std::exception& e) {
@@ -701,7 +701,7 @@ long long PascalNumberToken::computeIntegerValue(const std::string &digits) {
   }
 }
 
-double PascalNumberToken::computeFloatValue(const std::string &whole_digits,
+PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits,
                                             const std::string &fraction_digits,
                                             const std::string &exponent_digits,
                                             char exponent_sign) {
@@ -714,7 +714,7 @@ double PascalNumberToken::computeFloatValue(const std::string &whole_digits,
   }
   bool ok = true;
   // TODO: try to implement toDouble without Qt
-  double result = 0;
+  PascalFloat result = 0;
   try {
     result = std::stod(s);
   } catch (const std::exception& e) {

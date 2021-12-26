@@ -86,13 +86,13 @@ std::any ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalToken>& 
       return parseIdentifierConstant(token, sign);
     }
     case PascalTokenTypeImpl::INTEGER: {
-      // integers are stored as long long
-      const long long val = sign * std::any_cast<long long>(token->value());
+      // integers are stored as PascalFloat
+      const PascalInteger val = sign * std::any_cast<PascalInteger>(token->value());
       nextToken();
       return val;
     }
     case PascalTokenTypeImpl::REAL: {
-      const double val = sign * std::any_cast<double>(token->value());
+      const PascalFloat val = sign * std::any_cast<PascalFloat>(token->value());
       nextToken();
       return val;
     }
@@ -124,10 +124,10 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
   if (definition == DefinitionImpl::CONSTANT) {
     const auto constant_value = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
     id->appendLineNumber(token->lineNum());
-    if (any_is<long long>(constant_value)) {
-      return sign * std::any_cast<long long>(constant_value);
-    } else if (any_is<double>(constant_value)) {
-      return sign * std::any_cast<double>(constant_value);
+    if (any_is<PascalInteger>(constant_value)) {
+      return sign * std::any_cast<PascalInteger>(constant_value);
+    } else if (any_is<PascalFloat>(constant_value)) {
+      return sign * std::any_cast<PascalFloat>(constant_value);
     } else if (any_is<std::string>(constant_value)) {
       return constant_value;
     } else {
@@ -141,9 +141,9 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
 std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(const std::any& value) const
 {
   std::shared_ptr<TypeSpecImplBase> constant_type = nullptr;
-  if (any_is<long long>(value)) {
+  if (any_is<PascalInteger>(value)) {
     constant_type = Predefined::instance().integerType;
-  } else if (any_is<double>(value)) {
+  } else if (any_is<PascalFloat>(value)) {
     constant_type = Predefined::instance().realType;
   } else if (any_is<std::string>(value)) {
     const auto s = std::any_cast<std::string>(value);

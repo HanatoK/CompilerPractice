@@ -46,7 +46,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     // are the type valid?
     if (min_type == nullptr || max_type == nullptr) {
       errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
-    } else if (*min_type != *max_type) {
+    } else if (min_type != max_type) { // is this comparison valid?
       // TODO
     }
   }

@@ -9,6 +9,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/current_function.hpp>
 
+typedef long long PascalInteger;
+typedef double PascalFloat;
+
 enum class PascalTokenTypeImpl {
   // reserved words
   AND, ARRAY, BEGIN, CASE, CONST, DIV, DO, DOWNTO, ELSE, END,

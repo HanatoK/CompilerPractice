@@ -20,7 +20,7 @@ std::shared_ptr<SubExecutorBase> AssignmentStatementExecutor::execute(const std:
   const auto variable_id = std::any_cast<std::shared_ptr<SymbolTableEntryImplBase>>(variable_node->getAttribute(ICodeKeyTypeImpl::ID));
   switch (expression_executor.valueType()) {
     case VariableInternalType::INTEGER: {
-      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<long long>(expression_value));
+      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<PascalInteger>(expression_value));
       break;
     }
     case VariableInternalType::BOOLEAN: {
@@ -28,7 +28,7 @@ std::shared_ptr<SubExecutorBase> AssignmentStatementExecutor::execute(const std:
       break;
     }
     case VariableInternalType::REAL: {
-      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<double>(expression_value));
+      variable_id->setAttribute(SymbolTableKeyTypeImpl::DATA_VALUE, std::get<PascalFloat>(expression_value));
       break;
     }
     case VariableInternalType::STRING: {
