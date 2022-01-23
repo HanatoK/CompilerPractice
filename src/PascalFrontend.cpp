@@ -194,6 +194,11 @@ int PascalParserTopDown::errorCount() const {
 
 std::shared_ptr<PascalToken> PascalParserTopDown::synchronize(
     const std::set<PascalTokenTypeImpl> &sync_set) {
+#ifdef DEBUG
+  if (sync_set.empty()) {
+    qDebug() << "Empty synchronization set!";
+  }
+#endif
   auto token = currentToken();
   // if the current token is not in the synchronization set,
   // then it is unexpected and the parser must recover
@@ -774,6 +779,11 @@ PascalSubparserTopDownBase::rightBracketSet{
   PascalTokenTypeImpl::SEMICOLON
 };
 
+decltype(PascalSubparserTopDownBase::indexEndSet)
+PascalSubparserTopDownBase::indexEndSet{
+  PascalTokenTypeImpl::RIGHT_BRACKET, PascalTokenTypeImpl::SEMICOLON
+};
+
 auto initColonEqualsSet() {
   auto s(PascalSubparserTopDownBase::expressionStartSet);
   s.insert(PascalTokenTypeImpl::COLON_EQUALS);
@@ -893,6 +903,26 @@ auto initArrayTypeOfSet() {
   return s;
 }
 
+auto initIndexStartSet() {
+  auto s = PascalSubparserTopDownBase::simpleTypeStartSet;
+  s.insert(PascalTokenTypeImpl::COMMA);
+  return s;
+}
+
+auto initIndexFollowSet() {
+  auto s = PascalSubparserTopDownBase::indexStartSet;
+  s.insert(PascalSubparserTopDownBase::indexEndSet.begin(),
+           PascalSubparserTopDownBase::indexEndSet.end());
+  return s;
+}
+
+auto initRecordEndSet() {
+  auto s = PascalSubparserTopDownBase::varStartSet;
+  s.insert(PascalTokenTypeImpl::END);
+  s.insert(PascalTokenTypeImpl::SEMICOLON);
+  return s;
+}
+
 decltype(PascalSubparserTopDownBase::colonEqualsSet)
 PascalSubparserTopDownBase::colonEqualsSet = initColonEqualsSet();
 
@@ -937,6 +967,15 @@ PascalSubparserTopDownBase::leftBracketSet = initLeftBracketSet();
 
 decltype(PascalSubparserTopDownBase::arrayTypeOfSet)
 PascalSubparserTopDownBase::arrayTypeOfSet = initArrayTypeOfSet();
+
+decltype(PascalSubparserTopDownBase::indexStartSet)
+PascalSubparserTopDownBase::indexStartSet = initIndexStartSet();
+
+decltype(PascalSubparserTopDownBase::indexFollowSet)
+PascalSubparserTopDownBase::indexFollowSet = initIndexFollowSet();
+
+decltype(PascalSubparserTopDownBase::recordEndSet)
+PascalSubparserTopDownBase::recordEndSet = initRecordEndSet();
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::relOpsMap =
   {{PascalTokenTypeImpl::EQUALS,          ICodeNodeTypeImpl::EQ},

@@ -29,6 +29,7 @@ private:
     std::shared_ptr<PascalToken>& token, std::shared_ptr<TypeSpecImplBase> array_type);
   void parseIndexType(std::shared_ptr<PascalToken>& token,
                       std::shared_ptr<TypeSpecImplBase> array_type);
+  std::shared_ptr<TypeSpecImplBase> parseElementType(std::shared_ptr<PascalToken> token);
 };
 
 #endif // ARRAYTYPEPARSER_H

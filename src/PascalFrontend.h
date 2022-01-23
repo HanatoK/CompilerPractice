@@ -96,6 +96,9 @@ public:
   static const std::set<PascalTokenTypeImpl> rightBracketSet;
   static const std::set<PascalTokenTypeImpl> arrayTypeOfSet; // synchronization set of OF in ARRAY type
   static const std::set<PascalTokenTypeImpl> indexStartSet;
+  static const std::set<PascalTokenTypeImpl> indexFollowSet;
+  static const std::set<PascalTokenTypeImpl> indexEndSet;
+  static const std::set<PascalTokenTypeImpl> recordEndSet;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;

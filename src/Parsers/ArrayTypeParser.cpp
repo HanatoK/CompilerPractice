@@ -1,4 +1,6 @@
 #include "ArrayTypeParser.h"
+#include "SimpleTypeParser.h"
+#include "TypeSpecificationParser.h"
 
 ArrayTypeParser::ArrayTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
 {
@@ -44,5 +46,67 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseSpec(std::shared_ptr<Pas
 std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
   std::shared_ptr<PascalToken>& token, std::shared_ptr<TypeSpecImplBase> array_type)
 {
+  auto element_type = array_type;
+  bool another_index = false;
+  // consume [
+  token = nextToken();
+  // parse the list of index type specifications
+  do {
+    another_index = false;
+    // parse the index type
+    token = synchronize(indexStartSet);
+    parseIndexType(token, element_type);
+    // synchronize at the , token
+    token = synchronize(indexFollowSet);
+    const auto token_type = token->type();
+    if (token_type != PascalTokenTypeImpl::COMMA &&
+        token_type != PascalTokenTypeImpl::RIGHT_BRACKET) {
+      if (indexStartSet.contains(token_type)) {
+        errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA, currentParser());
+        another_index = true;
+      }
+    } else if (token_type == PascalTokenTypeImpl::COMMA) {
+      std::shared_ptr<TypeSpecImplBase> new_element_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::ARRAY);
+      element_type->setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, new_element_type);
+      // is this work?
+      element_type = std::move(new_element_type);
+      token = nextToken();
+      another_index = true;
+    }
+  } while (another_index);
+  return element_type;
+}
 
+void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token, std::shared_ptr<TypeSpecImplBase> array_type)
+{
+  SimpleTypeParser simple_type_parser(*currentParser());
+  auto index_type = simple_type_parser.parseSpec(token);
+  array_type->setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
+  if (index_type == nullptr) {
+    return;
+  }
+  const auto form = index_type->form();
+  PascalInteger count = 0;
+  // check the index type and set the element count
+  if (form == TypeFormImpl::SUBRANGE) {
+    const auto min_value = index_type->getAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE);
+    const auto max_value = index_type->getAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE);
+    if (min_value.has_value() && max_value.has_value()) {
+      count = std::any_cast<PascalInteger>(max_value) - std::any_cast<PascalInteger>(min_value) + 1;
+    }
+  } else if (form == TypeFormImpl::ENUMERATION) {
+    const auto constants = index_type->getAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS);
+    if (constants.has_value()) {
+      count = std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(constants).size();
+    }
+  } else {
+    errorHandler()->flag(token, PascalErrorCode::INVALID_INDEX_TYPE, currentParser());
+  }
+  array_type->setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, count);
+}
+
+std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseElementType(std::shared_ptr<PascalToken> token)
+{
+  TypeSpecificationParser parser(*currentParser());
+  return parser.parseSpec(token);
 }

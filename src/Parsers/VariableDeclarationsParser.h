@@ -10,6 +10,8 @@ public:
   explicit VariableDeclarationsParser(PascalParserTopDown& parent);
   virtual ~VariableDeclarationsParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
+private:
+  DefinitionImpl mDefinition;
 };
 
 #endif // VARIABLEDECLARATIONSPARSER_H
