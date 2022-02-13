@@ -1,5 +1,7 @@
 #include "TypeDefinitionsParser.h"
 #include "TypeSpecificationParser.h"
+#include "DeclarationsParser.h"
+#include "ConstantDefinitionsParser.h"
 
 TypeDefinitionsParser::TypeDefinitionsParser(PascalParserTopDown& parent)
   : PascalSubparserTopDownBase(parent) {}
@@ -13,7 +15,7 @@ TypeDefinitionsParser::~TypeDefinitionsParser()
 
 std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
 {
-  token = synchronize(identifierSet);
+  token = synchronize(TypeDefinitionsParser::identifierSet());
   // loop to parse a sequence of type definitions
   while (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
     auto name = boost::algorithm::to_lower_copy(token->text());
@@ -29,7 +31,7 @@ std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<
     }
     // consume the identifier token
     token = nextToken();
-    token = synchronize(equalsSet);
+    token = synchronize(TypeDefinitionsParser::equalsSet());
     if (token->type() == PascalTokenTypeImpl::EQUALS) {
       // consume =
       token = nextToken();
@@ -49,17 +51,46 @@ std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<
       }
       type_id->setTypeSpec(type_spec);
     } else {
-      token = synchronize(statementFollowSet);
+      token = synchronize(TypeDefinitionsParser::followSet());
     }
     token = currentToken();
     if (token->type() == PascalTokenTypeImpl::SEMICOLON) {
       while (token->type() == PascalTokenTypeImpl::SEMICOLON) {
         token = nextToken();
       }
-    } else if (nextStartSet.contains(token->type())) {
+    } else if (TypeDefinitionsParser::nextStartSet().contains(token->type())) {
       errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
     }
-    token = synchronize(identifierSet);
+    token = synchronize(TypeDefinitionsParser::identifierSet());
   }
   return nullptr;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet TypeDefinitionsParser::identifierSet() {
+  auto s = DeclarationsParser::varStartSet();
+  s.insert(PascalTokenTypeImpl::IDENTIFIER);
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet TypeDefinitionsParser::equalsSet() {
+  auto s = ConstantDefinitionsParser::constantStartSet();
+  s.insert({
+    PascalTokenTypeImpl::EQUALS,
+    PascalTokenTypeImpl::SEMICOLON
+  });
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet TypeDefinitionsParser::followSet() {
+  TokenTypeSet s{PascalTokenTypeImpl::SEMICOLON};
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet TypeDefinitionsParser::nextStartSet() {
+  auto s = DeclarationsParser::varStartSet();
+  s.insert({
+    PascalTokenTypeImpl::SEMICOLON,
+    PascalTokenTypeImpl::IDENTIFIER
+  });
+  return s;
 }

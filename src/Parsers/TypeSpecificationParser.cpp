@@ -10,7 +10,7 @@ TypeSpecificationParser::TypeSpecificationParser(PascalParserTopDown& parent): P
 
 std::shared_ptr<TypeSpecImplBase> TypeSpecificationParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
-  token = synchronize(typeStartSet);
+  token = synchronize(TypeSpecificationParser::typeStartSet());
   switch (token->type()) {
     case PascalTokenTypeImpl::ARRAY: {
       ArrayTypeParser type_parser(*currentParser());
@@ -25,4 +25,12 @@ std::shared_ptr<TypeSpecImplBase> TypeSpecificationParser::parseSpec(std::shared
       return type_parser.parseSpec(token);
     }
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet TypeSpecificationParser::typeStartSet() {
+  auto s = SimpleTypeParser::simpleTypeStartSet();
+  s.insert({PascalTokenTypeImpl::ARRAY,
+            PascalTokenTypeImpl::RECORD,
+            PascalTokenTypeImpl::SEMICOLON});
+  return s;
 }

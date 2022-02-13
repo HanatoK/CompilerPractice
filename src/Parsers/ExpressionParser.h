@@ -8,6 +8,7 @@
 class ExpressionParser : public PascalSubparserTopDownBase
 {
 public:
+  static TokenTypeSet expressionStartSet();
   explicit ExpressionParser(PascalParserTopDown& parent);
   virtual ~ExpressionParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);

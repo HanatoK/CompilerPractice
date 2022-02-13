@@ -31,7 +31,7 @@ BlockParser::parse(std::shared_ptr<PascalToken> token,
   StatementParser statement_parser(*currentParser());
   // parse any declarations
   declarations_parser.parse(token);
-  token = synchronize(statementStartSet);
+  token = synchronize(StatementParser::statementStartSet());
   const auto token_type = token->type();
   std::unique_ptr<ICodeNodeImplBase> root_node = nullptr;
   if (token_type == PascalTokenTypeImpl::BEGIN) {
@@ -39,7 +39,7 @@ BlockParser::parse(std::shared_ptr<PascalToken> token,
   } else {
     // missing BEGIN: attempt to parse anyway if possible
     errorHandler()->flag(token, PascalErrorCode::MISSING_BEGIN, currentParser());
-    if (statementStartSet.contains(token_type)) {
+    if (StatementParser::statementStartSet().contains(token_type)) {
       root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::COMPOUND);
       statement_parser.parseList(token, root_node, PascalTokenTypeImpl::END, PascalErrorCode::MISSING_END);
     }

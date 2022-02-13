@@ -36,3 +36,30 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > DeclarationsPar
   }
   token = synchronize(routineStartSet);
 }
+
+PascalSubparserTopDownBase::TokenTypeSet DeclarationsParser::declarationStartSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::CONST,     PascalTokenTypeImpl::TYPE,
+    PascalTokenTypeImpl::VAR,       PascalTokenTypeImpl::PROCEDURE,
+    PascalTokenTypeImpl::FUNCTION,  PascalTokenTypeImpl::BEGIN
+  };
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet DeclarationsParser::typeStartSet() {
+  auto s = DeclarationsParser::declarationStartSet();
+  s.erase(PascalTokenTypeImpl::CONST);
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet DeclarationsParser::varStartSet() {
+  auto s = DeclarationsParser::typeStartSet();
+  s.erase(PascalTokenTypeImpl::TYPE);
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet DeclarationsParser::routineStartSet() {
+  auto s = DeclarationsParser::varStartSet();
+  s.erase(PascalTokenTypeImpl::VAR);
+  return s;
+}

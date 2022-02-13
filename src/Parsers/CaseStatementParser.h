@@ -5,6 +5,9 @@
 
 class CaseStatementParser : public PascalSubparserTopDownBase {
 public:
+  static TokenTypeSet constantStartSet();
+  static TokenTypeSet ofSet();
+  static TokenTypeSet commaSet();
   explicit CaseStatementParser(PascalParserTopDown &parent);
   virtual std::unique_ptr<ICodeNodeImplBase>
   parse(std::shared_ptr<PascalToken> token);
@@ -20,14 +23,14 @@ private:
   virtual std::unique_ptr<ICodeNodeImplBase>
   parseConstant(std::shared_ptr<PascalToken> token,
                 std::vector<std::any> &constant_set);
-  virtual std::unique_ptr<ICodeNodeImplBase> parseIdentifierConstant(std::shared_ptr<PascalToken> token,
+  virtual std::unique_ptr<ICodeNodeImplBase> parseIdentifierConstant(const std::shared_ptr<PascalToken>& token,
                           const PascalTokenTypeImpl sign);
   virtual std::unique_ptr<ICodeNodeImplBase>
   parseIntegerConstant(const std::string& value, const PascalTokenTypeImpl sign);
   virtual std::unique_ptr<ICodeNodeImplBase>
-  parseCharacterConstant(std::shared_ptr<PascalToken> token,
+  parseCharacterConstant(const std::shared_ptr<PascalToken>& token,
                          const std::string& value, const PascalTokenTypeImpl sign);
-  PascalInteger getNegateNodeValue(const std::unique_ptr<ICodeNodeImplBase>& node);
+  static PascalInteger getNegateNodeValue(const std::unique_ptr<ICodeNodeImplBase>& node);
 };
 
 #endif // CASESTATEMENTPARSER_H

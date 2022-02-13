@@ -7,6 +7,7 @@
 class RecordTypeParser : public PascalSubparserTopDownBase
 {
 public:
+  static TokenTypeSet recordEndSet();
   explicit RecordTypeParser(PascalParserTopDown& parent);
   virtual ~RecordTypeParser();
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);

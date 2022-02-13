@@ -55,6 +55,7 @@ protected:
 
 class PascalSubparserTopDownBase {
 public:
+  typedef std::set<PascalTokenTypeImpl> TokenTypeSet;
   explicit PascalSubparserTopDownBase(PascalParserTopDown& pascal_parser);
   virtual ~PascalSubparserTopDownBase();
   std::shared_ptr<PascalToken> currentToken() const;
@@ -70,35 +71,6 @@ public:
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
-  static const std::set<PascalTokenTypeImpl> statementStartSet;
-  static const std::set<PascalTokenTypeImpl> statementFollowSet;
-  static const std::set<PascalTokenTypeImpl> expressionStartSet;
-  // constantStartSet is used by both CaseStatementParser and ConstantDefinitionsParser!
-  static const std::set<PascalTokenTypeImpl> constantStartSet;
-  static const std::set<PascalTokenTypeImpl> colonEqualsSet;
-  static const std::set<PascalTokenTypeImpl> ofSet;
-  static const std::set<PascalTokenTypeImpl> commaSet;
-  static const std::set<PascalTokenTypeImpl> toDowntoSet;
-  static const std::set<PascalTokenTypeImpl> doSet;
-  static const std::set<PascalTokenTypeImpl> thenSet;
-  static const std::set<PascalTokenTypeImpl> declarationStartSet;
-  static const std::set<PascalTokenTypeImpl> typeStartSet;
-  static const std::set<PascalTokenTypeImpl> varStartSet;
-  static const std::set<PascalTokenTypeImpl> routineStartSet;
-  static const std::set<PascalTokenTypeImpl> identifierSet;
-//  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
-  static const std::set<PascalTokenTypeImpl> equalsSet;
-  static const std::set<PascalTokenTypeImpl> nextStartSet;
-  static const std::set<PascalTokenTypeImpl> simpleTypeStartSet;
-  static const std::set<PascalTokenTypeImpl> enumConstantStartSet;
-  static const std::set<PascalTokenTypeImpl> enumDefinitionFollowSet;
-  static const std::set<PascalTokenTypeImpl> leftBracketSet;
-  static const std::set<PascalTokenTypeImpl> rightBracketSet;
-  static const std::set<PascalTokenTypeImpl> arrayTypeOfSet; // synchronization set of OF in ARRAY type
-  static const std::set<PascalTokenTypeImpl> indexStartSet;
-  static const std::set<PascalTokenTypeImpl> indexFollowSet;
-  static const std::set<PascalTokenTypeImpl> indexEndSet;
-  static const std::set<PascalTokenTypeImpl> recordEndSet;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;
@@ -111,7 +83,7 @@ public:
   PascalErrorHandler();
   virtual ~PascalErrorHandler();
   void flag(const std::shared_ptr<PascalToken> &token, const PascalErrorCode errorCode, const PascalParserTopDown *parser);
-  void abortTranslation(const PascalErrorCode errorCode, const PascalParserTopDown *parser);
+  static void abortTranslation(const PascalErrorCode errorCode, const PascalParserTopDown *parser);
   int errorCount() const;
 private:
   static const int maxError = 25;
@@ -164,6 +136,6 @@ private:
 };
 
 std::unique_ptr<PascalParserTopDown> createPascalParser(const std::string& language, const std::string& type,
-  std::shared_ptr<Source> source);
+  const std::shared_ptr<Source>& source);
 
 #endif // PASCALFRONTEND_H

@@ -18,14 +18,14 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseSpec(std::shared_ptr<Pas
   // consume ARRAY
   nextToken();
   // synchronize at [
-  token = synchronize(leftBracketSet);
+  token = synchronize(ArrayTypeParser::leftBracketSet());
   if (token->type() != PascalTokenTypeImpl::LEFT_BRACKET) {
     errorHandler()->flag(token, PascalErrorCode::MISSING_LEFT_BRACKET, currentParser());
   }
   // parse the list of index types
   auto element_type = parseIndexTypeList(token, array_type);
   // synchronize ]
-  token = synchronize(rightBracketSet);
+  token = synchronize(ArrayTypeParser::rightBracketSet());
   if (token->type() != PascalTokenTypeImpl::RIGHT_BRACKET) {
     errorHandler()->flag(token, PascalErrorCode::MISSING_RIGHT_BRACKET, currentParser());
   } else {
@@ -54,14 +54,14 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
   do {
     another_index = false;
     // parse the index type
-    token = synchronize(indexStartSet);
+    token = synchronize(ArrayTypeParser::indexStartSet());
     parseIndexType(token, element_type);
     // synchronize at the , token
-    token = synchronize(indexFollowSet);
+    token = synchronize(ArrayTypeParser::indexFollowSet());
     const auto token_type = token->type();
     if (token_type != PascalTokenTypeImpl::COMMA &&
         token_type != PascalTokenTypeImpl::RIGHT_BRACKET) {
-      if (indexStartSet.contains(token_type)) {
+      if (ArrayTypeParser::indexStartSet().contains(token_type)) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA, currentParser());
         another_index = true;
       }
@@ -77,7 +77,7 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
   return element_type;
 }
 
-void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token, std::shared_ptr<TypeSpecImplBase> array_type)
+void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token, const std::shared_ptr<TypeSpecImplBase>& array_type)
 {
   SimpleTypeParser simple_type_parser(*currentParser());
   auto index_type = simple_type_parser.parseSpec(token);
@@ -97,7 +97,7 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token, std::s
   } else if (form == TypeFormImpl::ENUMERATION) {
     const auto constants = index_type->getAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS);
     if (constants.has_value()) {
-      count = std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(constants).size();
+      count = static_cast<PascalInteger>(std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(constants).size());
     }
   } else {
     errorHandler()->flag(token, PascalErrorCode::INVALID_INDEX_TYPE, currentParser());
@@ -109,4 +109,47 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseElementType(std::shared_
 {
   TypeSpecificationParser parser(*currentParser());
   return parser.parseSpec(token);
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ArrayTypeParser::leftBracketSet() {
+  auto s = SimpleTypeParser::simpleTypeStartSet();
+  s.insert({PascalTokenTypeImpl::LEFT_BRACKET,
+              PascalTokenTypeImpl::RIGHT_BRACKET});
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ArrayTypeParser::rightBracketSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::RIGHT_BRACKET,
+    PascalTokenTypeImpl::OF,
+    PascalTokenTypeImpl::SEMICOLON};
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ArrayTypeParser::ofSet() {
+  auto s = TypeSpecificationParser::typeStartSet();
+  s.insert({PascalTokenTypeImpl::OF,
+            PascalTokenTypeImpl::SEMICOLON});
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ArrayTypeParser::indexStartSet() {
+  auto s = SimpleTypeParser::simpleTypeStartSet();
+  s.insert(PascalTokenTypeImpl::COMMA);
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ArrayTypeParser::indexFollowSet() {
+  auto s = ArrayTypeParser::indexStartSet();
+  s.merge(ArrayTypeParser::indexEndSet());
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ArrayTypeParser::indexEndSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::RIGHT_BRACKET,
+    PascalTokenTypeImpl::OF,
+    PascalTokenTypeImpl::SEMICOLON
+  };
+  return s;
 }

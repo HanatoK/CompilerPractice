@@ -159,3 +159,17 @@ std::unique_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
   }
   return root_node;
 }
+
+PascalSubparserTopDownBase::TokenTypeSet ExpressionParser::expressionStartSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::PLUS,
+    PascalTokenTypeImpl::MINUS,
+    PascalTokenTypeImpl::IDENTIFIER,
+    PascalTokenTypeImpl::INTEGER,
+    PascalTokenTypeImpl::REAL,
+    PascalTokenTypeImpl::STRING,
+    PascalTokenTypeImpl::NOT,
+    PascalTokenTypeImpl::LEFT_PAREN
+  };
+  return s;
+}

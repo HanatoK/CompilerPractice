@@ -2,6 +2,7 @@
 #include "IntermediateImpl.h"
 #include "SubrangeTypeParser.h"
 #include "EnumerationTypeParser.h"
+#include "ConstantDefinitionsParser.h"
 
 SimpleTypeParser::SimpleTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
 {
@@ -15,7 +16,7 @@ SimpleTypeParser::~SimpleTypeParser()
 
 std::shared_ptr<TypeSpecImplBase> SimpleTypeParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
-  token = synchronize(simpleTypeStartSet);
+  token = synchronize(SimpleTypeParser::simpleTypeStartSet());
   switch (token->type()) {
     case PascalTokenTypeImpl::IDENTIFIER: {
       std::string name = boost::algorithm::to_lower_copy(token->text());
@@ -57,4 +58,12 @@ std::shared_ptr<TypeSpecImplBase> SimpleTypeParser::parseSpec(std::shared_ptr<Pa
       return parser.parseSpec(token);
     }
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet SimpleTypeParser::simpleTypeStartSet() {
+  auto s = ConstantDefinitionsParser::constantStartSet();
+  s.insert({PascalTokenTypeImpl::LEFT_PAREN,
+              PascalTokenTypeImpl::COMMA,
+              PascalTokenTypeImpl::SEMICOLON});
+  return s;
 }

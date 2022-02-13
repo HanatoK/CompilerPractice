@@ -33,11 +33,11 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     saw_dot_dot = true;
   }
   auto token_type = token->type();
-  if (constantStartSet.contains(token_type)) {
+  if (ConstantDefinitionsParser::constantStartSet().contains(token_type)) {
     if (!saw_dot_dot) {
       errorHandler()->flag(constant_token, PascalErrorCode::MISSING_DOT_DOT, currentParser());
     }
-    token = synchronize(constantStartSet);
+    token = synchronize(ConstantDefinitionsParser::constantStartSet());
     constant_token = token->clone();
     max_val = parser.parseConstant(token);
     auto max_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
@@ -67,7 +67,7 @@ std::any SubrangeTypeParser::checkValueType(
     const std::shared_ptr<PascalToken>& token,
     const std::any& value, const std::shared_ptr<TypeSpecImplBase>& type)
 {
-  if (type == nullptr) return value;
+  if (type == nullptr || type == Predefined::instance().integerType) return value;
   if (type == Predefined::instance().integerType) return value;
   else if (type == Predefined::instance().charType) {
     const char ch = std::any_cast<std::string>(value)[0];

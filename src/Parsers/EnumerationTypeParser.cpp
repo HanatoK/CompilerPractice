@@ -1,4 +1,5 @@
 #include "EnumerationTypeParser.h"
+#include "DeclarationsParser.h"
 
 EnumerationTypeParser::EnumerationTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
 {
@@ -18,20 +19,20 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
   // consume the opening (
   token = nextToken();
   do {
-    token = synchronize(enumConstantStartSet);
+    token = synchronize(EnumerationTypeParser::enumConstantStartSet());
     parseEnumerationIdentifier(token, ++value, enumeration_type, constants);
     token = nextToken();
     const auto token_type = token->type();
     if (token_type == PascalTokenTypeImpl::COMMA) {
       // consume the ,
       token = nextToken();
-      if (enumDefinitionFollowSet.contains(token->type())) {
+      if (enumDefinitionFollowSet().contains(token->type())) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_IDENTIFIER, currentParser());
       }
-    } else if (enumConstantStartSet.contains(token_type)) {
+    } else if (enumConstantStartSet().contains(token_type)) {
       errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA, currentParser());
     }
-  } while (!enumConstantStartSet.contains(token->type()));
+  } while (!enumConstantStartSet().contains(token->type()));
   if (token->type() == PascalTokenTypeImpl::RIGHT_PAREN) {
     // consume )
     token = nextToken();
@@ -64,4 +65,21 @@ void EnumerationTypeParser::parseEnumerationIdentifier(
   } else {
     errorHandler()->flag(token, PascalErrorCode::MISSING_IDENTIFIER, currentParser());
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet EnumerationTypeParser::enumConstantStartSet() {
+  TokenTypeSet s{
+    PascalTokenTypeImpl::IDENTIFIER,
+    PascalTokenTypeImpl::COMMA
+  };
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet EnumerationTypeParser::enumDefinitionFollowSet() {
+  TokenTypeSet s{
+    PascalTokenTypeImpl::RIGHT_PAREN,
+    PascalTokenTypeImpl::SEMICOLON
+  };
+  s.merge(DeclarationsParser::varStartSet());
+  return s;
 }

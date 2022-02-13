@@ -18,7 +18,7 @@ std::unique_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
   ExpressionParser expression_parser(*currentParser());
   if_node->addChild(expression_parser.parse(token));
   // synchronize to the THEN set
-  token = synchronize(thenSet);
+  token = synchronize(IfStatementParser::thenSet());
   if (token->type() == PascalTokenTypeImpl::THEN) {
     // consume it
     token = nextToken();
@@ -37,4 +37,11 @@ std::unique_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
     if_node->addChild(statement_parser.parse(token));
   }
   return if_node;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet IfStatementParser::thenSet() {
+  auto s = StatementParser::statementStartSet();
+  s.insert(PascalTokenTypeImpl::THEN);
+  s.merge(StatementParser::statementFollowSet());
+  return s;
 }

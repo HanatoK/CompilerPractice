@@ -1,5 +1,6 @@
 #include "RecordTypeParser.h"
 #include "VariableDeclarationsParser.h"
+#include "DeclarationsParser.h"
 
 RecordTypeParser::RecordTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
 {
@@ -25,7 +26,7 @@ std::shared_ptr<TypeSpecImplBase> RecordTypeParser::parseSpec(std::shared_ptr<Pa
   // pop off the record symbol table
   getSymbolTableStack()->pop();
   // synchronize at the END
-  token = synchronize(recordEndSet);
+  token = synchronize(RecordTypeParser::recordEndSet());
   // look for the END
   if (token->type() == PascalTokenTypeImpl::END) {
     // consume NED
@@ -34,4 +35,13 @@ std::shared_ptr<TypeSpecImplBase> RecordTypeParser::parseSpec(std::shared_ptr<Pa
     errorHandler()->flag(token, PascalErrorCode::MISSING_END, currentParser());
   }
   return record_type;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet RecordTypeParser::recordEndSet() {
+  auto s = DeclarationsParser::varStartSet();
+  s.insert({
+    PascalTokenTypeImpl::END,
+    PascalTokenTypeImpl::SEMICOLON
+  });
+  return s;
 }

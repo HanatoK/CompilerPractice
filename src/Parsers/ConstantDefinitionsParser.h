@@ -7,6 +7,10 @@
 class ConstantDefinitionsParser : public PascalSubparserTopDownBase
 {
 public:
+  static TokenTypeSet identifierSet();
+  static TokenTypeSet constantStartSet();
+  static TokenTypeSet equalsSet();
+  static TokenTypeSet nextStartSet();
   explicit ConstantDefinitionsParser(PascalParserTopDown& parent);
   virtual ~ConstantDefinitionsParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);

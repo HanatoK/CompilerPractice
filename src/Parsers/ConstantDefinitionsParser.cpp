@@ -1,4 +1,5 @@
 #include "ConstantDefinitionsParser.h"
+#include "DeclarationsParser.h"
 #include "ExpressionParser.h"
 
 ConstantDefinitionsParser::ConstantDefinitionsParser(PascalParserTopDown& parent)
@@ -13,7 +14,8 @@ ConstantDefinitionsParser::~ConstantDefinitionsParser()
 
 std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ConstantDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
 {
-  token = synchronize(identifierSet);
+  token = synchronize(ConstantDefinitionsParser::identifierSet());
+  const auto next_start_set = ConstantDefinitionsParser::nextStartSet();
   // loop to parse a sequence of constant definitions
   while (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
     const auto name = boost::algorithm::to_lower_copy(token->text());
@@ -29,7 +31,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ConstantDefinit
     // consume the identifier token
     nextToken();
     // synchronize on the = token
-    token = synchronize(equalsSet);
+    token = synchronize(ConstantDefinitionsParser::equalsSet());
     if (token->type() == PascalTokenTypeImpl::EQUALS) {
       // consume =
       token = nextToken();
@@ -57,12 +59,12 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ConstantDefinit
       while (token->type() == PascalTokenTypeImpl::SEMICOLON) {
         token = nextToken();
       }
-    } else if (nextStartSet.contains(token_type)) {
+    } else if (next_start_set.contains(token_type)) {
       // if at the start of the next definition or declaration,
       // then missing a semicolon
       errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
     }
-    token = synchronize(identifierSet);
+    token = synchronize(ConstantDefinitionsParser::identifierSet());
   }
   return nullptr;
 }
@@ -70,9 +72,9 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ConstantDefinit
 std::any ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalToken>& token)
 {
   // -1 for negative, +1 for positive
-  int sign = 1;
+  int sign = 0;
   // synchronize at the start of a constant
-  token = synchronize(constantStartSet);
+  token = synchronize(ConstantDefinitionsParser::constantStartSet());
   auto token_type = token->type();
   if (token_type == PascalTokenTypeImpl::PLUS ||
       token_type == PascalTokenTypeImpl::MINUS) {
@@ -122,7 +124,7 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
   }
   auto definition = id->getDefinition();
   if (definition == DefinitionImpl::CONSTANT) {
-    const auto constant_value = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
+    auto constant_value = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
     id->appendLineNumber(token->lineNum());
     if (any_is<PascalInteger>(constant_value)) {
       return sign * std::any_cast<PascalInteger>(constant_value);
@@ -164,4 +166,37 @@ std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(std
   } else {
     return nullptr;
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ConstantDefinitionsParser::identifierSet() {
+  auto s = DeclarationsParser::typeStartSet();
+  s.insert(PascalTokenTypeImpl::IDENTIFIER);
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ConstantDefinitionsParser::constantStartSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::IDENTIFIER,
+    PascalTokenTypeImpl::INTEGER,
+    PascalTokenTypeImpl::REAL,
+    PascalTokenTypeImpl::PLUS,
+    PascalTokenTypeImpl::MINUS,
+    PascalTokenTypeImpl::STRING,
+    PascalTokenTypeImpl::SEMICOLON
+  };
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ConstantDefinitionsParser::equalsSet() {
+  auto s = ConstantDefinitionsParser::constantStartSet();
+  s.insert({PascalTokenTypeImpl::EQUALS,
+              PascalTokenTypeImpl::SEMICOLON});
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ConstantDefinitionsParser::nextStartSet() {
+  auto s = DeclarationsParser::typeStartSet();
+  s.insert({PascalTokenTypeImpl::SEMICOLON,
+              PascalTokenTypeImpl::IDENTIFIER});
+  return s;
 }
