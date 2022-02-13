@@ -17,11 +17,19 @@
 class VariableDeclarationsParser : public PascalSubparserTopDownBase
 {
 public:
+  static TokenTypeSet identifierSet();
+  static TokenTypeSet nextStartSet();
+  static TokenTypeSet identiferStartSet();
+  static TokenTypeSet identiferFollowSet();
+  static TokenTypeSet commaSet();
+  static TokenTypeSet colonSet();
   explicit VariableDeclarationsParser(PascalParserTopDown& parent);
   virtual ~VariableDeclarationsParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
-  virtual void parseIdentifierSublist(std::shared_ptr<PascalToken> token);
+  virtual std::vector<std::shared_ptr<SymbolTableEntryImplBase>> parseIdentifierSublist(std::shared_ptr<PascalToken> token);
   virtual void setDefinition(const DefinitionImpl& definition);
+  virtual std::shared_ptr<SymbolTableEntryImplBase> parseIdentifier(std::shared_ptr<PascalToken> token);
+  virtual std::shared_ptr<TypeSpecImplBase> parseTypeSpec(std::shared_ptr<PascalToken> token);
 private:
   DefinitionImpl mDefinition;
 };
