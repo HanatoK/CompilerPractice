@@ -133,7 +133,7 @@ void PascalParserTopDown::parse() {
   mSymbolTableStack->setProgramId(mRoutineId.get());
   // push a new symbol table into the stack and set the routine's symbol table and iCode
   mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB, mSymbolTableStack->push());
-  mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_CODE, intermediate_code);
+  mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE, intermediate_code);
   // TODO: block parser
   BlockParser block_parser(*this);
   auto token = nextToken();

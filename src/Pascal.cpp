@@ -12,9 +12,9 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
       mSource(nullptr), mICode(nullptr), mSymbolTableStack(nullptr),
       mBackend(nullptr), mTextStream(nullptr) {
   auto search_xref = flags.find('x');
+  auto search_intermediate = flags.find('i');
   const bool xref = (search_xref == std::string::npos) ? false : true;
-  auto search_i = flags.find('i');
-  const bool intermediate = (search_i == std::string::npos) ? false : true;
+  const bool intermediate = (search_intermediate == std::string::npos) ? false : true;
   mTextStream.open(filePath.c_str());
   if (!mTextStream.is_open()) {
     std::cerr << "Cannot open " << filePath << std::endl;
@@ -55,17 +55,20 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
                                                        std::placeholders::_2));
   }
   mParser->parse();
-  mICode = mParser->getICode();
-  mSymbolTableStack = mParser->getSymbolTableStack();
-  if (xref) {
-    CrossReferencer::print(mSymbolTableStack);
-  }
-  if (intermediate) {
-    ParseTreePrinter printer_xml(std::cout);
-    printer_xml.print(mICode);
-    std::ofstream ofs_dot((filePath + ".dot").c_str());
-    ParseTreePrinterDot printer(ofs_dot);
-    printer.print(mICode);
+  if (mParser->errorCount() == 0) {
+    mSymbolTableStack = mParser->getSymbolTableStack();
+    auto program_id = mSymbolTableStack->programId();
+    mICode = std::any_cast<decltype(mICode)>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+    if (xref) {
+      CrossReferencer::print(mSymbolTableStack);
+    }
+    if (intermediate) {
+      ParseTreePrinter printer_xml(std::cout);
+      printer_xml.print(mICode);
+      std::ofstream ofs_dot((filePath + ".dot").c_str());
+      ParseTreePrinterDot printer(ofs_dot);
+      printer.print(mICode);
+    }
   }
   mBackend->process(mICode, mSymbolTableStack);
 }
