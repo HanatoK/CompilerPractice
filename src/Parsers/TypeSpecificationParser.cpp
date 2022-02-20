@@ -8,6 +8,13 @@ TypeSpecificationParser::TypeSpecificationParser(PascalParserTopDown& parent): P
 
 }
 
+TypeSpecificationParser::~TypeSpecificationParser()
+{
+//#ifdef DEBUG_DESTRUCTOR
+//  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+  //#endif
+}
+
 std::shared_ptr<TypeSpecImplBase> TypeSpecificationParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
   token = synchronize(TypeSpecificationParser::typeStartSet());

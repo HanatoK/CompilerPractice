@@ -457,7 +457,7 @@ TypeSpecImplBase* TypeSpecImpl::baseType()
   }
 }
 
-// TODO: figure out why this does not work
+template <>
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
 {
   return std::make_unique<TypeSpecImpl>(form);

@@ -33,6 +33,7 @@ std::unique_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(std::shared
     }
     token = synchronize(VariableDeclarationsParser::identifierSet());
   }
+  return nullptr;
 }
 
 std::vector<std::shared_ptr<SymbolTableEntryImplBase>>
