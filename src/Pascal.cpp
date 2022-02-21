@@ -60,7 +60,8 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
     auto program_id = mSymbolTableStack->programId();
     mICode = std::any_cast<decltype(mICode)>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
     if (xref) {
-      CrossReferencer::print(mSymbolTableStack);
+      CrossReferencer cross_referencer;
+      cross_referencer.print(mSymbolTableStack);
     }
     if (intermediate) {
       ParseTreePrinter printer_xml(std::cout);

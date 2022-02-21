@@ -4,20 +4,30 @@
 #include <fmt/format.h>
 #include <string>
 
-void CrossReferencer::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) {
+CrossReferencer::CrossReferencer():
+  NAME_WIDTH(16), NUMBERS_LABEL(" Line numbers    "),
+  NUMBERS_UNDERLINE(" ------------    "), LABEL_WIDTH(NUMBERS_LABEL.size()),
+  INDENT_WIDTH(NAME_WIDTH + LABEL_WIDTH), INDENT(INDENT_WIDTH, ' ')
+{
+
+}
+
+void CrossReferencer::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) const {
   fmt::print("{:=^{}}\n", "CROSS-REFERENCE TABLE", NAME_WIDTH * 4);
-  printColumnHeadings();
-  printSymbolTable(symbol_table_stack->localSymbolTable());
+  const auto& program_id = symbol_table_stack->programId();
+  printRoutine(program_id);
 }
 
-void CrossReferencer::printColumnHeadings() {
-  fmt::print("{: >{}}{: >{}}\n", "Identifier", NAME_WIDTH, "Line numbers",
-             NAME_WIDTH * 3);
-  fmt::print("{:->{}}\n", "", NAME_WIDTH * 4);
+void CrossReferencer::printColumnHeadings() const {
+  fmt::print("\n{: >{}}{: >{}}{: >{}}", "Identifier", NAME_WIDTH * 3,
+             NUMBERS_LABEL, LABEL_WIDTH, "Type specification", NAME_WIDTH * 4);
+  fmt::print("{:->{}}{}{:->{}}\n", "", NAME_WIDTH * 3, NUMBERS_UNDERLINE, "", NAME_WIDTH * 4);
 }
 
-void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableImplBase>& symbol_table) {
+void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableImplBase>& symbol_table,
+                                       std::vector<std::shared_ptr<TypeSpecImplBase>>& record_types) const {
   auto sorted_list = symbol_table->sortedEntries();
+  // loop over the sorted list of symbol table entries
   for (const auto &elem : sorted_list) {
     const auto line_numbers = elem->lineNumbers();
     fmt::print("{: >{}}", elem->name(), NAME_WIDTH);
@@ -26,6 +36,47 @@ void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableIm
       numbers += fmt::format("{:0>3d} ", line_number);
     }
     fmt::print("{: >{}}\n", numbers, NAME_WIDTH * 3);
+    printEntry(elem, record_types);
+  }
+}
+
+void CrossReferencer::printRoutine(const SymbolTableEntryImplBase* const routine_id) const
+{
+  const auto definition = routine_id->getDefinition();
+  fmt::print("\n*** {} {} ***", definitionimpl_to_string(definition), routine_id->name());
+  printColumnHeadings();
+  // print the entries in the routine's symbol table
+  const auto symbol_table = std::any_cast<std::shared_ptr<SymbolTableImplBase>>(routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB));
+  std::vector<std::shared_ptr<TypeSpecImplBase>> new_record_types;
+  printSymbolTable(symbol_table, new_record_types);
+  // print cross-reference tables for any records defined in the routine
+  if (new_record_types.size() > 0) {
+    printRecords(new_record_types);
+  }
+  // print any procedures and functions defined in the routine
+  const auto routine_ids_any = routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ROUTINES);
+  if (routine_ids_any.has_value()) {
+    const auto routine_ids = std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(routine_ids_any);
+    for (const auto& i : routine_ids) {
+      printRoutine(i.get());
+    }
+  }
+}
+
+void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImplBase>& entry,
+                                 std::vector<std::shared_ptr<TypeSpecImplBase> >& records) const
+{
+  const auto definition = entry->getDefinition();
+  const auto nesting_level = entry->symbolTable()->nestingLevel();
+  fmt::print("{}\n", INDENT + "Defined as: " + definitionimpl_to_string(definition));
+  fmt::print("{}\n", INDENT + "Scope nesting level: " + std::to_string(nesting_level));
+  // print the type specification
+  const auto type_spec = entry->getTypeSpec();
+  // TODO
+  switch (definition) {
+    case DefinitionImpl::CONSTANT: {
+
+    }
   }
 }
 
