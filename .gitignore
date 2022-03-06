@@ -80,3 +80,5 @@ build/
 test_data/*.png
 .idea/
 cmake-build-*/
+*kdev4
+.cache/

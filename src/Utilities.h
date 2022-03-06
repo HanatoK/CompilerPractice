@@ -5,16 +5,23 @@
 #include "IntermediateImpl.h"
 #include "Common.h"
 
-namespace CrossReferencer {
-
-const int NAME_WIDTH = 16;
-
-void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
-
-void printColumnHeadings();
-
-void printSymbolTable(const std::shared_ptr<const SymbolTableImplBase > &symbol_table);
-
+class CrossReferencer {
+private:
+  int NAME_WIDTH;
+  std::string INDENT;
+public:
+  CrossReferencer();
+  void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) const;
+  void printColumnHeadings() const;
+  void printSymbolTable(const std::shared_ptr<const SymbolTableImplBase > &symbol_table,
+                        std::vector<std::shared_ptr<TypeSpecImplBase> >& record_types) const;
+  void printRoutine(const SymbolTableEntryImplBase* const routine_id) const;
+  void printRecords(const std::vector<std::shared_ptr<TypeSpecImplBase>>& records) const;
+  void printEntry(const std::shared_ptr<SymbolTableEntryImplBase const>& entry,
+                  std::vector<std::shared_ptr<TypeSpecImplBase> >& record_types) const;
+  void printType(const std::shared_ptr<TypeSpecImplBase>& type_spec) const;
+  void printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& type_spec,
+                       std::vector<std::shared_ptr<TypeSpecImplBase>>& record_types) const;
 };
 
 class ParseTreePrinter {

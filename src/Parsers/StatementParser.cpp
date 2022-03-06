@@ -18,8 +18,7 @@ StatementParser::~StatementParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-StatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::unique_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
   std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
       statement_node = nullptr;
   switch (token->type()) {
@@ -65,15 +64,14 @@ StatementParser::parse(std::shared_ptr<PascalToken> token) {
     }
   }
   setLineNumber(statement_node, token);
-  return std::move(statement_node);
+  return statement_node;
 }
 
-void StatementParser::parseList(
-    std::shared_ptr<PascalToken> token,
-    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-        &parent_node,
+void StatementParser::parseList(std::shared_ptr<PascalToken> token,
+    std::unique_ptr<ICodeNodeImplBase>& parent_node,
     const PascalTokenTypeImpl& terminator, const PascalErrorCode& error_code) {
-  auto terminator_set = mStatementStartSet;
+  const auto stmt_start_set = StatementParser::statementStartSet();
+  auto terminator_set = stmt_start_set;
   terminator_set.insert(terminator);
   while (!token->isEof() && token->type() != terminator) {
     auto statement_node = parse(token);
@@ -84,8 +82,7 @@ void StatementParser::parseList(
       token = nextToken();
     } else {
       // if at the start of the next statement, then missing a semicolon
-      const auto search = mStatementStartSet.find(token_type);
-      if (search != mStatementStartSet.end()) {
+      if (stmt_start_set.contains(token_type)) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON, currentParser());
       }
     }
@@ -103,4 +100,29 @@ void StatementParser::parseList(
   } else {
     errorHandler()->flag(token, error_code, currentParser());
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet StatementParser::statementStartSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::BEGIN,
+    PascalTokenTypeImpl::CASE,
+    PascalTokenTypeImpl::FOR,
+    PascalTokenTypeImpl::IF,
+    PascalTokenTypeImpl::REPEAT,
+    PascalTokenTypeImpl::WHILE,
+    PascalTokenTypeImpl::IDENTIFIER,
+    PascalTokenTypeImpl::SEMICOLON
+  };
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet StatementParser::statementFollowSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::SEMICOLON,
+    PascalTokenTypeImpl::END,
+    PascalTokenTypeImpl::ELSE,
+    PascalTokenTypeImpl::UNTIL,
+    PascalTokenTypeImpl::DOT
+  };
+  return s;
 }

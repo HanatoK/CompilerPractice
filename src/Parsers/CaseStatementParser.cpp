@@ -5,7 +5,7 @@
 CaseStatementParser::CaseStatementParser(PascalParserTopDown &parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // consume the CASE
   token = nextToken();
@@ -13,10 +13,12 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   auto select_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::SELECT);
   // parse the CASE expression
+  // I use the expression parser here, which is different from the book.
+  // Maybe I need something like constant expression in C++?
   ExpressionParser expression_parser(*currentParser());
   select_node->addChild(expression_parser.parse(token));
   // synchronize to OF
-  token = synchronize(mOfSet);
+  token = synchronize(CaseStatementParser::ofSet());
   if (token->type() == PascalTokenTypeImpl::OF) {
     // consume OF
     token = nextToken();
@@ -35,9 +37,8 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
       // consume ;
       token = nextToken();
     } else {
-      const auto search = mConstantStartSet.find(token_type);
       // if start at the next constant, then missing ;
-      if (search != mConstantStartSet.end()) {
+      if (CaseStatementParser::constantStartSet().contains(token_type)) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_SEMICOLON,
                              currentParser());
       }
@@ -50,10 +51,10 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   } else {
     errorHandler()->flag(token, PascalErrorCode::MISSING_END, currentParser());
   }
-  return std::move(select_node);
+  return select_node;
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
                                  std::vector<std::any> &constant_set) {
   // create an SELECT_BRANCH node and a SELECT_CONSTANTS node
@@ -75,42 +76,38 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
   // parse the branch statement
   StatementParser statement_parser(*currentParser());
   branch_node->addChild(statement_parser.parse(token));
-  return std::move(branch_node);
+  return branch_node;
 }
 
-void CaseStatementParser::parseConstantList(
-    std::shared_ptr<PascalToken> token,
-    std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-        &constants_node,
+void CaseStatementParser::parseConstantList(std::shared_ptr<PascalToken> token,
+    std::unique_ptr<ICodeNodeImplBase>& constants_node,
     std::vector<std::any> &constant_set) {
   // loop to parse each constant
-  auto search = mConstantStartSet.find(token->type());
-  while (search != mConstantStartSet.end()) {
+  const auto constant_start_set = CaseStatementParser::constantStartSet();
+//  auto search = constant_start_set.find(token->type());
+  while (constant_start_set.contains(token->type())) {
     // the constants list node adopts the constant node
     constants_node->addChild(parseConstant(token, constant_set));
     // synchronize to the COMMA
-    token = synchronize(mCommaSet);
+    token = synchronize(CaseStatementParser::commaSet());
     // look for the COMMA
     if (token->type() == PascalTokenTypeImpl::COMMA) {
       // consume ,
       token = nextToken();
     } else {
-      search = mConstantStartSet.find(token->type());
-      if (search != mConstantStartSet.end()) {
+      if (constant_start_set.contains(token->type())) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA,
                              currentParser());
       }
     }
-    search = mConstantStartSet.find(token->type());
   }
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::unique_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
                                    std::vector<std::any> &constant_set) {
-  token = synchronize(mConstantStartSet);
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-      constant_node = nullptr;
+  token = synchronize(CaseStatementParser::constantStartSet());
+  std::unique_ptr<ICodeNodeImplBase> constant_node = nullptr;
   auto sign = PascalTokenTypeImpl::UNKNOWN;
   if (token->type() == PascalTokenTypeImpl::PLUS ||
       token->type() == PascalTokenTypeImpl::MINUS) {
@@ -158,11 +155,11 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
   }
   // consume the constant
   nextToken();
-  return std::move(constant_node);
+  return constant_node;
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-CaseStatementParser::parseIdentifierConstant(std::shared_ptr<PascalToken> token,
+std::unique_ptr<ICodeNodeImplBase>
+CaseStatementParser::parseIdentifierConstant(const std::shared_ptr<PascalToken>& token,
                                              const PascalTokenTypeImpl sign) {
   // don't allow for now
   errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
@@ -170,8 +167,7 @@ CaseStatementParser::parseIdentifierConstant(std::shared_ptr<PascalToken> token,
   return nullptr;
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-CaseStatementParser::parseIntegerConstant(const std::string &value,
+std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseIntegerConstant(const std::string &value,
                                           const PascalTokenTypeImpl sign) {
   auto constant_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::INTEGER_CONSTANT);
@@ -182,16 +178,16 @@ CaseStatementParser::parseIntegerConstant(const std::string &value,
     auto negate_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
         ICodeNodeTypeImpl::NEGATE);
     negate_node->addChild(std::move(constant_node));
-    return std::move(negate_node);
+    return negate_node;
   } else {
-    return std::move(constant_node);
+    return constant_node;
   }
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-CaseStatementParser::parseCharacterConstant(std::shared_ptr<PascalToken> token,
-                                            const std::string &value,
-                                            const PascalTokenTypeImpl sign) {
+std::unique_ptr<ICodeNodeImplBase> CaseStatementParser::parseCharacterConstant(
+    const std::shared_ptr<PascalToken>& token,
+    const std::string &value,
+    const PascalTokenTypeImpl sign) {
   if (sign != PascalTokenTypeImpl::UNKNOWN) {
     errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
                          currentParser());
@@ -205,21 +201,48 @@ CaseStatementParser::parseCharacterConstant(std::shared_ptr<PascalToken> token,
       auto constant_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
           ICodeNodeTypeImpl::STRING_CONSTANT);
       constant_node->setAttribute(ICodeKeyTypeImpl::VALUE, value);
-      return std::move(constant_node);
+      return constant_node;
     }
   }
 }
 
-long long CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+PascalInteger CaseStatementParser::getNegateNodeValue(const std::unique_ptr<ICodeNodeImplBase> &node)
 {
   if (node->type() == ICodeNodeTypeImpl::NEGATE) {
     // get the first child node
     const auto child_node = node->childrenBegin();
-    const auto positive_value = std::any_cast<long long>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
+    const auto positive_value = std::any_cast<PascalInteger>((*child_node)->getAttribute(ICodeKeyTypeImpl::VALUE));
     // TODO: possible overflow
-    const long long result = -1 * positive_value;
+    const PascalInteger result = -1 * positive_value;
     return result;
   } else {
     return 0;
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet CaseStatementParser::constantStartSet() {
+  PascalSubparserTopDownBase::TokenTypeSet s{
+    PascalTokenTypeImpl::IDENTIFIER,
+    PascalTokenTypeImpl::INTEGER,
+    PascalTokenTypeImpl::PLUS,
+    PascalTokenTypeImpl::MINUS,
+    PascalTokenTypeImpl::STRING
+  };
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet CaseStatementParser::ofSet() {
+  auto s = CaseStatementParser::constantStartSet();
+  s.insert(PascalTokenTypeImpl::OF);
+  s.merge(StatementParser::statementFollowSet());
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet CaseStatementParser::commaSet() {
+  auto s = CaseStatementParser::constantStartSet();
+  s.insert({PascalTokenTypeImpl::COMMA,
+              PascalTokenTypeImpl::COLON});
+  s.merge(StatementParser::statementStartSet());
+  s.merge(StatementParser::statementFollowSet());
+  return s;
 }

@@ -7,7 +7,7 @@ class RepeatStatementParser : public PascalSubparserTopDownBase
 {
 public:
   explicit RepeatStatementParser(PascalParserTopDown& parent);
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token);
+  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
 };
 
 #endif // REPEATSTATEMENTPARSER_H

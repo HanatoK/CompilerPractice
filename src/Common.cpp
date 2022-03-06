@@ -126,13 +126,33 @@ std::string variable_value_to_string(const VariableValueT& a)
   return result;
 }
 
-std::string TypeFormImplToStr(TypeFormImpl t) {
-  switch (t) {
+std::string typeformimpl_to_string(TypeFormImpl a) {
+  switch (a) {
     case TypeFormImpl::ARRAY:       return std::string{"array"};
     case TypeFormImpl::ENUMERATION: return std::string{"enumeration"};
     case TypeFormImpl::RECORD:      return std::string{"record"};
     case TypeFormImpl::SCALAR:      return std::string{"scalar"};
     case TypeFormImpl::SUBRANGE:    return std::string{"subrange"};
     default:                        return std::string{"unknown"};
+  }
+}
+
+std::string definitionimpl_to_string(DefinitionImpl a)
+{
+  switch (a) {
+    case DefinitionImpl::CONSTANT:              return std::string{"constant"};
+    case DefinitionImpl::ENUMERATION_CONSTANT:  return std::string{"enumeration constant"};
+    case DefinitionImpl::FIELD:                 return std::string{"record field"};
+    case DefinitionImpl::FUNCTION:              return std::string{"function"};
+    case DefinitionImpl::PROCEDURE:             return std::string{"procedure"};
+    case DefinitionImpl::PROGRAM:               return std::string{"program"};
+    case DefinitionImpl::PROGRAM_PARM:          return std::string{"program praameter"};
+    case DefinitionImpl::TYPE:                  return std::string{"type"};
+    case DefinitionImpl::VALUE_PARM:            return std::string{"value parameter"};
+    case DefinitionImpl::VARIABLE:              return std::string{"variable"};
+    case DefinitionImpl::VAR_PARM:              return std::string{"VAR paramater"};
+    // TODO: should I use fall-through here?
+    case DefinitionImpl::UNDEFINED:
+    default:                                    return std::string{"undefined"};
   }
 }

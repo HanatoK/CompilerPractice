@@ -7,7 +7,7 @@ RepeatStatementParser::RepeatStatementParser(PascalParserTopDown& parent): Pasca
 
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > RepeatStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the REPEAT
   token = nextToken();
@@ -23,5 +23,5 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > RepeatStatement
   ExpressionParser expression_parser(*currentParser());
   test_node->addChild(expression_parser.parse(token));
   loop_node->addChild(std::move(test_node));
-  return std::move(loop_node);
+  return loop_node;
 }

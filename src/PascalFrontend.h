@@ -49,38 +49,31 @@ public:
   boost::signals2::signal<void(const int, const int, const std::string&, const std::string&)> syntaxErrorMessage;
   friend class PascalSubparserTopDownBase;
 protected:
+  std::shared_ptr<SymbolTableEntryImplBase> mRoutineId;
   PascalErrorHandler* mErrorHandler;
 };
 
 class PascalSubparserTopDownBase {
 public:
+  typedef std::set<PascalTokenTypeImpl> TokenTypeSet;
   explicit PascalSubparserTopDownBase(PascalParserTopDown& pascal_parser);
   virtual ~PascalSubparserTopDownBase();
   std::shared_ptr<PascalToken> currentToken() const;
   std::shared_ptr<PascalToken> nextToken();
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack();
-  std::shared_ptr<ICodeImplBase> getICode() const;
+//  std::shared_ptr<ICodeImplBase> getICode() const;
   std::shared_ptr<PascalScanner> scanner() const;
   int errorCount();
   PascalErrorHandler* errorHandler();
   PascalParserTopDown* currentParser();
-  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) = 0;
+  // TODO: what exactly does this function return??
+  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
-  static const std::set<PascalTokenTypeImpl> mStatementStartSet;
-  static const std::set<PascalTokenTypeImpl> mStatementFollowSet;
-  static const std::set<PascalTokenTypeImpl> mExpressionStartSet;
-  static const std::set<PascalTokenTypeImpl> mConstantStartSet;
-  static const std::set<PascalTokenTypeImpl> mColonEqualsSet;
-  static const std::set<PascalTokenTypeImpl> mOfSet;
-  static const std::set<PascalTokenTypeImpl> mCommaSet;
-  static const std::set<PascalTokenTypeImpl> mToDowntoSet;
-  static const std::set<PascalTokenTypeImpl> mDoSet;
-  static const std::set<PascalTokenTypeImpl> mThenSet;
-  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mRelOpsMap;
-  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mAddOpsMap;
-  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> mMultOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
+  static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;
 private:
   PascalParserTopDown& mPascalParser;
 };
@@ -90,7 +83,7 @@ public:
   PascalErrorHandler();
   virtual ~PascalErrorHandler();
   void flag(const std::shared_ptr<PascalToken> &token, const PascalErrorCode errorCode, const PascalParserTopDown *parser);
-  void abortTranslation(const PascalErrorCode errorCode, const PascalParserTopDown *parser);
+  static void abortTranslation(const PascalErrorCode errorCode, const PascalParserTopDown *parser);
   int errorCount() const;
 private:
   static const int maxError = 25;
@@ -103,45 +96,46 @@ public:
   PascalErrorToken();
   PascalErrorToken(std::shared_ptr<Source> source, const PascalErrorCode errorCode,
                    const std::string& tokenText);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalWordToken: public PascalToken {
 public:
   explicit PascalWordToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalStringToken: public PascalToken {
 public:
   explicit PascalStringToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalSpecialSymbolToken: public PascalToken {
 public:
   explicit PascalSpecialSymbolToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
 };
 
 class PascalNumberToken: public PascalToken {
 public:
   explicit PascalNumberToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const;
-  virtual void extract();
+  virtual unique_ptr<PascalToken> clone() const override;
+  virtual void extract() override;
   virtual void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
-  long long computeIntegerValue(const std::string& digits);
-  double computeFloatValue(const std::string &whole_digits, const std::string &fraction_digits,
-                           const std::string &exponent_digits, char exponent_sign);
+  PascalInteger computeIntegerValue(const std::string& digits);
+  PascalFloat computeFloatValue(
+      const std::string &whole_digits, const std::string &fraction_digits,
+      const std::string &exponent_digits, char exponent_sign);
 };
 
 std::unique_ptr<PascalParserTopDown> createPascalParser(const std::string& language, const std::string& type,
-  std::shared_ptr<Source> source);
+  const std::shared_ptr<Source>& source);
 
 #endif // PASCALFRONTEND_H

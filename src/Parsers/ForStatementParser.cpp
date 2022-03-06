@@ -1,14 +1,12 @@
 #include "ForStatementParser.h"
 #include "AssignmentStatementParser.h"
 #include "ExpressionParser.h"
-#include "WhileStatementParser.h"
 #include "StatementParser.h"
 
 ForStatementParser::ForStatementParser(PascalParserTopDown &parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // cosume the FOR
   token = nextToken();
   const auto target_token = token;
@@ -25,7 +23,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // set the current line number attribute
   setLineNumber(init_assign_node, target_token);
   // synchronize at the TO or DOWNTO
-  token = synchronize(mToDowntoSet);
+  token = synchronize(ForStatementParser::toDownToSet());
   auto direction = token->type();
   if (direction == PascalTokenTypeImpl::TO ||
       direction == PascalTokenTypeImpl::DOWNTO) {
@@ -49,7 +47,7 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   test_node->addChild(std::move(rel_op_node));
   loop_node->addChild(std::move(test_node));
   // synchronize to the DO set
-  token = synchronize(mDoSet);
+  token = synchronize(ForStatementParser::doSet());
   if (token->type() == PascalTokenTypeImpl::DO) {
     // consume the DO token
     token = nextToken();
@@ -79,5 +77,20 @@ ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   loop_node->addChild(std::move(next_assign_node));
   compound_node->addChild(std::move(init_assign_node));
   compound_node->addChild(std::move(loop_node));
-  return std::move(compound_node);
+  return compound_node;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ForStatementParser::toDownToSet() {
+  auto s = ExpressionParser::expressionStartSet();
+  s.insert({PascalTokenTypeImpl::TO,
+            PascalTokenTypeImpl::DOWNTO});
+  s.merge(StatementParser::statementFollowSet());
+  return s;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet ForStatementParser::doSet() {
+  auto s = StatementParser::statementStartSet();
+  s.insert(PascalTokenTypeImpl::DO);
+  s.merge(StatementParser::statementFollowSet());
+  return s;
 }

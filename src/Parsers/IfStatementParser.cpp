@@ -7,7 +7,7 @@ IfStatementParser::IfStatementParser(PascalParserTopDown &parent): PascalSubpars
 
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > IfStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the IF
   token = nextToken();
@@ -18,7 +18,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > IfStatementPars
   ExpressionParser expression_parser(*currentParser());
   if_node->addChild(expression_parser.parse(token));
   // synchronize to the THEN set
-  token = synchronize(mThenSet);
+  token = synchronize(IfStatementParser::thenSet());
   if (token->type() == PascalTokenTypeImpl::THEN) {
     // consume it
     token = nextToken();
@@ -36,5 +36,12 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > IfStatementPars
     // parse the ELSE statement
     if_node->addChild(statement_parser.parse(token));
   }
-  return std::move(if_node);
+  return if_node;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet IfStatementParser::thenSet() {
+  auto s = StatementParser::statementStartSet();
+  s.insert(PascalTokenTypeImpl::THEN);
+  s.merge(StatementParser::statementFollowSet());
+  return s;
 }

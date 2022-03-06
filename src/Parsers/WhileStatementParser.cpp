@@ -7,7 +7,7 @@ WhileStatementParser::WhileStatementParser(PascalParserTopDown &parent): PascalS
 
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > WhileStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::unique_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the WHILE
   token = nextToken();
@@ -23,7 +23,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > WhileStatementP
   not_node->addChild(expression_parser.parse(token));
   break_node->addChild(std::move(not_node));
   loop_node->addChild(std::move(break_node));
-  token = synchronize(mDoSet);
+  token = synchronize(WhileStatementParser::doSet());
   if (token->type() == PascalTokenTypeImpl::DO) {
     // consume the DO
     token = nextToken();
@@ -33,5 +33,12 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > WhileStatementP
   // parse the statements
   StatementParser statement_parser(*currentParser());
   loop_node->addChild(statement_parser.parse(token));
-  return std::move(loop_node);
+  return loop_node;
+}
+
+PascalSubparserTopDownBase::TokenTypeSet WhileStatementParser::doSet() {
+  auto s = StatementParser::statementStartSet();
+  s.insert(PascalTokenTypeImpl::DO);
+  s.merge(StatementParser::statementFollowSet());
+  return s;
 }
