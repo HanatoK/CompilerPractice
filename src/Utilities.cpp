@@ -90,7 +90,6 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
   fmt::print("{}Scope nesting level: {}\n", INDENT, std::to_string(nesting_level));
   // print the type specification
   const auto type_spec = entry->getTypeSpec();
-  // TODO
   switch (definition) {
     case DefinitionImpl::CONSTANT: {
       const auto val = entry->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);

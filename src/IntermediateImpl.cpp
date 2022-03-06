@@ -387,11 +387,10 @@ TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
 TypeSpecImpl::TypeSpecImpl(const std::string& value)
     : TypeSpecImplBase(value), mIdentifier(nullptr) {
   mForm = TypeFormImpl::ARRAY;
-  TypeSpecImpl index_type(TypeFormImpl::SUBRANGE);
-  // TODO: predefined types
-  index_type.setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
-  index_type.setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
-  index_type.setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<PascalInteger>(value.size()));
+  std::shared_ptr<TypeSpecImplBase> index_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SUBRANGE);
+  index_type->setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
+  index_type->setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
+  index_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<PascalInteger>(value.size()));
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, Predefined::instance().charType);
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<PascalInteger>(value.size()));

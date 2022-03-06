@@ -14,6 +14,7 @@ ArrayTypeParser::~ArrayTypeParser()
 
 std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
+  // TODO: Fix nested array parser!
   std::shared_ptr<TypeSpecImplBase> array_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::ARRAY);
   // consume ARRAY
   nextToken();
@@ -81,7 +82,7 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
                                      const std::shared_ptr<TypeSpecImplBase>& array_type)
 {
   SimpleTypeParser simple_type_parser(*currentParser());
-  auto index_type = simple_type_parser.parseSpec(token);
+  const auto index_type = simple_type_parser.parseSpec(token);
   array_type->setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
   if (index_type == nullptr) {
     return;
