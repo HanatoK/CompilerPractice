@@ -5,9 +5,7 @@
 #include <string>
 
 CrossReferencer::CrossReferencer():
-  NAME_WIDTH(16), NUMBERS_LABEL(" Line numbers    "),
-  NUMBERS_UNDERLINE(" ------------    "), LABEL_WIDTH(NUMBERS_LABEL.size()),
-  INDENT_WIDTH(NAME_WIDTH + LABEL_WIDTH), INDENT(INDENT_WIDTH, ' ')
+  NAME_WIDTH(16), INDENT(NAME_WIDTH * 4, ' ')
 {
 
 }
@@ -19,9 +17,10 @@ void CrossReferencer::print(const std::shared_ptr<SymbolTableStackImplBase>& sym
 }
 
 void CrossReferencer::printColumnHeadings() const {
-  fmt::print("\n{: >{}}{: >{}}{: >{}}", "Identifier", NAME_WIDTH * 3,
-             NUMBERS_LABEL, LABEL_WIDTH, "Type specification", NAME_WIDTH * 4);
-  fmt::print("{:->{}}{}{:->{}}\n", "", NAME_WIDTH * 3, NUMBERS_UNDERLINE, "", NAME_WIDTH * 4);
+  fmt::print("\n{: >{}}{: >{}}{} {}\n", "Identifier", NAME_WIDTH,
+             "Line numbers", NAME_WIDTH * 2,
+             std::string(INDENT.size() - NAME_WIDTH * 3, ' '), "Type specification");
+  fmt::print("{:->{}}\n", "", NAME_WIDTH * 7);
 }
 
 void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableImplBase>& symbol_table,
@@ -35,7 +34,7 @@ void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableIm
     for (const auto &line_number : line_numbers) {
       numbers += fmt::format("{:0>3d} ", line_number);
     }
-    fmt::print("{: >{}}\n", numbers, NAME_WIDTH * 3);
+    fmt::print("{: >{}}\n", numbers, NAME_WIDTH * 2);
     printEntry(elem, record_types);
   }
 }
@@ -86,14 +85,14 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
 {
   const auto definition = entry->getDefinition();
   const auto nesting_level = entry->symbolTable()->nestingLevel();
-  fmt::print("{}Defined as: {}\n", INDENT, definitionimpl_to_string(definition));
-  fmt::print("{}Scope nesting level: {}\n", INDENT, std::to_string(nesting_level));
+  fmt::print("{} {}\n", INDENT, "Defined as: " + definitionimpl_to_string(definition));
+  fmt::print("{} {}\n", INDENT, "Scope nesting level: " + std::to_string(nesting_level));
   // print the type specification
   const auto type_spec = entry->getTypeSpec();
   switch (definition) {
     case DefinitionImpl::CONSTANT: {
       const auto val = entry->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
-      fmt::print("{}Value = {}\n", INDENT, any_to_string(val));
+      fmt::print("{} {}\n", INDENT, "Value = " + any_to_string(val));
       // print the type details only if the type is unnamed
       if (type_spec->getIdentifier() == nullptr) {
         printTypeDetail(type_spec, record_types);
@@ -102,7 +101,7 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
     }
     case DefinitionImpl::ENUMERATION_CONSTANT: {
       const auto val = entry->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
-      fmt::print("{}Value = {}\n", INDENT, any_to_string(val));
+      fmt::print("{} {}\n", INDENT, "Value = " + any_to_string(val));
       break;
     }
     case DefinitionImpl::TYPE: {
@@ -120,7 +119,7 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
       break;
     }
     default: {
-      fmt::print("BUG: {}\n", definitionimpl_to_string(definition));
+      fmt::print("{} {}\n", INDENT, "BUG: " + definitionimpl_to_string(definition));
       break;
     }
   }
@@ -132,7 +131,7 @@ void CrossReferencer::printType(const std::shared_ptr<TypeSpecImplBase>& type_sp
     const auto form_str = typeformimpl_to_string(type_spec->form());
     const auto type_id = type_spec->getIdentifier();
     const auto type_name = (type_id != nullptr) ? type_id->name() : "<unnamed>";
-    fmt::print("{}Type form = {}, Type id = {}\n", INDENT, form_str, type_name);
+    fmt::print("{} {}\n", INDENT, "Type form = " + form_str + ", Type id = " + type_name);
   }
 }
 
@@ -144,12 +143,12 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
     case TypeFormImpl::ENUMERATION: {
       const auto constant_ids_any = type_spec->getAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS);
       if (constant_ids_any.has_value()) {
-        fmt::print("{}--- Enumeration constants ---\n", INDENT);
+        fmt::print("{} {}\n", INDENT, "--- Enumeration constants ---");
         const auto constant_ids = std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(constant_ids_any);
         for (const auto& id: constant_ids) {
           const auto name = id->name();
           const auto val = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
-          fmt::print("{}{: >{}} = {}\n", INDENT, name, NAME_WIDTH, any_to_string(val));
+          fmt::print("{} {}\n", INDENT, name + " = " + any_to_string(val));
         }
       } else {
         fmt::print("BUG: CrossReferencer::printTypeDetail empty attribute: {}\n",
@@ -161,7 +160,7 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
       const auto min_val = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE);
       const auto max_val = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE);
       const auto base_type_spec_any = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE);
-      fmt::print("{}--- Base type ---\n", INDENT);
+      fmt::print("{} {}\n", INDENT, "--- Base type ---");
       if (base_type_spec_any.has_value()) {
         const auto base_type_spec = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(base_type_spec_any);
         printType(base_type_spec);
@@ -169,7 +168,7 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
         if (base_type_spec->getIdentifier() == nullptr) {
           printTypeDetail(base_type_spec, record_types);
         }
-        fmt::print("{}Range = {}..{}\n", INDENT, any_to_string(min_val), any_to_string(max_val));
+        fmt::print("{} {}\n", INDENT, "Range: " + any_to_string(min_val) + ".." + any_to_string(max_val));
       } else {
         fmt::print("BUG: CrossReferencer::printTypeDetail empty attribute: {}\n",
                    "TypeKeyImpl::SUBRANGE_BASE_TYPE");
@@ -180,19 +179,19 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
       const auto index_type_any = type_spec->getAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE);
       const auto element_type_any = type_spec->getAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE);
       const auto count_any = type_spec->getAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT);
-      fmt::print("{}--- INDEX TYPE ---\n", INDENT);
+      fmt::print("{} {}\n", INDENT, "--- INDEX TYPE ---");
       if (index_type_any.has_value()) {
         const auto index_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(index_type_any);
         printType(index_type);
         if (index_type->getIdentifier() == nullptr) {
           printTypeDetail(index_type, record_types);
         }
-        fmt::print("{}--- ELEMENT TYPE---\n", INDENT);
+        fmt::print("{} {}\n", INDENT, "--- ELEMENT TYPE---");
         if (element_type_any.has_value() && count_any.has_value()) {
           const auto element_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(element_type_any);
           const auto count = std::any_cast<PascalInteger>(count_any);
           printType(element_type);
-          fmt::print("{}{} elements\n", INDENT, count);
+          fmt::print("{} {}\n", INDENT, std::to_string(count) + " elements");
           // print the element type details only if the type is unnamed
           if (element_type->getIdentifier() == nullptr) {
             printTypeDetail(element_type, record_types);

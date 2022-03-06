@@ -8,10 +8,6 @@
 class CrossReferencer {
 private:
   int NAME_WIDTH;
-  std::string NUMBERS_LABEL;
-  std::string NUMBERS_UNDERLINE;
-  int LABEL_WIDTH;
-  int INDENT_WIDTH;
   std::string INDENT;
 public:
   CrossReferencer();
