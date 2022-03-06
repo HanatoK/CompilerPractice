@@ -50,10 +50,12 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     } else if (min_type != max_type) { // is this comparison valid?
       errorHandler()->flag(constant_token, PascalErrorCode::INVALID_SUBRANGE_TYPE, currentParser());
     } else if (min_val.has_value() && max_val.has_value()) {
-      if (std::any_cast<PascalInteger>(min_val) >= std::any_cast<PascalInteger>(max_val)) {
+      if ((min_type == Predefined::instance().integerType ||
+           min_type == Predefined::instance().charType) &&
+          std::any_cast<PascalInteger>(min_val) >= std::any_cast<PascalInteger>(max_val)) {
         errorHandler()->flag(constant_token, PascalErrorCode::MIN_GT_MAX, currentParser());
-//        std::cout << "Min value: " << std::any_cast<PascalInteger>(min_val) << " "
-//                     "Max value: " << std::any_cast<PascalInteger>(max_val) << std::endl;
+        std::cout << "Min value: " << std::any_cast<PascalInteger>(min_val) << " "
+                     "Max value: " << std::any_cast<PascalInteger>(max_val) << std::endl;
       }
     }
   } else {
@@ -72,8 +74,8 @@ std::any SubrangeTypeParser::checkValueType(
   if (type == nullptr || type == Predefined::instance().integerType) return value;
   if (type == Predefined::instance().integerType) return value;
   else if (type == Predefined::instance().charType) {
-    const char ch = std::any_cast<std::string>(value)[0];
-    return int(ch);
+    const auto ch = std::any_cast<std::string>(value)[0];
+    return PascalInteger(ch);
   } else if (type->form() == TypeFormImpl::ENUMERATION) {
     return value;
   } else {
