@@ -85,16 +85,16 @@ std::any ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalToken>& 
   // parse the constant
   switch (token->type()) {
     case PascalTokenTypeImpl::IDENTIFIER: {
-      return parseIdentifierConstant(token, sign);
+      return parseIdentifierConstant(token, sign == 0 ? 1 : sign);
     }
     case PascalTokenTypeImpl::INTEGER: {
       // integers are stored as PascalFloat
-      const PascalInteger val = sign * std::any_cast<PascalInteger>(token->value());
+      const PascalInteger val = (sign == 0 ? 1 : sign) * std::any_cast<PascalInteger>(token->value());
       nextToken();
       return val;
     }
     case PascalTokenTypeImpl::REAL: {
-      const PascalFloat val = sign * std::any_cast<PascalFloat>(token->value());
+      const PascalFloat val = (sign == 0 ? 1 : sign) * std::any_cast<PascalFloat>(token->value());
       nextToken();
       return val;
     }
@@ -124,14 +124,14 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
   }
   auto definition = id->getDefinition();
   if (definition == DefinitionImpl::CONSTANT) {
-    auto constant_value = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
+    auto constant_value_any = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
     id->appendLineNumber(token->lineNum());
-    if (any_is<PascalInteger>(constant_value)) {
-      return sign * std::any_cast<PascalInteger>(constant_value);
-    } else if (any_is<PascalFloat>(constant_value)) {
-      return sign * std::any_cast<PascalFloat>(constant_value);
-    } else if (any_is<std::string>(constant_value)) {
-      return constant_value;
+    if (any_is<PascalInteger>(constant_value_any)) {
+      return sign * std::any_cast<PascalInteger>(constant_value_any);
+    } else if (any_is<PascalFloat>(constant_value_any)) {
+      return sign * std::any_cast<PascalFloat>(constant_value_any);
+    } else if (any_is<std::string>(constant_value_any)) {
+      return constant_value_any;
     } else {
       return std::any();
     }

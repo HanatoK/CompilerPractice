@@ -52,6 +52,8 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     } else if (min_val.has_value() && max_val.has_value()) {
       if (std::any_cast<PascalInteger>(min_val) >= std::any_cast<PascalInteger>(max_val)) {
         errorHandler()->flag(constant_token, PascalErrorCode::MIN_GT_MAX, currentParser());
+//        std::cout << "Min value: " << std::any_cast<PascalInteger>(min_val) << " "
+//                     "Max value: " << std::any_cast<PascalInteger>(max_val) << std::endl;
       }
     }
   } else {
