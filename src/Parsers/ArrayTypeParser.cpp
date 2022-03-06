@@ -77,7 +77,8 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
   return element_type;
 }
 
-void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token, const std::shared_ptr<TypeSpecImplBase>& array_type)
+void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
+                                     const std::shared_ptr<TypeSpecImplBase>& array_type)
 {
   SimpleTypeParser simple_type_parser(*currentParser());
   auto index_type = simple_type_parser.parseSpec(token);

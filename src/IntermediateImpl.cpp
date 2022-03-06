@@ -426,7 +426,7 @@ std::any TypeSpecImpl::getAttribute(TypeKeyImpl key) const
 {
   auto search = mTypeSpecMap.find(key);
   if (search != mTypeSpecMap.end()) {
-    return *search;
+    return search->second;
   } else {
     return nullptr;
   }

@@ -19,7 +19,7 @@ std::shared_ptr<TypeSpecImplBase> SimpleTypeParser::parseSpec(std::shared_ptr<Pa
   token = synchronize(SimpleTypeParser::simpleTypeStartSet());
   switch (token->type()) {
     case PascalTokenTypeImpl::IDENTIFIER: {
-      std::string name = boost::algorithm::to_lower_copy(token->text());
+      const auto name = boost::algorithm::to_lower_copy(token->text());
       auto id = getSymbolTableStack()->lookup(name);
       if (id != nullptr) {
         auto definition = id->getDefinition();
