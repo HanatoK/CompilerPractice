@@ -22,7 +22,10 @@ public:
   void printRoutine(const SymbolTableEntryImplBase* const routine_id) const;
   void printRecords(const std::vector<std::shared_ptr<TypeSpecImplBase>>& records) const;
   void printEntry(const std::shared_ptr<SymbolTableEntryImplBase const>& entry,
-                  std::vector<std::shared_ptr<TypeSpecImplBase> >& records) const;
+                  std::vector<std::shared_ptr<TypeSpecImplBase> >& record_types) const;
+  void printType(const std::shared_ptr<TypeSpecImplBase>& type_spec) const;
+  void printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& type_spec,
+                       std::vector<std::shared_ptr<TypeSpecImplBase>>& record_types) const;
 };
 
 class ParseTreePrinter {

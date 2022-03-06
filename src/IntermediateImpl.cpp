@@ -391,10 +391,10 @@ TypeSpecImpl::TypeSpecImpl(const std::string& value)
   // TODO: predefined types
   index_type.setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
   index_type.setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
-  index_type.setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<long long>(value.size()));
+  index_type.setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<PascalInteger>(value.size()));
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, Predefined::instance().charType);
-  TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<long long>(value.size()));
+  TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<PascalInteger>(value.size()));
 }
 
 TypeSpecImpl::~TypeSpecImpl()
