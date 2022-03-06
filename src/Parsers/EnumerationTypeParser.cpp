@@ -21,7 +21,7 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
   do {
     token = synchronize(EnumerationTypeParser::enumConstantStartSet());
     parseEnumerationIdentifier(token, ++value, enumeration_type, constants);
-    token = nextToken();
+    token = currentToken();
     const auto token_type = token->type();
     if (token_type == PascalTokenTypeImpl::COMMA) {
       // consume the ,
@@ -32,7 +32,7 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
     } else if (enumConstantStartSet().contains(token_type)) {
       errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA, currentParser());
     }
-  } while (!enumConstantStartSet().contains(token->type()));
+  } while (!enumDefinitionFollowSet().contains(token->type()));
   if (token->type() == PascalTokenTypeImpl::RIGHT_PAREN) {
     // consume )
     token = nextToken();
