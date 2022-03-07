@@ -99,7 +99,7 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
   } else if (form == TypeFormImpl::ENUMERATION) {
     const auto constants = index_type->getAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS);
     if (constants.has_value()) {
-      count = static_cast<PascalInteger>(std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(constants).size());
+      count = static_cast<PascalInteger>(cast_by_enum<TypeKeyImpl::ENUMERATION_CONSTANTS>(constants).size());
     }
   } else {
     errorHandler()->flag(token, PascalErrorCode::INVALID_INDEX_TYPE, currentParser());

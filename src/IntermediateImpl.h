@@ -152,4 +152,47 @@ std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form);
 
 std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value);
 
+template <SymbolTableKeyTypeImpl> struct SymbolTableKeyToEnum;
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::CONSTANT_VALUE> { using type = std::any; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ICODE> { using type = std::shared_ptr<ICodeImplBase>; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
+
+template <ICodeKeyTypeImpl> struct ICodeKeyTypeImplToEnum;
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::ID> { using type = std::shared_ptr<SymbolTableEntryImplBase>; };
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::LINE> { using type = int; };
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::VALUE> { using type = std::any; };
+
+template <TypeKeyImpl> struct TypeKeyImplToEnum;
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ENUMERATION_CONSTANTS> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_COUNT> { using type = PascalInteger; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_INDEX_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_BASE_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_MIN_VALUE> { using type = std::any; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_MAX_VALUE> { using type = std::any; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::RECORD_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
+
+template <auto EnumVal>
+constexpr auto EnumToTypeImpl() {
+  typedef decltype(EnumVal) enum_type;
+  if constexpr (std::is_same_v<enum_type, SymbolTableKeyTypeImpl>) {
+    return SymbolTableKeyToEnum<EnumVal>{};
+  } else if constexpr (std::is_same_v<enum_type, ICodeKeyTypeImpl>) {
+    return ICodeKeyTypeImplToEnum<EnumVal>{};
+  } else {
+    return TypeKeyImplToEnum<EnumVal>{};
+  }
+}
+
+template <auto EnumVal>
+struct EnumToType {
+  using type = typename decltype(EnumToTypeImpl<EnumVal>())::type;
+};
+
+template <auto EnumVal>
+auto cast_by_enum(const std::any& x) {
+  return std::any_cast<typename EnumToType<EnumVal>::type>(x);
+}
+
 #endif // INTERMEDIATEIMPL_H

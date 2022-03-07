@@ -26,8 +26,9 @@ void RuntimeErrorHandler::flag(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl
   const ICodeNodeImplBase* ptr = node.get();
   int line_number = 0;
   do {
-    if (ptr->getAttribute(ICodeKeyTypeImpl::LINE).has_value()) {
-      line_number = std::any_cast<int>(ptr->getAttribute(ICodeKeyTypeImpl::LINE));
+    const auto line_attr = ptr->getAttribute(ICodeKeyTypeImpl::LINE);
+    if (line_attr.has_value()) {
+      line_number = cast_by_enum<ICodeKeyTypeImpl::LINE>(line_attr);
       break;
     }
     ptr = ptr->parent();

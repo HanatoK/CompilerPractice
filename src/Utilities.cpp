@@ -45,7 +45,7 @@ void CrossReferencer::printRoutine(const SymbolTableEntryImplBase* const routine
   fmt::print("\n*** {} {} ***", definitionimpl_to_string(definition), routine_id->name());
   printColumnHeadings();
   // print the entries in the routine's symbol table
-  const auto symbol_table = std::any_cast<std::shared_ptr<SymbolTableImplBase>>(routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB));
+  const auto symbol_table = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB));
   std::vector<std::shared_ptr<TypeSpecImplBase>> new_record_types;
   printSymbolTable(symbol_table, new_record_types);
   // print cross-reference tables for any records defined in the routine
@@ -55,7 +55,7 @@ void CrossReferencer::printRoutine(const SymbolTableEntryImplBase* const routine
   // print any procedures and functions defined in the routine
   const auto routine_ids_any = routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ROUTINES);
   if (routine_ids_any.has_value()) {
-    const auto routine_ids = std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(routine_ids_any);
+    const auto routine_ids = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(routine_ids_any);
     for (const auto& i : routine_ids) {
       printRoutine(i.get());
     }
@@ -70,7 +70,7 @@ void CrossReferencer::printRecords(const std::vector<std::shared_ptr<TypeSpecImp
     fmt::print("\n--- RECORD {} ---", name);
     printColumnHeadings();
     // print the entries in the record's symbol table
-    const auto symbol_table = std::any_cast<std::shared_ptr<SymbolTableImplBase>>(record_type->getAttribute(TypeKeyImpl::RECORD_SYMTAB));
+    const auto symbol_table = cast_by_enum<TypeKeyImpl::RECORD_SYMTAB>(record_type->getAttribute(TypeKeyImpl::RECORD_SYMTAB));
     std::vector<std::shared_ptr<TypeSpecImplBase>> new_record_types;
     printSymbolTable(symbol_table, new_record_types);
     // print cross-reference tables for any nested records
@@ -162,7 +162,7 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
       const auto base_type_spec_any = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE);
       fmt::print("{} {}\n", INDENT, "--- Base type ---");
       if (base_type_spec_any.has_value()) {
-        const auto base_type_spec = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(base_type_spec_any);
+        const auto base_type_spec = cast_by_enum<TypeKeyImpl::SUBRANGE_BASE_TYPE>(base_type_spec_any);
         printType(base_type_spec);
         // print the base type details only if the type is unnamed
         if (base_type_spec->getIdentifier() == nullptr) {
@@ -181,15 +181,15 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
       const auto count_any = type_spec->getAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT);
       fmt::print("{} {}\n", INDENT, "--- INDEX TYPE ---");
       if (index_type_any.has_value()) {
-        const auto index_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(index_type_any);
+        const auto index_type = cast_by_enum<TypeKeyImpl::ARRAY_INDEX_TYPE>(index_type_any);
         printType(index_type);
         if (index_type->getIdentifier() == nullptr) {
           printTypeDetail(index_type, record_types);
         }
         fmt::print("{} {}\n", INDENT, "--- ELEMENT TYPE---");
         if (element_type_any.has_value() && count_any.has_value()) {
-          const auto element_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(element_type_any);
-          const auto count = std::any_cast<PascalInteger>(count_any);
+          const auto element_type = cast_by_enum<TypeKeyImpl::ARRAY_ELEMENT_TYPE>(element_type_any);
+          const auto count = cast_by_enum<TypeKeyImpl::ARRAY_ELEMENT_COUNT>(count_any);
           printType(element_type);
           fmt::print("{} {}\n", INDENT, std::to_string(count) + " elements");
           // print the element type details only if the type is unnamed
