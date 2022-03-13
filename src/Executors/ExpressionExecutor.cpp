@@ -5,18 +5,15 @@ const std::set<ICodeNodeTypeImpl> ExpressionExecutor::mArithOps = {
     ICodeNodeTypeImpl::MULTIPLY, ICodeNodeTypeImpl::FLOAT_DIVIDE,
     ICodeNodeTypeImpl::INTEGER_DIVIDE};
 
-ExpressionExecutor::ExpressionExecutor(Executor &executor)
+ExpressionExecutor::ExpressionExecutor(const std::shared_ptr<Executor>& executor)
     : SubExecutorBase(executor), mValueType(VariableInternalType::UNKNOWN) {}
 
 std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-        &node) {
+    const std::shared_ptr<ICodeNodeImplBase> &node) {
   const auto node_type = node->type();
   switch (node_type) {
   case ICodeNodeTypeImpl::VARIABLE: {
-    const auto entry = std::any_cast<
-        std::shared_ptr<SymbolTableEntryImplBase>>(
-        node->getAttribute(ICodeKeyTypeImpl::ID));
+    const auto entry = cast_by_enum<ICodeKeyTypeImpl::ID>(node->getAttribute(ICodeKeyTypeImpl::ID));
 //    mValue = entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE);
     mValueType = std::any_cast<VariableInternalType>(
         entry->getAttribute(SymbolTableKeyTypeImpl::DATA_INTERNAL_TYPE));
@@ -64,7 +61,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
   case ICodeNodeTypeImpl::NEGATE: {
     auto children_it = node->childrenBegin();
     auto operand = *children_it;
-    ExpressionExecutor executor(*currentExecutor());
+    ExpressionExecutor executor(currentExecutor());
     executor.execute(operand);
     mValue = executor.value();
     switch (executor.valueType()) {
@@ -89,7 +86,7 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
   case ICodeNodeTypeImpl::NOT: {
     auto children_it = node->childrenBegin();
     auto operand = *children_it;
-    ExpressionExecutor executor(*currentExecutor());
+    ExpressionExecutor executor(currentExecutor());
     executor.execute(operand);
     if (executor.valueType() == VariableInternalType::BOOLEAN) {
       mValue = !std::get<bool>(executor.value());
@@ -119,8 +116,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
   auto operand_lhs = *children_it;
   ++children_it;
   auto operand_rhs = *children_it;
-  ExpressionExecutor executor_lhs(*currentExecutor()),
-      executor_rhs(*currentExecutor());
+  ExpressionExecutor executor_lhs(currentExecutor()),
+      executor_rhs(currentExecutor());
   executor_lhs.execute(operand_lhs);
   executor_rhs.execute(operand_rhs);
   const auto lhs_value = executor_lhs.value();

@@ -3,7 +3,7 @@
 #include "ExpressionParser.h"
 #include "StatementParser.h"
 
-ForStatementParser::ForStatementParser(PascalParserTopDown &parent)
+ForStatementParser::ForStatementParser(const std::shared_ptr<PascalParserTopDown> &parent)
     : PascalSubparserTopDownBase(parent) {}
 
 std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
@@ -18,7 +18,7 @@ std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
   auto test_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::TEST);
   // parse the embedded initial assignment
-  AssignmentStatementParser assignment_parser(*currentParser());
+  AssignmentStatementParser assignment_parser(currentParser());
   auto init_assign_node = assignment_parser.parse(token);
   // set the current line number attribute
   setLineNumber(init_assign_node, target_token);
@@ -42,7 +42,7 @@ std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
   auto control_variable_node = *(init_assign_node->childrenBegin());
   rel_op_node->addChild(std::move(control_variable_node->copy()));
   // parse the termination expression
-  ExpressionParser expression_parser(*currentParser());
+  ExpressionParser expression_parser(currentParser());
   rel_op_node->addChild(expression_parser.parse(token));
   test_node->addChild(std::move(rel_op_node));
   loop_node->addChild(std::move(test_node));
@@ -55,7 +55,7 @@ std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
     errorHandler()->flag(token, PascalErrorCode::MISSING_DO, currentParser());
   }
   // parse the nested statement
-  StatementParser statement_parser(*currentParser());
+  StatementParser statement_parser(currentParser());
   loop_node->addChild(statement_parser.parse(token));
   // create an assignment with a copy of the control variable to advance the value of it
   auto next_assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(

@@ -2,15 +2,15 @@
 #define INTERPRETER_H
 
 #include "Backend.h"
-#include "IntermediateImpl.h"
+#include "Intermediate.h"
 
-class Executor: public Backend {
+class Executor: public Backend, public std::enable_shared_from_this<Executor> {
 public:
   Executor();
   virtual ~Executor();
   virtual void process(std::shared_ptr<const ICodeImplBase> iCode,
-                       std::shared_ptr<SymbolTableStackImplBase> symbol_table_stack);
-  virtual std::string getType() const {
+                       std::shared_ptr<SymbolTableStackImplBase> symbol_table_stack) override;
+  virtual std::string getType() const override {
     return "interpreter";
   }
   //  void summary(int executionCount, int runtimeErrors, float elapsedTime);
@@ -19,21 +19,21 @@ public:
   boost::signals2::signal<void(const int, const std::string&, const VariableValueT&)> assignmentMessage;
   friend class SubExecutorBase;
 private:
-  RuntimeErrorHandler* mErrorHandler;
+  std::shared_ptr<RuntimeErrorHandler> mErrorHandler;
   int mExecutionCount;
 };
 
 class SubExecutorBase {
 public:
-  explicit SubExecutorBase(Executor& executor);
+  explicit SubExecutorBase(const std::shared_ptr<Executor>& executor);
   virtual ~SubExecutorBase();
-  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node) = 0;
-  virtual void sendSourceLineMessage(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node);
-  Executor* currentExecutor();
-  RuntimeErrorHandler* errorHandler();
+  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNodeImplBase>& node) = 0;
+  virtual void sendSourceLineMessage(const std::shared_ptr<ICodeNodeImplBase> &node);
+  std::shared_ptr<Executor> currentExecutor();
+  std::shared_ptr<RuntimeErrorHandler> errorHandler();
   int& executionCount();
 private:
-  Executor& mExecutor;
+  std::shared_ptr<Executor> mExecutor;
 };
 
 #endif // INTERPRETER_H

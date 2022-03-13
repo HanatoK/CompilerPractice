@@ -11,7 +11,7 @@ public:
   static TokenTypeSet equalsSet();
   static TokenTypeSet followSet();
   static TokenTypeSet nextStartSet();
-  explicit TypeDefinitionsParser(PascalParserTopDown& parent);
+  explicit TypeDefinitionsParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~TypeDefinitionsParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
 };

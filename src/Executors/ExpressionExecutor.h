@@ -8,10 +8,9 @@
 
 class ExpressionExecutor : public SubExecutorBase {
 public:
-  explicit ExpressionExecutor(Executor &executor);
+  explicit ExpressionExecutor(const std::shared_ptr<Executor>& executor);
   virtual std::shared_ptr<SubExecutorBase>
-  execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-              &node);
+  execute(const std::shared_ptr<ICodeNodeImplBase>& node);
   VariableValueT value() const;
   VariableInternalType valueType() const;
 

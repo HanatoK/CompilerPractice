@@ -2,7 +2,7 @@
 #include "ExpressionParser.h"
 #include "StatementParser.h"
 
-CaseStatementParser::CaseStatementParser(PascalParserTopDown &parent)
+CaseStatementParser::CaseStatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
     : PascalSubparserTopDownBase(parent) {}
 
 std::unique_ptr<ICodeNodeImplBase>
@@ -15,7 +15,7 @@ CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // parse the CASE expression
   // I use the expression parser here, which is different from the book.
   // Maybe I need something like constant expression in C++?
-  ExpressionParser expression_parser(*currentParser());
+  ExpressionParser expression_parser(currentParser());
   select_node->addChild(expression_parser.parse(token));
   // synchronize to OF
   token = synchronize(CaseStatementParser::ofSet());
@@ -74,7 +74,7 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
   }
   branch_node->addChild(std::move(constants_node));
   // parse the branch statement
-  StatementParser statement_parser(*currentParser());
+  StatementParser statement_parser(currentParser());
   branch_node->addChild(statement_parser.parse(token));
   return branch_node;
 }

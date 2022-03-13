@@ -2,7 +2,7 @@
 #include "ExpressionExecutor.h"
 #include "StatementExecutor.h"
 
-LoopExecutor::LoopExecutor(Executor &executor): SubExecutorBase(executor)
+LoopExecutor::LoopExecutor(const std::shared_ptr<Executor> &executor): SubExecutorBase(executor)
 {
 
 }
@@ -11,8 +11,8 @@ std::shared_ptr<SubExecutorBase> LoopExecutor::execute(const std::shared_ptr<ICo
 {
   bool exit_loop = false;
   std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> expr_node = nullptr;
-  ExpressionExecutor expression_executor(*currentExecutor());
-  StatementExecutor statement_executor(*currentExecutor());
+  ExpressionExecutor expression_executor(currentExecutor());
+  StatementExecutor statement_executor(currentExecutor());
   while (!exit_loop) {
     ++executionCount();
     // execute the children of the LOOP node

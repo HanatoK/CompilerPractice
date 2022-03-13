@@ -1,5 +1,5 @@
 #include "Utilities.h"
-#include "IntermediateImpl.h"
+#include "Intermediate.h"
 
 #include <fmt/format.h>
 #include <string>

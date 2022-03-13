@@ -1,10 +1,9 @@
 #include "SimpleTypeParser.h"
-#include "IntermediateImpl.h"
 #include "SubrangeTypeParser.h"
 #include "EnumerationTypeParser.h"
 #include "ConstantDefinitionsParser.h"
 
-SimpleTypeParser::SimpleTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
+SimpleTypeParser::SimpleTypeParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
 
 }
@@ -35,7 +34,7 @@ std::shared_ptr<TypeSpecImplBase> SimpleTypeParser::parseSpec(std::shared_ptr<Pa
           token = nextToken();
           return nullptr;
         } else {
-          SubrangeTypeParser parser(*currentParser());
+          SubrangeTypeParser parser(currentParser());
           return parser.parseSpec(token);
         }
       } else {
@@ -45,7 +44,7 @@ std::shared_ptr<TypeSpecImplBase> SimpleTypeParser::parseSpec(std::shared_ptr<Pa
       }
     }
     case PascalTokenTypeImpl::LEFT_PAREN: {
-      EnumerationTypeParser parser(*currentParser());
+      EnumerationTypeParser parser(currentParser());
       return parser.parseSpec(token);
     }
     case PascalTokenTypeImpl::COMMA:
@@ -54,7 +53,7 @@ std::shared_ptr<TypeSpecImplBase> SimpleTypeParser::parseSpec(std::shared_ptr<Pa
       return nullptr;
     }
     default: {
-      SubrangeTypeParser parser(*currentParser());
+      SubrangeTypeParser parser(currentParser());
       return parser.parseSpec(token);
     }
   }

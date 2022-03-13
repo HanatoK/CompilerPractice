@@ -2,7 +2,7 @@
 #include "StatementParser.h"
 #include "DeclarationsParser.h"
 
-BlockParser::BlockParser(PascalParserTopDown &parent)
+BlockParser::BlockParser(const std::shared_ptr<PascalParserTopDown>& parent)
     : PascalSubparserTopDownBase(parent) {}
 
 /* In pascal, the statements are followed by variable declarations.
@@ -27,8 +27,8 @@ end;
 std::unique_ptr<ICodeNodeImplBase>
 BlockParser::parse(std::shared_ptr<PascalToken> token,
                    std::shared_ptr<SymbolTableEntryImplBase> routine_id) {
-  DeclarationsParser declarations_parser(*currentParser());
-  StatementParser statement_parser(*currentParser());
+  DeclarationsParser declarations_parser(currentParser());
+  StatementParser statement_parser(currentParser());
   // parse any declarations
   declarations_parser.parse(token);
   token = synchronize(StatementParser::statementStartSet());

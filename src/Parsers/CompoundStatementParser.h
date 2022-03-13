@@ -6,7 +6,7 @@
 class CompoundStatementParser : public PascalSubparserTopDownBase
 {
 public:
-  explicit CompoundStatementParser(PascalParserTopDown& parent);
+  explicit CompoundStatementParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~CompoundStatementParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
 };

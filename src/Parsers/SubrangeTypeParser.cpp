@@ -1,8 +1,7 @@
 #include "SubrangeTypeParser.h"
-#include "IntermediateImpl.h"
 #include "ConstantDefinitionsParser.h"
 
-SubrangeTypeParser::SubrangeTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
+SubrangeTypeParser::SubrangeTypeParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
 
 }
@@ -17,7 +16,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
   auto subrange_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SUBRANGE);
   // parse the minimum constant
   decltype(token) constant_token = token->clone();
-  ConstantDefinitionsParser parser(*currentParser());
+  ConstantDefinitionsParser parser(currentParser());
   auto min_val = parser.parseConstant(token);
   // set the minimum type
   const auto min_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?

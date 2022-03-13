@@ -1,7 +1,7 @@
 #include "EnumerationTypeParser.h"
 #include "DeclarationsParser.h"
 
-EnumerationTypeParser::EnumerationTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
+EnumerationTypeParser::EnumerationTypeParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
 
 }

@@ -2,7 +2,6 @@
 #define UTILITIES_H
 
 #include "Intermediate.h"
-#include "IntermediateImpl.h"
 #include "Common.h"
 
 class CrossReferencer {

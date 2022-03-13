@@ -3,7 +3,7 @@
 #include "RecordTypeParser.h"
 #include "ArrayTypeParser.h"
 
-TypeSpecificationParser::TypeSpecificationParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
+TypeSpecificationParser::TypeSpecificationParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
 
 }
@@ -20,15 +20,15 @@ std::shared_ptr<TypeSpecImplBase> TypeSpecificationParser::parseSpec(std::shared
   token = synchronize(TypeSpecificationParser::typeStartSet());
   switch (token->type()) {
     case PascalTokenTypeImpl::ARRAY: {
-      ArrayTypeParser type_parser(*currentParser());
+      ArrayTypeParser type_parser(currentParser());
       return type_parser.parseSpec(token);
     }
     case PascalTokenTypeImpl::RECORD: {
-      RecordTypeParser type_parser(*currentParser());
+      RecordTypeParser type_parser(currentParser());
       return type_parser.parseSpec(token);
     }
     default: {
-      SimpleTypeParser type_parser(*currentParser());
+      SimpleTypeParser type_parser(currentParser());
       return type_parser.parseSpec(token);
     }
   }

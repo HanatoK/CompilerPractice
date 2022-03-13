@@ -28,8 +28,8 @@ public:
 private:
   std::shared_ptr<PascalParserTopDown> mParser;
   std::shared_ptr<Source> mSource;
-  std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
-  std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>> mSymbolTableStack;
+  std::shared_ptr<ICodeImplBase> mICode;
+  std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
   std::shared_ptr<Backend> mBackend;
   std::ifstream mTextStream;
 };

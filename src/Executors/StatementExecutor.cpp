@@ -5,7 +5,7 @@
 #include "IfExecutor.h"
 #include "SelectExecutor.h"
 
-StatementExecutor::StatementExecutor(Executor &executor): SubExecutorBase(executor)
+StatementExecutor::StatementExecutor(const std::shared_ptr<Executor>& executor): SubExecutorBase(executor)
 {
 
 }
@@ -16,24 +16,24 @@ std::shared_ptr<SubExecutorBase> StatementExecutor::execute(const std::shared_pt
   sendSourceLineMessage(node);
   switch (node_type) {
   case ICodeNodeTypeImpl::COMPOUND: {
-    CompoundStatementExecutor compound_executor(*currentExecutor());
+    CompoundStatementExecutor compound_executor(currentExecutor());
     return compound_executor.execute(node);
   }
   case ICodeNodeTypeImpl::ASSIGN: {
-    AssignmentStatementExecutor assignment_executor(*currentExecutor());
+    AssignmentStatementExecutor assignment_executor(currentExecutor());
     return assignment_executor.execute(node);
   }
   case ICodeNodeTypeImpl::LOOP: {
-    LoopExecutor loop_executor(*currentExecutor());
+    LoopExecutor loop_executor(currentExecutor());
     return loop_executor.execute(node);
   }
   case ICodeNodeTypeImpl::IF: {
-    IfExecutor if_executor(*currentExecutor());
+    IfExecutor if_executor(currentExecutor());
     return if_executor.execute(node);
   }
   case ICodeNodeTypeImpl::SELECT: {
-//    SelectExecutor select_executor(*currentExecutor());
-    SelectExecutorOpt select_executor(*currentExecutor());
+//    SelectExecutor select_executor(currentExecutor());
+    SelectExecutorOpt select_executor(currentExecutor());
     return select_executor.execute(node);
   }
   case ICodeNodeTypeImpl::NO_OP: {

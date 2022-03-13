@@ -3,7 +3,7 @@
 #include "TypeDefinitionsParser.h"
 #include "VariableDeclarationsParser.h"
 
-DeclarationsParser::DeclarationsParser(PascalParserTopDown& parent)
+DeclarationsParser::DeclarationsParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent) {}
 
 DeclarationsParser::~DeclarationsParser()
@@ -18,19 +18,19 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > DeclarationsPar
   token = synchronize(declarationStartSet());
   if (token->type() == PascalTokenTypeImpl::CONST) {
     token = nextToken();
-    ConstantDefinitionsParser constant_definition_parser(*currentParser());
+    ConstantDefinitionsParser constant_definition_parser(currentParser());
     constant_definition_parser.parse(token);
   }
   token = synchronize(typeStartSet());
   if (token->type() == PascalTokenTypeImpl::TYPE) {
     token = nextToken();
-    TypeDefinitionsParser type_definitions_parser(*currentParser());
+    TypeDefinitionsParser type_definitions_parser(currentParser());
     type_definitions_parser.parse(token);
   }
   token = synchronize(varStartSet());
   if (token->type() == PascalTokenTypeImpl::VAR) {
     token = nextToken();
-    VariableDeclarationsParser vairable_declarations_parser(*currentParser());
+    VariableDeclarationsParser vairable_declarations_parser(currentParser());
     vairable_declarations_parser.setDefinition(DefinitionImpl::VARIABLE); // TODO
     vairable_declarations_parser.parse(token);
   }

@@ -8,7 +8,7 @@ class TypeSpecificationParser : public PascalSubparserTopDownBase
 {
 public:
   static TokenTypeSet typeStartSet();
-  explicit TypeSpecificationParser(PascalParserTopDown& parent);
+  explicit TypeSpecificationParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~TypeSpecificationParser();
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
 };

@@ -24,45 +24,22 @@ public:
   explicit ICodeNode(const NodeT& pType) {}
   virtual ~ICodeNode() {}
   virtual NodeT type() const = 0;
-  virtual const std::shared_ptr<ICodeNode> setParent(const std::shared_ptr<ICodeNode> new_parent) = 0;
-  virtual const std::shared_ptr<ICodeNode> parent() const = 0;
+  virtual const std::shared_ptr<const ICodeNode> setParent(const std::shared_ptr<const ICodeNode>& new_parent) = 0;
+  virtual const std::shared_ptr<const ICodeNode> parent() const = 0;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const KeyT& key) const = 0;
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
   virtual std::string toString() const = 0;
-  attribute_map_iterator attributeMapBegin() {
-    return attributeMap().begin();
-  }
-  attribute_map_iterator attributeMapEnd() {
-    return attributeMap().end();
-  }
-  const_attribute_map_iterator attributeMapBegin() const {
-    return attributeMap().cbegin();
-  }
-  const_attribute_map_iterator attributeMapEnd() const {
-    return attributeMap().cend();
-  }
-  children_iterator childrenBegin() {
-    return children().begin();
-  }
-  children_iterator childrenEnd() {
-    return children().end();
-  }
-  const_children_iterator childrenBegin() const {
-    return children().cbegin();
-  }
-  const_children_iterator childrenEnd() const {
-    return children().cend();
-  }
-  size_t numChildren() const {
-    return children().size();
-  }
-protected:
-  virtual AttributeMapTImpl& attributeMap() = 0;
-  virtual const AttributeMapTImpl& attributeMap() const = 0;
-  virtual ChildrenContainerTImpl& children() = 0;
-  virtual const ChildrenContainerTImpl& children() const = 0;
+  virtual attribute_map_iterator attributeMapBegin() = 0;
+  virtual attribute_map_iterator attributeMapEnd() = 0;
+  virtual const_attribute_map_iterator attributeMapBegin() const = 0;
+  virtual const_attribute_map_iterator attributeMapEnd() const = 0;
+  virtual children_iterator childrenBegin() = 0;
+  virtual children_iterator childrenEnd() = 0;
+  virtual const_children_iterator childrenBegin() const = 0;
+  virtual const_children_iterator childrenEnd() const = 0;
+  virtual size_t numChildren() const = 0;
 };
 
 template <typename ICodeNodeType, typename ICodeKeyType>
@@ -165,5 +142,57 @@ std::unique_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>> createICodeNode(const IC
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
 std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
+
+typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> ICodeNodeImplBase;
+typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> ICodeImplBase;
+typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableEntryImplBase;
+typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableImplBase;
+typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableStackImplBase;
+typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> TypeSpecImplBase;
+
+std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value);
+
+template <SymbolTableKeyTypeImpl> struct SymbolTableKeyToEnum;
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::CONSTANT_VALUE> { using type = std::any; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ICODE> { using type = std::shared_ptr<ICodeImplBase>; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
+
+template <ICodeKeyTypeImpl> struct ICodeKeyTypeImplToEnum;
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::ID> { using type = std::shared_ptr<SymbolTableEntryImplBase>; };
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::LINE> { using type = int; };
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::VALUE> { using type = std::any; };
+
+template <TypeKeyImpl> struct TypeKeyImplToEnum;
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ENUMERATION_CONSTANTS> { using type = std::vector<std::weak_ptr<SymbolTableEntryImplBase>>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_COUNT> { using type = PascalInteger; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_INDEX_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_BASE_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_MIN_VALUE> { using type = std::any; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_MAX_VALUE> { using type = std::any; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::RECORD_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
+
+template <auto EnumVal>
+constexpr auto EnumToTypeImpl() {
+  typedef decltype(EnumVal) enum_type;
+  if constexpr (std::is_same_v<enum_type, SymbolTableKeyTypeImpl>) {
+    return SymbolTableKeyToEnum<EnumVal>{};
+  } else if constexpr (std::is_same_v<enum_type, ICodeKeyTypeImpl>) {
+    return ICodeKeyTypeImplToEnum<EnumVal>{};
+  } else {
+    return TypeKeyImplToEnum<EnumVal>{};
+  }
+}
+
+template <auto EnumVal>
+struct EnumToType {
+  using type = typename decltype(EnumToTypeImpl<EnumVal>())::type;
+};
+
+template <auto EnumVal>
+auto cast_by_enum(const std::any& x) {
+  return std::any_cast<typename EnumToType<EnumVal>::type>(x);
+}
 
 #endif // INTERMEDIATE_H

@@ -1,7 +1,7 @@
 #ifndef TYPECHECKER_H
 #define TYPECHECKER_H
 
-#include "IntermediateImpl.h"
+#include "Intermediate.h"
 
 class TypeChecker
 {

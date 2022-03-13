@@ -1,4 +1,5 @@
 #include "Predefined.h"
+#include "IntermediateImpl.h"
 #include <stdexcept>
 
 Predefined& Predefined::instance(std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack)

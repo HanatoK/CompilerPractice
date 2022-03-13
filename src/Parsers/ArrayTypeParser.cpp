@@ -2,7 +2,7 @@
 #include "SimpleTypeParser.h"
 #include "TypeSpecificationParser.h"
 
-ArrayTypeParser::ArrayTypeParser(PascalParserTopDown& parent): PascalSubparserTopDownBase(parent)
+ArrayTypeParser::ArrayTypeParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
 
 }
@@ -81,7 +81,7 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
 void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
                                      const std::shared_ptr<TypeSpecImplBase>& array_type)
 {
-  SimpleTypeParser simple_type_parser(*currentParser());
+  SimpleTypeParser simple_type_parser(currentParser());
   const auto index_type = simple_type_parser.parseSpec(token);
   array_type->setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
   if (index_type == nullptr) {
@@ -109,7 +109,7 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
 
 std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseElementType(std::shared_ptr<PascalToken> token)
 {
-  TypeSpecificationParser parser(*currentParser());
+  TypeSpecificationParser parser(currentParser());
   return parser.parseSpec(token);
 }
 

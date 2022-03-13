@@ -9,7 +9,7 @@ class StatementParser : public PascalSubparserTopDownBase
 public:
   static TokenTypeSet statementStartSet();
   static TokenTypeSet statementFollowSet();
-  explicit StatementParser(PascalParserTopDown& parent);
+  explicit StatementParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~StatementParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   virtual void parseList(std::shared_ptr<PascalToken> token,

@@ -12,7 +12,7 @@ public:
   static TokenTypeSet constantStartSet();
   static TokenTypeSet equalsSet();
   static TokenTypeSet nextStartSet();
-  explicit ConstantDefinitionsParser(PascalParserTopDown& parent);
+  explicit ConstantDefinitionsParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~ConstantDefinitionsParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   virtual std::any parseConstant(std::shared_ptr<PascalToken>& token);

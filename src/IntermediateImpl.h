@@ -8,34 +8,54 @@
 #include <memory>
 #include <unordered_map>
 
-typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> ICodeNodeImplBase;
-typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> ICodeImplBase;
-typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableEntryImplBase;
-typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableImplBase;
-typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableStackImplBase;
-typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> TypeSpecImplBase;
-
 class ICodeNodeImpl : public ICodeNodeImplBase {
 public:
   explicit ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
   virtual ICodeNodeTypeImpl type() const override;
-  virtual const std::shared_ptr<ICodeNodeImplBase> parent() const override;
-  virtual const std::shared_ptr<ICodeNodeImplBase> setParent(const std::shared_ptr<ICodeNodeImplBase> new_parent) override;
+  virtual const std::shared_ptr<const ICodeNodeImplBase> parent() const override;
+  virtual const std::shared_ptr<const ICodeNodeImplBase> setParent(const std::shared_ptr<const ICodeNodeImplBase>& new_parent) override;
   virtual std::shared_ptr<ICodeNodeImplBase> addChild(std::shared_ptr<ICodeNodeImplBase> node) override;
   virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value) override;
   virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const override;
   virtual std::unique_ptr<ICodeNodeImplBase> copy() const override;
   virtual std::string toString() const override;
+  virtual attribute_map_iterator attributeMapBegin() override {
+    return attributeMap().begin();
+  }
+  virtual attribute_map_iterator attributeMapEnd() override {
+    return attributeMap().end();
+  }
+  virtual const_attribute_map_iterator attributeMapBegin() const override {
+    return attributeMap().cbegin();
+  }
+  virtual const_attribute_map_iterator attributeMapEnd() const override {
+    return attributeMap().cend();
+  }
+  virtual children_iterator childrenBegin() override {
+    return children().begin();
+  }
+  virtual children_iterator childrenEnd() override {
+    return children().end();
+  }
+  virtual const_children_iterator childrenBegin() const override {
+    return children().cbegin();
+  }
+  virtual const_children_iterator childrenEnd() const override {
+    return children().cend();
+  }
+  virtual size_t numChildren() const override {
+    return children().size();
+  }
 protected:
-  virtual AttributeMapTImpl& attributeMap() override;
-  virtual const AttributeMapTImpl& attributeMap() const override;
-  virtual ChildrenContainerTImpl& children() override;
-  virtual const ChildrenContainerTImpl& children() const override;
+  virtual AttributeMapTImpl& attributeMap();
+  virtual const AttributeMapTImpl& attributeMap() const;
+  virtual ChildrenContainerTImpl& children();
+  virtual const ChildrenContainerTImpl& children() const;
 private:
   ICodeNodeTypeImpl mType;
   // TODO: do I need to use weak pointer here?
-  std::weak_ptr<ICodeNodeImplBase> mParent;
+  std::weak_ptr<const ICodeNodeImplBase> mParent;
   AttributeMapTImpl mHashTable;
   ChildrenContainerTImpl mChildren;
 };
@@ -149,50 +169,5 @@ std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type
 
 template <>
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form);
-
-std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value);
-
-template <SymbolTableKeyTypeImpl> struct SymbolTableKeyToEnum;
-template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::CONSTANT_VALUE> { using type = std::any; };
-template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
-template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ICODE> { using type = std::shared_ptr<ICodeImplBase>; };
-template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
-
-template <ICodeKeyTypeImpl> struct ICodeKeyTypeImplToEnum;
-template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::ID> { using type = std::shared_ptr<SymbolTableEntryImplBase>; };
-template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::LINE> { using type = int; };
-template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::VALUE> { using type = std::any; };
-
-template <TypeKeyImpl> struct TypeKeyImplToEnum;
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::ENUMERATION_CONSTANTS> { using type = std::vector<std::weak_ptr<SymbolTableEntryImplBase>>; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_COUNT> { using type = PascalInteger; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_INDEX_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_BASE_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_MIN_VALUE> { using type = std::any; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::SUBRANGE_MAX_VALUE> { using type = std::any; };
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::RECORD_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
-
-template <auto EnumVal>
-constexpr auto EnumToTypeImpl() {
-  typedef decltype(EnumVal) enum_type;
-  if constexpr (std::is_same_v<enum_type, SymbolTableKeyTypeImpl>) {
-    return SymbolTableKeyToEnum<EnumVal>{};
-  } else if constexpr (std::is_same_v<enum_type, ICodeKeyTypeImpl>) {
-    return ICodeKeyTypeImplToEnum<EnumVal>{};
-  } else {
-    return TypeKeyImplToEnum<EnumVal>{};
-  }
-}
-
-template <auto EnumVal>
-struct EnumToType {
-  using type = typename decltype(EnumToTypeImpl<EnumVal>())::type;
-};
-
-template <auto EnumVal>
-auto cast_by_enum(const std::any& x) {
-  return std::any_cast<typename EnumToType<EnumVal>::type>(x);
-}
 
 #endif // INTERMEDIATEIMPL_H

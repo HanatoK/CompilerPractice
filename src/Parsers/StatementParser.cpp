@@ -1,5 +1,4 @@
 #include "StatementParser.h"
-#include "IntermediateImpl.h"
 #include "CompoundStatementParser.h"
 #include "AssignmentStatementParser.h"
 #include "RepeatStatementParser.h"
@@ -8,7 +7,7 @@
 #include "CaseStatementParser.h"
 #include "ForStatementParser.h"
 
-StatementParser::StatementParser(PascalParserTopDown& parent)
+StatementParser::StatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent) {}
 
 StatementParser::~StatementParser()
@@ -23,37 +22,37 @@ std::unique_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<Pascal
       statement_node = nullptr;
   switch (token->type()) {
     case PascalTokenTypeImpl::BEGIN: {
-      CompoundStatementParser compound_parser(*currentParser());
+      CompoundStatementParser compound_parser(currentParser());
       statement_node = compound_parser.parse(token);
       break;
     }
     case PascalTokenTypeImpl::IDENTIFIER: {
-      AssignmentStatementParser assignment_parser(*currentParser());
+      AssignmentStatementParser assignment_parser(currentParser());
       statement_node = assignment_parser.parse(token);
       break;
     }
     case PascalTokenTypeImpl::REPEAT: {
-      RepeatStatementParser repeat_parser(*currentParser());
+      RepeatStatementParser repeat_parser(currentParser());
       statement_node = repeat_parser.parse(token);
       break;
     }
     case PascalTokenTypeImpl::WHILE: {
-      WhileStatementParser while_parser(*currentParser());
+      WhileStatementParser while_parser(currentParser());
       statement_node = while_parser.parse(token);
       break;
     }
     case PascalTokenTypeImpl::FOR: {
-      ForStatementParser for_parser(*currentParser());
+      ForStatementParser for_parser(currentParser());
       statement_node = for_parser.parse(token);
       break;
     }
     case PascalTokenTypeImpl::IF: {
-      IfStatementParser if_parser(*currentParser());
+      IfStatementParser if_parser(currentParser());
       statement_node = if_parser.parse(token);
       break;
     }
     case PascalTokenTypeImpl::CASE: {
-      CaseStatementParser case_parser(*currentParser());
+      CaseStatementParser case_parser(currentParser());
       statement_node = case_parser.parse(token);
       break;
     }

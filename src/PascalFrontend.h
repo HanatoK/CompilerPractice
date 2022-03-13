@@ -3,7 +3,6 @@
 
 #include "Frontend.h"
 #include "Intermediate.h"
-#include "IntermediateImpl.h"
 #include "Predefined.h"
 #include "Common.h"
 
@@ -35,8 +34,10 @@ private:
 };
 
 class PascalParserTopDown:
-  public Parser<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ICodeNodeTypeImpl,
-                ICodeKeyTypeImpl, PascalTokenTypeImpl, PascalScanner> {
+  public Parser<SymbolTableKeyTypeImpl, DefinitionImpl,
+                TypeFormImpl, TypeKeyImpl, ICodeNodeTypeImpl,
+                ICodeKeyTypeImpl, PascalTokenTypeImpl, PascalScanner>,
+  public std::enable_shared_from_this<PascalParserTopDown> {
 public:
   explicit PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
   PascalParserTopDown(const PascalParserTopDown&) = delete;
@@ -51,13 +52,13 @@ public:
   friend class PascalSubparserTopDownBase;
 protected:
   std::shared_ptr<SymbolTableEntryImplBase> mRoutineId;
-  PascalErrorHandler* mErrorHandler;
+  std::shared_ptr<PascalErrorHandler> mErrorHandler;
 };
 
 class PascalSubparserTopDownBase {
 public:
   typedef std::set<PascalTokenTypeImpl> TokenTypeSet;
-  explicit PascalSubparserTopDownBase(PascalParserTopDown& pascal_parser);
+  explicit PascalSubparserTopDownBase(const std::shared_ptr<PascalParserTopDown>& pascal_parser);
   virtual ~PascalSubparserTopDownBase();
   std::shared_ptr<PascalToken> currentToken() const;
   std::shared_ptr<PascalToken> nextToken();
@@ -65,8 +66,8 @@ public:
   std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack();
   std::shared_ptr<PascalScanner> scanner() const;
   int errorCount();
-  PascalErrorHandler* errorHandler();
-  PascalParserTopDown* currentParser();
+  std::shared_ptr<PascalErrorHandler> errorHandler();
+  std::shared_ptr<PascalParserTopDown> currentParser();
   // TODO: what exactly does this function return??
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
@@ -75,15 +76,16 @@ public:
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> multOpsMap;
 private:
-  PascalParserTopDown& mPascalParser;
+  std::shared_ptr<PascalParserTopDown> mPascalParser;
 };
 
 class PascalErrorHandler {
 public:
   PascalErrorHandler();
   virtual ~PascalErrorHandler();
-  void flag(const std::shared_ptr<PascalToken> &token, const PascalErrorCode errorCode, const PascalParserTopDown *parser);
-  static void abortTranslation(const PascalErrorCode errorCode, const PascalParserTopDown *parser);
+  void flag(const std::shared_ptr<PascalToken> &token, const PascalErrorCode errorCode,
+            const std::shared_ptr<PascalParserTopDown>& parser);
+  static void abortTranslation(const PascalErrorCode errorCode, const std::shared_ptr<PascalParserTopDown>& parser);
   int errorCount() const;
 private:
   static const int maxError = 25;

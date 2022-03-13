@@ -3,7 +3,7 @@
 #include "DeclarationsParser.h"
 #include "ConstantDefinitionsParser.h"
 
-TypeDefinitionsParser::TypeDefinitionsParser(PascalParserTopDown& parent)
+TypeDefinitionsParser::TypeDefinitionsParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent) {}
 
 TypeDefinitionsParser::~TypeDefinitionsParser()
@@ -39,7 +39,7 @@ std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<
       errorHandler()->flag(token, PascalErrorCode::MISSING_EQUALS, currentParser());
     }
     // parse the type specification
-    TypeSpecificationParser type_spec_parser(*currentParser());
+    TypeSpecificationParser type_spec_parser(currentParser());
     std::shared_ptr<TypeSpecImplBase> type_spec = type_spec_parser.parseSpec(token);
     if (type_id != nullptr) {
       type_id->setDefinition(DefinitionImpl::TYPE);

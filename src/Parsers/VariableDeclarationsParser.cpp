@@ -2,7 +2,7 @@
 #include "DeclarationsParser.h"
 #include "TypeSpecificationParser.h"
 
-VariableDeclarationsParser::VariableDeclarationsParser(PascalParserTopDown& parent)
+VariableDeclarationsParser::VariableDeclarationsParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent), mDefinition(DefinitionImpl::UNDEFINED) {}
 
 VariableDeclarationsParser::~VariableDeclarationsParser()
@@ -149,7 +149,7 @@ std::shared_ptr<TypeSpecImplBase> VariableDeclarationsParser::parseTypeSpec(std:
     errorHandler()->flag(token, PascalErrorCode::MISSING_COLON, currentParser());
   }
   // parse the type specification
-  TypeSpecificationParser parser(*currentParser());
+  TypeSpecificationParser parser(currentParser());
   auto type_spec = parser.parseSpec(token);
   return type_spec;
 }

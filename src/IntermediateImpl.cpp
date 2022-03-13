@@ -215,9 +215,9 @@ ICodeNodeImpl::~ICodeNodeImpl() {
 
 ICodeNodeTypeImpl ICodeNodeImpl::type() const { return mType; }
 
-const std::shared_ptr<ICodeNodeImplBase> ICodeNodeImpl::parent() const { return mParent.lock(); }
+const std::shared_ptr<const ICodeNodeImplBase> ICodeNodeImpl::parent() const { return mParent.lock(); }
 
-const std::shared_ptr<ICodeNodeImplBase> ICodeNodeImpl::setParent(const std::shared_ptr<ICodeNodeImplBase> new_parent) {
+const std::shared_ptr<const ICodeNodeImplBase> ICodeNodeImpl::setParent(const std::shared_ptr<const ICodeNodeImplBase>& new_parent) {
   mParent = new_parent;
   return mParent.lock();
 }

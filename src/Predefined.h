@@ -1,7 +1,7 @@
 #ifndef PREDEFINED_H
 #define PREDEFINED_H
 
-#include "IntermediateImpl.h"
+#include "Intermediate.h"
 
 class Predefined {
 public:

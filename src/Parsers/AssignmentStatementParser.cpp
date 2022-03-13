@@ -2,7 +2,7 @@
 #include "ExpressionParser.h"
 #include "StatementParser.h"
 
-AssignmentStatementParser::AssignmentStatementParser(PascalParserTopDown &parent): PascalSubparserTopDownBase(parent)
+AssignmentStatementParser::AssignmentStatementParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
 
 }
@@ -41,7 +41,7 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentState
     errorHandler()->flag(token, PascalErrorCode::MISSING_COLON_EQUALS, currentParser());
   }
   // parse the expression
-  ExpressionParser expression_parser(*currentParser());
+  ExpressionParser expression_parser(currentParser());
   assign_node->addChild(expression_parser.parse(token));
   return assign_node;
 }

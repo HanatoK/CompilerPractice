@@ -23,7 +23,7 @@ public:
   static TokenTypeSet identiferFollowSet();
   static TokenTypeSet commaSet();
   static TokenTypeSet colonSet();
-  explicit VariableDeclarationsParser(PascalParserTopDown& parent);
+  explicit VariableDeclarationsParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~VariableDeclarationsParser();
   virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   virtual std::vector<std::shared_ptr<SymbolTableEntryImplBase>> parseIdentifierSublist(std::shared_ptr<PascalToken> token);

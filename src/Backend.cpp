@@ -1,11 +1,10 @@
 #include "Backend.h"
-#include "IntermediateImpl.h"
 #include "Interpreter.h"
 #include "Compiler.h"
 
 #include <cstdlib>
 
-std::unique_ptr<Backend> createBackend(const std::string &operation) {
+std::shared_ptr<Backend> createBackend(const std::string &operation) {
   if (boost::iequals(operation, "compile")) {
     return std::make_unique<CodeGenerator>();
   } else if (boost::iequals(operation, "interpret")) {
@@ -20,10 +19,10 @@ RuntimeErrorHandler::RuntimeErrorHandler(): mErrorCount(0)
 
 }
 
-void RuntimeErrorHandler::flag(const std::shared_ptr<ICodeNodeImplBase>& node,
-                               const RuntimeErrorCode error_code, const Backend *backend)
+void RuntimeErrorHandler::flag(const std::shared_ptr<const ICodeNodeImplBase>& node,
+                               const RuntimeErrorCode error_code, const std::shared_ptr<Backend>& backend)
 {
-  std::shared_ptr<ICodeNodeImplBase> ptr = node;
+  std::shared_ptr<const ICodeNodeImplBase> ptr = node;
   int line_number = 0;
   do {
     const auto line_attr = ptr->getAttribute(ICodeKeyTypeImpl::LINE);

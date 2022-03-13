@@ -27,7 +27,7 @@ public:
   static TokenTypeSet indexStartSet();
   static TokenTypeSet indexFollowSet();
   static TokenTypeSet indexEndSet();
-  explicit ArrayTypeParser(PascalParserTopDown& parent);
+  explicit ArrayTypeParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~ArrayTypeParser();
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
 private:

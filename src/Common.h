@@ -8,7 +8,6 @@
 #include <variant>
 #include <boost/algorithm/string.hpp>
 #include <boost/current_function.hpp>
-//#include <IntermediateImpl.h>
 
 typedef long long PascalInteger;
 typedef double PascalFloat;

@@ -15,7 +15,7 @@ class EnumerationTypeParser : public PascalSubparserTopDownBase
 public:
   static TokenTypeSet enumConstantStartSet();
   static TokenTypeSet enumDefinitionFollowSet();
-  explicit EnumerationTypeParser(PascalParserTopDown& parent);
+  explicit EnumerationTypeParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~EnumerationTypeParser();
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
   void parseEnumerationIdentifier(std::shared_ptr<PascalToken>& token, PascalInteger value,

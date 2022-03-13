@@ -2,7 +2,7 @@
 #include "DeclarationsParser.h"
 #include "ExpressionParser.h"
 
-ConstantDefinitionsParser::ConstantDefinitionsParser(PascalParserTopDown& parent)
+ConstantDefinitionsParser::ConstantDefinitionsParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent) {}
 
 ConstantDefinitionsParser::~ConstantDefinitionsParser()

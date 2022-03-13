@@ -1,6 +1,6 @@
 #include "ExpressionParser.h"
 
-ExpressionParser::ExpressionParser(PascalParserTopDown &parent):
+ExpressionParser::ExpressionParser(const std::shared_ptr<PascalParserTopDown>& parent):
   PascalSubparserTopDownBase(parent)
 {
 

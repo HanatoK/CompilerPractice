@@ -2,7 +2,6 @@
 #define BACKEND_H
 
 #include "Intermediate.h"
-#include "IntermediateImpl.h"
 #include "Common.h"
 
 #include <boost/signals2.hpp>
@@ -28,8 +27,8 @@ std::string runtimeErrorCodeToString(const RuntimeErrorCode &code);
 class RuntimeErrorHandler {
 public:
   RuntimeErrorHandler();
-  void flag(const std::shared_ptr<ICodeNodeImplBase>& node,
-            const RuntimeErrorCode error_code, const Backend *backend);
+  void flag(const std::shared_ptr<const ICodeNodeImplBase>& node,
+            const RuntimeErrorCode error_code, const std::shared_ptr<Backend>& backend);
   int errorCount() const;
 private:
   static const int MAX_ERRORS = 5;
@@ -55,6 +54,6 @@ protected:
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
 };
 
-std::unique_ptr<Backend> createBackend(const std::string& operation);
+std::shared_ptr<Backend> createBackend(const std::string& operation);
 
 #endif // BACKEND_H

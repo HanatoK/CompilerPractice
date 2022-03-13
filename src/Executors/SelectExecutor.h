@@ -9,7 +9,7 @@
 class SelectExecutor : public SubExecutorBase
 {
 public:
-  explicit SelectExecutor(Executor& executor);
+  explicit SelectExecutor(const std::shared_ptr<Executor>& executor);
   virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
 private:
   std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > searchBranches(
@@ -22,7 +22,7 @@ private:
 class SelectExecutorOpt : public SubExecutorBase
 {
 public:
-  explicit SelectExecutorOpt(Executor& executor);
+  explicit SelectExecutorOpt(const std::shared_ptr<Executor>& executor);
   virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
 private:
   typedef std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> NodeT;

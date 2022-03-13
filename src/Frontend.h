@@ -2,7 +2,6 @@
 #define FRONTEND_H
 
 #include "Intermediate.h"
-#include "IntermediateImpl.h"
 #include "Common.h"
 #include "Predefined.h"
 
@@ -229,13 +228,11 @@ public:
   std::shared_ptr<Token<TokenT>> nextToken();
   std::shared_ptr<SymbolTableStackImplBase>
   getSymbolTableStack() const;
-//  std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> getICode() const;
   std::shared_ptr<ScannerT> scanner() const;
 
 protected:
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
   std::shared_ptr<ScannerT> mScanner;
-//  std::shared_ptr<ICode<ICodeNodeT, ICodeKeyT>> mICode;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT,
