@@ -72,34 +72,35 @@ std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ConstantDefinit
 std::any ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalToken>& token)
 {
   // -1 for negative, +1 for positive
-  int sign = 0;
+  SignType sign = SignType::NOSIGN;
   // synchronize at the start of a constant
   token = synchronize(ConstantDefinitionsParser::constantStartSet());
   auto token_type = token->type();
   if (token_type == PascalTokenTypeImpl::PLUS ||
       token_type == PascalTokenTypeImpl::MINUS) {
-    sign = (token_type == PascalTokenTypeImpl::PLUS) ? 1 : -1;
+    sign = (token_type == PascalTokenTypeImpl::PLUS) ? SignType::POSITIVE : SignType::NEGATIVE;
     // consume the sign
     token = nextToken();
   }
   // parse the constant
+  const PascalInteger sign_value = (sign == SignType::NEGATIVE ? -1 : 1);
   switch (token->type()) {
     case PascalTokenTypeImpl::IDENTIFIER: {
-      return parseIdentifierConstant(token, sign == 0 ? 1 : sign);
+      return parseIdentifierConstant(token, sign);
     }
     case PascalTokenTypeImpl::INTEGER: {
       // integers are stored as PascalFloat
-      const PascalInteger val = (sign == 0 ? 1 : sign) * std::any_cast<PascalInteger>(token->value());
+      const PascalInteger val = sign_value * std::any_cast<PascalInteger>(token->value());
       nextToken();
       return val;
     }
     case PascalTokenTypeImpl::REAL: {
-      const PascalFloat val = (sign == 0 ? 1 : sign) * std::any_cast<PascalFloat>(token->value());
+      const PascalFloat val = sign_value * std::any_cast<PascalFloat>(token->value());
       nextToken();
       return val;
     }
     case PascalTokenTypeImpl::STRING: {
-      if (sign != 0) {
+      if (sign != SignType::NOSIGN) {
         errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
       }
       nextToken();
@@ -112,7 +113,7 @@ std::any ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalToken>& 
   }
 }
 
-std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<PascalToken>& token, int sign)
+std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<PascalToken>& token, SignType sign)
 {
   auto name = token->text();
   auto id = getSymbolTableStack()->lookup(name);
@@ -123,13 +124,14 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
     return std::make_tuple(PascalTokenTypeImpl::UNKNOWN, std::any());
   }
   auto definition = id->getDefinition();
+  const PascalInteger sign_value = (sign == SignType::NEGATIVE ? -1 : 1);
   if (definition == DefinitionImpl::CONSTANT) {
     const auto constant_value_any = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
     id->appendLineNumber(token->lineNum());
     if (any_is<PascalInteger>(constant_value_any)) {
-      return sign * std::any_cast<PascalInteger>(constant_value_any);
+      return sign_value * std::any_cast<PascalInteger>(constant_value_any);
     } else if (any_is<PascalFloat>(constant_value_any)) {
-      return sign * std::any_cast<PascalFloat>(constant_value_any);
+      return sign_value * std::any_cast<PascalFloat>(constant_value_any);
     } else if (any_is<std::string>(constant_value_any)) {
       return constant_value_any;
     } else {
@@ -138,7 +140,7 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
   } else if (definition == DefinitionImpl::ENUMERATION_CONSTANT) {
     const auto constant_value_any = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
     id->appendLineNumber(token->lineNum());
-    if (sign != 1) {
+    if (sign != SignType::NOSIGN) {
       errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     }
     return constant_value_any;
