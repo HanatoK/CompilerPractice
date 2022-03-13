@@ -20,8 +20,8 @@ public:
   explicit ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
   virtual ~ICodeNodeImpl();
   virtual ICodeNodeTypeImpl type() const override;
-  virtual const ICodeNodeImplBase* parent() const override;
-  virtual const ICodeNodeImplBase* setParent(const ICodeNodeImplBase* new_parent) override;
+  virtual const std::shared_ptr<ICodeNodeImplBase> parent() const override;
+  virtual const std::shared_ptr<ICodeNodeImplBase> setParent(const std::shared_ptr<ICodeNodeImplBase> new_parent) override;
   virtual std::shared_ptr<ICodeNodeImplBase> addChild(std::shared_ptr<ICodeNodeImplBase> node) override;
   virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value) override;
   virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const override;
@@ -35,7 +35,7 @@ protected:
 private:
   ICodeNodeTypeImpl mType;
   // TODO: do I need to use weak pointer here?
-  const ICodeNodeImplBase *mParent;
+  std::weak_ptr<ICodeNodeImplBase> mParent;
   AttributeMapTImpl mHashTable;
   ChildrenContainerTImpl mChildren;
 };
@@ -53,10 +53,10 @@ private:
 
 class SymbolTableEntryImpl : public SymbolTableEntryImplBase {
 public:
-  SymbolTableEntryImpl(const std::string &name, SymbolTableImplBase *symbol_table);
+  SymbolTableEntryImpl(const std::string &name, std::shared_ptr<SymbolTableImplBase> symbol_table);
   virtual ~SymbolTableEntryImpl();
   virtual std::string name() const override;
-  virtual SymbolTableImplBase *symbolTable() const override;
+  virtual std::shared_ptr<SymbolTableImplBase> symbolTable() const override;
   virtual void appendLineNumber(int line_number) override;
   virtual std::vector<int> lineNumbers() const override;
   virtual void setAttribute(const SymbolTableKeyTypeImpl &key, const std::any &value) override;
@@ -67,7 +67,7 @@ public:
   virtual std::shared_ptr<TypeSpecImplBase> getTypeSpec() const override;
 private:
   // TODO: do I need to use weak pointer here?
-  SymbolTableImplBase *mSymbolTable;
+  std::weak_ptr<SymbolTableImplBase> mSymbolTable;
   std::vector<int> mLineNumbers;
   std::string mName;
   std::unordered_map<SymbolTableKeyTypeImpl, std::any> mEntryMap;
@@ -97,8 +97,8 @@ public:
   virtual std::shared_ptr<SymbolTableEntryImplBase> enterLocal(const std::string &name) override;
   virtual std::shared_ptr<SymbolTableEntryImplBase> lookupLocal(const std::string &name) const override;
   virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const override;
-  virtual void setProgramId(SymbolTableEntryImplBase* entry) override;
-  virtual SymbolTableEntryImplBase* programId() const override;
+  virtual void setProgramId(std::shared_ptr<SymbolTableEntryImplBase> entry) override;
+  virtual std::shared_ptr<SymbolTableEntryImplBase> programId() const override;
   virtual std::shared_ptr<SymbolTableImplBase> push() override;
   virtual std::shared_ptr<SymbolTableImplBase> push(std::shared_ptr<SymbolTableImplBase> symbol_table) override;
   virtual std::shared_ptr<SymbolTableImplBase> pop() override;
@@ -109,7 +109,7 @@ private:
   std::vector<std::shared_ptr<SymbolTableImplBase>> mStack;
   // entry for the main program identifier
   // TODO: do I need to use weak pointer here?
-  SymbolTableEntryImplBase* mProgramId;
+  std::weak_ptr<SymbolTableEntryImplBase> mProgramId;
 };
 
 class TypeSpecImpl : public TypeSpecImplBase {
@@ -118,22 +118,22 @@ public:
   explicit TypeSpecImpl(const std::string& value);
   virtual ~TypeSpecImpl();
   virtual TypeFormImpl form() const override;
-  virtual void setIdentifier(SymbolTableEntryImplBase* identifier) override;
-  virtual SymbolTableEntryImplBase* getIdentifier() const override;
+  virtual void setIdentifier(std::shared_ptr<SymbolTableEntryImplBase> identifier) override;
+  virtual std::shared_ptr<SymbolTableEntryImplBase> getIdentifier() const override;
   virtual void setAttribute(TypeKeyImpl key, const std::any& value) override;
   virtual std::any getAttribute(TypeKeyImpl key) const override;
   virtual bool isPascalString() const override;
-  virtual TypeSpecImplBase* baseType() override;
+  virtual std::shared_ptr<TypeSpecImplBase> baseType() override;
 private:
   TypeFormImpl mForm;
-  SymbolTableEntryImplBase* mIdentifier;
+  std::weak_ptr<SymbolTableEntryImplBase> mIdentifier;
   std::unordered_map<TypeKeyImpl, std::any> mTypeSpecMap;
 };
 
 template <>
 std::unique_ptr<SymbolTableEntryImplBase>
 createSymbolTableEntry(const std::string &name,
-                       SymbolTableImplBase *symbolTable);
+                       std::shared_ptr<SymbolTableImplBase> symbolTable);
 
 template <>
 std::unique_ptr<SymbolTableImplBase> createSymbolTable(int nestingLevel);
@@ -164,7 +164,7 @@ template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::LINE> { using type =
 template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::VALUE> { using type = std::any; };
 
 template <TypeKeyImpl> struct TypeKeyImplToEnum;
-template <> struct TypeKeyImplToEnum<TypeKeyImpl::ENUMERATION_CONSTANTS> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
+template <> struct TypeKeyImplToEnum<TypeKeyImpl::ENUMERATION_CONSTANTS> { using type = std::vector<std::weak_ptr<SymbolTableEntryImplBase>>; };
 template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_COUNT> { using type = PascalInteger; };
 template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_ELEMENT_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };
 template <> struct TypeKeyImplToEnum<TypeKeyImpl::ARRAY_INDEX_TYPE> { using type = std::shared_ptr<TypeSpecImplBase>; };

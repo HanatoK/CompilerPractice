@@ -35,6 +35,7 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Pascal.h
             ${PROJECT_SOURCE_DIR}/PascalFrontend.h
             ${PROJECT_SOURCE_DIR}/Predefined.h
+            ${PROJECT_SOURCE_DIR}/TypeChecker.h
             ${PROJECT_SOURCE_DIR}/Utilities.h
             ${PROJECT_SOURCE_DIR}/Parsers/ArrayTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/AssignmentStatementParser.h
@@ -75,6 +76,7 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Pascal.cpp
             ${PROJECT_SOURCE_DIR}/PascalFrontend.cpp
             ${PROJECT_SOURCE_DIR}/Predefined.cpp
+            ${PROJECT_SOURCE_DIR}/TypeChecker.cpp
             ${PROJECT_SOURCE_DIR}/Utilities.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ArrayTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/AssignmentStatementParser.cpp

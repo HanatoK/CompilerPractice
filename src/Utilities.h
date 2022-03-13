@@ -15,7 +15,7 @@ public:
   void printColumnHeadings() const;
   void printSymbolTable(const std::shared_ptr<const SymbolTableImplBase > &symbol_table,
                         std::vector<std::shared_ptr<TypeSpecImplBase> >& record_types) const;
-  void printRoutine(const SymbolTableEntryImplBase* const routine_id) const;
+  void printRoutine(const std::shared_ptr<SymbolTableEntryImplBase>& routine_id) const;
   void printRecords(const std::vector<std::shared_ptr<TypeSpecImplBase>>& records) const;
   void printEntry(const std::shared_ptr<SymbolTableEntryImplBase const>& entry,
                   std::vector<std::shared_ptr<TypeSpecImplBase> >& record_types) const;

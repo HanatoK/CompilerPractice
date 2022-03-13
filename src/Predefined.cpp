@@ -45,13 +45,13 @@ void Predefined::initialize(std::shared_ptr<SymbolTableStackImplBase> &symbol_ta
   falseId->setDefinition(DefinitionImpl::ENUMERATION_CONSTANT);
   trueId->setDefinition(DefinitionImpl::ENUMERATION_CONSTANT);
   integerId->setTypeSpec(integerType);
-  integerType->setIdentifier(integerId.get());
+  integerType->setIdentifier(integerId);
   realId->setTypeSpec(realType);
-  realType->setIdentifier(realId.get());
+  realType->setIdentifier(realId);
   booleanId->setTypeSpec(booleanType);
-  booleanType->setIdentifier(booleanId.get());
+  booleanType->setIdentifier(booleanId);
   charId->setTypeSpec(charType);
-  charType->setIdentifier(charId.get());
+  charType->setIdentifier(charId);
   // initialize predefined constants
   falseId->setTypeSpec(booleanType);
   falseId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, 0ll);

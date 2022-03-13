@@ -29,7 +29,7 @@ public:
   PascalScanner();
   explicit PascalScanner(std::shared_ptr<Source> source);
   virtual ~PascalScanner();
-  virtual std::shared_ptr<PascalToken> extractToken();
+  virtual std::shared_ptr<PascalToken> extractToken() override;
 private:
   void skipWhiteSpace();
 };
@@ -39,9 +39,10 @@ class PascalParserTopDown:
                 ICodeKeyTypeImpl, PascalTokenTypeImpl, PascalScanner> {
 public:
   explicit PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
+  PascalParserTopDown(const PascalParserTopDown&) = delete;
   virtual ~PascalParserTopDown();
-  virtual void parse();
-  virtual int errorCount() const;
+  virtual void parse() override;
+  virtual int errorCount() const override;
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   boost::signals2::signal<void(const int, const int, const PascalTokenTypeImpl, const std::string&, std::any)> pascalTokenMessage;
   boost::signals2::signal<void(const int, const int, const float)> parserSummary;
@@ -62,7 +63,6 @@ public:
   std::shared_ptr<PascalToken> nextToken();
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack();
-//  std::shared_ptr<ICodeImplBase> getICode() const;
   std::shared_ptr<PascalScanner> scanner() const;
   int errorCount();
   PascalErrorHandler* errorHandler();

@@ -130,7 +130,7 @@ void PascalParserTopDown::parse() {
   // create a dummy program identifier symbol table entry
   mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
   mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
-  mSymbolTableStack->setProgramId(mRoutineId.get());
+  mSymbolTableStack->setProgramId(mRoutineId);
   // push a new symbol table into the stack and set the routine's symbol table and iCode
   mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB, mSymbolTableStack->push());
   mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE, intermediate_code);
@@ -249,7 +249,7 @@ std::shared_ptr<PascalToken> PascalScanner::extractToken() {
         mSource, PascalErrorCode::INVALID_CHARACTER, std::string{current_char});
     nextChar();
   }
-  return std::move(token);
+  return token;
 }
 
 void PascalScanner::skipWhiteSpace() {
@@ -755,8 +755,7 @@ const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparser
    {PascalTokenTypeImpl::MOD,   ICodeNodeTypeImpl::MOD},
    {PascalTokenTypeImpl::AND,   ICodeNodeTypeImpl::AND}};
 
-PascalSubparserTopDownBase::PascalSubparserTopDownBase(
-    PascalParserTopDown &pascal_parser)
+PascalSubparserTopDownBase::PascalSubparserTopDownBase(PascalParserTopDown& pascal_parser)
     : mPascalParser(pascal_parser) {}
 
 PascalSubparserTopDownBase::~PascalSubparserTopDownBase() {}
@@ -794,7 +793,7 @@ PascalErrorHandler *PascalSubparserTopDownBase::errorHandler() {
   return mPascalParser.mErrorHandler;
 }
 
-PascalParserTopDown *PascalSubparserTopDownBase::currentParser() {
+PascalParserTopDown* PascalSubparserTopDownBase::currentParser() {
   return &mPascalParser;
 }
 

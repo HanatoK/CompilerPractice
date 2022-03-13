@@ -14,7 +14,6 @@ SymbolTableStackImpl::~SymbolTableStackImpl() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
-  mProgramId = nullptr;
 }
 
 int SymbolTableStackImpl::currentNestingLevel() const {
@@ -45,14 +44,14 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std
   return result;
 }
 
-void SymbolTableStackImpl::setProgramId(SymbolTableEntryImplBase* entry)
+void SymbolTableStackImpl::setProgramId(std::shared_ptr<SymbolTableEntryImplBase> entry)
 {
   mProgramId = entry;
 }
 
-SymbolTableEntryImplBase* SymbolTableStackImpl::programId() const
+std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::programId() const
 {
-  return mProgramId;
+  return mProgramId.lock();
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push()
@@ -101,7 +100,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableImpl::lookup(const std::str
 
 std::shared_ptr<SymbolTableEntryImplBase>
 SymbolTableImpl::enter(const std::string &name) {
-  mSymbolMap[name] = createSymbolTableEntry(name, this);
+  mSymbolMap[name] = createSymbolTableEntry(name, shared_from_this());
   return mSymbolMap[name];
 }
 
@@ -114,23 +113,24 @@ std::vector<std::shared_ptr<SymbolTableEntryImplBase> > SymbolTableImpl::sortedE
   return result;
 }
 
-SymbolTableEntryImpl::SymbolTableEntryImpl(const std::string &name, SymbolTableImplBase* symbol_table)
-    : SymbolTableEntry(name, symbol_table), mName(name), mDefinition(DefinitionImpl::UNDEFINED), mTypeSpec(nullptr) {
-  mSymbolTable = symbol_table;
+SymbolTableEntryImpl::SymbolTableEntryImpl(
+    const std::string &name, std::shared_ptr<SymbolTableImplBase> symbol_table)
+    : SymbolTableEntry(name, symbol_table), mSymbolTable(symbol_table), mName(name),
+      mDefinition(DefinitionImpl::UNDEFINED), mTypeSpec(nullptr) {
 }
 
 SymbolTableEntryImpl::~SymbolTableEntryImpl() {
-  //#ifdef DEBUG_DESTRUCTOR
-  //  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
-  //#endif
-  // this pointer is for access only, so don't delete it.
-  mSymbolTable = nullptr;
+#ifdef DEBUG_DESTRUCTOR
+  std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
+#endif
+//  std::cout << "Count: " << mTypeSpec.use_count() << std::endl;
+// this pointer is for access only, so don't delete it.
 }
 
 std::string SymbolTableEntryImpl::name() const { return mName; }
 
-SymbolTableImplBase* SymbolTableEntryImpl::symbolTable() const {
-  return mSymbolTable;
+std::shared_ptr<SymbolTableImplBase> SymbolTableEntryImpl::symbolTable() const {
+  return mSymbolTable.lock();
 }
 
 void SymbolTableEntryImpl::appendLineNumber(int line_number) {
@@ -205,7 +205,7 @@ std::shared_ptr<ICodeNodeImplBase> ICodeImpl::getRoot() const {
 
 ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType)
     : ICodeNodeImplBase(pType), mType(pType),
-      mParent(nullptr) {}
+      mParent(std::weak_ptr<ICodeNodeImplBase>()) {}
 
 ICodeNodeImpl::~ICodeNodeImpl() {
 #ifdef DEBUG_DESTRUCTOR
@@ -215,18 +215,18 @@ ICodeNodeImpl::~ICodeNodeImpl() {
 
 ICodeNodeTypeImpl ICodeNodeImpl::type() const { return mType; }
 
-const ICodeNodeImplBase *ICodeNodeImpl::parent() const { return mParent; }
+const std::shared_ptr<ICodeNodeImplBase> ICodeNodeImpl::parent() const { return mParent.lock(); }
 
-const ICodeNodeImplBase *ICodeNodeImpl::setParent(const ICodeNodeImplBase *new_parent) {
+const std::shared_ptr<ICodeNodeImplBase> ICodeNodeImpl::setParent(const std::shared_ptr<ICodeNodeImplBase> new_parent) {
   mParent = new_parent;
-  return mParent;
+  return mParent.lock();
 }
 
 std::shared_ptr<ICodeNodeImplBase>
 ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeImplBase> node) {
   if (node != nullptr) {
     mChildren.push_back(node);
-    mChildren.back()->setParent(this);
+    mChildren.back()->setParent(shared_from_this());
   }
   return node;
 }
@@ -253,7 +253,7 @@ std::unique_ptr<ICodeNodeImplBase> ICodeNodeImpl::copy() const {
   for (auto it = mHashTable.cbegin(); it != mHashTable.cend(); ++it) {
     tmp_ptr->mHashTable[it->first] = it->second;
   }
-  return std::move(new_node);
+  return new_node;
 }
 
 std::string ICodeNodeImpl::toString() const {
@@ -365,7 +365,7 @@ std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type
 
 template <>
 std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string &name,
-                       SymbolTableImplBase* symbolTable) {
+                       std::shared_ptr<SymbolTableImplBase> symbolTable) {
   return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
 }
 
@@ -382,10 +382,10 @@ std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
 
 TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
     : TypeSpecImplBase(form),
-      mForm(form), mIdentifier(nullptr) {}
+      mForm(form), mIdentifier() {}
 
 TypeSpecImpl::TypeSpecImpl(const std::string& value)
-    : TypeSpecImplBase(value), mIdentifier(nullptr) {
+    : TypeSpecImplBase(value), mIdentifier() {
   mForm = TypeFormImpl::ARRAY;
   std::shared_ptr<TypeSpecImplBase> index_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SUBRANGE);
   index_type->setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
@@ -398,7 +398,6 @@ TypeSpecImpl::TypeSpecImpl(const std::string& value)
 
 TypeSpecImpl::~TypeSpecImpl()
 {
-  mIdentifier = nullptr;
 }
 
 TypeFormImpl TypeSpecImpl::form() const
@@ -406,14 +405,14 @@ TypeFormImpl TypeSpecImpl::form() const
   return mForm;
 }
 
-void TypeSpecImpl::setIdentifier(SymbolTableEntryImplBase* identifier)
+void TypeSpecImpl::setIdentifier(std::shared_ptr<SymbolTableEntryImplBase> identifier)
 {
   mIdentifier = identifier;
 }
 
-SymbolTableEntryImplBase* TypeSpecImpl::getIdentifier() const
+std::shared_ptr<SymbolTableEntryImplBase> TypeSpecImpl::getIdentifier() const
 {
-  return mIdentifier;
+  return mIdentifier.lock();
 }
 
 void TypeSpecImpl::setAttribute(TypeKeyImpl key, const std::any& value)
@@ -447,12 +446,12 @@ bool TypeSpecImpl::isPascalString() const
   }
 }
 
-TypeSpecImplBase* TypeSpecImpl::baseType()
+std::shared_ptr<TypeSpecImplBase> TypeSpecImpl::baseType()
 {
   if (mForm == TypeFormImpl::SUBRANGE) {
-    return std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE)).get();
+    return std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE));
   } else {
-    return this;
+    return shared_from_this();
   }
 }
 

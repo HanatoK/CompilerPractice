@@ -28,7 +28,7 @@ std::string runtimeErrorCodeToString(const RuntimeErrorCode &code);
 class RuntimeErrorHandler {
 public:
   RuntimeErrorHandler();
-  void flag(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node,
+  void flag(const std::shared_ptr<ICodeNodeImplBase>& node,
             const RuntimeErrorCode error_code, const Backend *backend);
   int errorCount() const;
 private:
@@ -44,7 +44,7 @@ public:
     std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
   }
-  virtual void process(std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> iCode,
+  virtual void process(std::shared_ptr<const ICodeImplBase> iCode,
                        std::shared_ptr<SymbolTableStackImplBase> symbol_table_stack) = 0;
   virtual std::string getType() const {
     return "unknown";

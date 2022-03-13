@@ -20,10 +20,10 @@ RuntimeErrorHandler::RuntimeErrorHandler(): mErrorCount(0)
 
 }
 
-void RuntimeErrorHandler::flag(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node,
+void RuntimeErrorHandler::flag(const std::shared_ptr<ICodeNodeImplBase>& node,
                                const RuntimeErrorCode error_code, const Backend *backend)
 {
-  const ICodeNodeImplBase* ptr = node.get();
+  std::shared_ptr<ICodeNodeImplBase> ptr = node;
   int line_number = 0;
   do {
     const auto line_attr = ptr->getAttribute(ICodeKeyTypeImpl::LINE);

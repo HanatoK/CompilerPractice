@@ -15,7 +15,7 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
 {
   std::shared_ptr<TypeSpecImplBase> enumeration_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::ENUMERATION);
   PascalInteger value = -1;
-  std::vector<std::shared_ptr<SymbolTableEntryImplBase>> constants;
+  std::vector<std::weak_ptr<SymbolTableEntryImplBase>> constants;
   // consume the opening (
   token = nextToken();
   do {
@@ -45,7 +45,7 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
 
 void EnumerationTypeParser::parseEnumerationIdentifier(
   std::shared_ptr<PascalToken>& token, PascalInteger value, std::shared_ptr<TypeSpecImplBase> enumeration_type,
-  std::vector<std::shared_ptr<SymbolTableEntryImplBase> >& constants)
+  std::vector<std::weak_ptr<SymbolTableEntryImplBase> >& constants)
 {
   const auto token_type = token->type();
   if (token_type == PascalTokenTypeImpl::IDENTIFIER) {

@@ -39,7 +39,7 @@ void CrossReferencer::printSymbolTable(const std::shared_ptr<const SymbolTableIm
   }
 }
 
-void CrossReferencer::printRoutine(const SymbolTableEntryImplBase* const routine_id) const
+void CrossReferencer::printRoutine(const std::shared_ptr<SymbolTableEntryImplBase>& routine_id) const
 {
   const auto definition = routine_id->getDefinition();
   fmt::print("\n*** {} {} ***", definitionimpl_to_string(definition), routine_id->name());
@@ -57,7 +57,7 @@ void CrossReferencer::printRoutine(const SymbolTableEntryImplBase* const routine
   if (routine_ids_any.has_value()) {
     const auto routine_ids = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(routine_ids_any);
     for (const auto& i : routine_ids) {
-      printRoutine(i.get());
+      printRoutine(i);
     }
   }
 }
@@ -107,7 +107,7 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
     }
     case DefinitionImpl::TYPE: {
       // print the type details only when the type is defined at the first time
-      if (entry.get() == type_spec->getIdentifier()) {
+      if (entry == type_spec->getIdentifier()) {
         printTypeDetail(type_spec, record_types);
       }
       break;
@@ -145,10 +145,11 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
       const auto constant_ids_any = type_spec->getAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS);
       if (constant_ids_any.has_value()) {
         fmt::print("{} {}\n", INDENT, "--- Enumeration constants ---");
-        const auto constant_ids = std::any_cast<std::vector<std::shared_ptr<SymbolTableEntryImplBase>>>(constant_ids_any);
+        const auto constant_ids = std::any_cast<std::vector<std::weak_ptr<SymbolTableEntryImplBase>>>(constant_ids_any);
         for (const auto& id: constant_ids) {
-          const auto name = id->name();
-          const auto val = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
+          const auto id_ptr = id.lock();
+          const auto name = id_ptr->name();
+          const auto val = id_ptr->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
           fmt::print("{} {}\n", INDENT, name + " = " + any_to_string(val));
         }
       } else {

@@ -20,7 +20,7 @@ public:
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
   void parseEnumerationIdentifier(std::shared_ptr<PascalToken>& token, PascalInteger value,
     std::shared_ptr<TypeSpecImplBase> enumeration_type,
-    std::vector<std::shared_ptr<SymbolTableEntryImplBase>>& constants);
+    std::vector<std::weak_ptr<SymbolTableEntryImplBase> >& constants);
 };
 
 #endif // ENUMERATIONTYPEPARSER_H

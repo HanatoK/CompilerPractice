@@ -47,7 +47,7 @@ std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<
     // cross-link the type identifier and the type specification
     if (type_id != nullptr && type_spec != nullptr) {
       if (type_spec->getIdentifier() == nullptr) {
-        type_spec->setIdentifier(type_id.get());
+        type_spec->setIdentifier(type_id);
       }
       type_id->setTypeSpec(type_spec);
     } else {
