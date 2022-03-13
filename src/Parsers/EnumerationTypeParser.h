@@ -18,7 +18,7 @@ public:
   explicit EnumerationTypeParser(PascalParserTopDown& parent);
   virtual ~EnumerationTypeParser();
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
-  void parseEnumerationIdentifier(std::shared_ptr<PascalToken>& token, int value,
+  void parseEnumerationIdentifier(std::shared_ptr<PascalToken>& token, PascalInteger value,
     std::shared_ptr<TypeSpecImplBase> enumeration_type,
     std::vector<std::shared_ptr<SymbolTableEntryImplBase>>& constants);
 };

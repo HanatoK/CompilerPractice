@@ -124,7 +124,7 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
   }
   auto definition = id->getDefinition();
   if (definition == DefinitionImpl::CONSTANT) {
-    auto constant_value_any = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
+    const auto constant_value_any = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
     id->appendLineNumber(token->lineNum());
     if (any_is<PascalInteger>(constant_value_any)) {
       return sign * std::any_cast<PascalInteger>(constant_value_any);
@@ -135,7 +135,15 @@ std::any ConstantDefinitionsParser::parseIdentifierConstant(std::shared_ptr<Pasc
     } else {
       return std::any();
     }
+  } else if (definition == DefinitionImpl::ENUMERATION_CONSTANT) {
+    const auto constant_value_any = id->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
+    id->appendLineNumber(token->lineNum());
+    if (sign != 1) {
+      errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
+    }
+    return constant_value_any;
   } else {
+    errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     return std::any();
   }
 }
