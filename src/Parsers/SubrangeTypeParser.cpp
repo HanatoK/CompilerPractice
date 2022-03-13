@@ -20,7 +20,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
   ConstantDefinitionsParser parser(*currentParser());
   auto min_val = parser.parseConstant(token);
   // set the minimum type
-  auto min_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
+  const auto min_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
                   parser.getConstantType(constant_token):
                   parser.getConstantType(min_val);
   min_val = checkValueType(constant_token, min_val, min_type);
@@ -40,7 +40,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     token = synchronize(ConstantDefinitionsParser::constantStartSet());
     constant_token = token->clone();
     max_val = parser.parseConstant(token);
-    auto max_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
+    const auto max_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
                       parser.getConstantType(constant_token):
                       parser.getConstantType(max_val);
     max_val = checkValueType(constant_token, max_val, max_type);
@@ -50,12 +50,10 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     } else if (min_type != max_type) { // is this comparison valid?
       errorHandler()->flag(constant_token, PascalErrorCode::INVALID_SUBRANGE_TYPE, currentParser());
     } else if (min_val.has_value() && max_val.has_value()) {
-      if ((min_type == Predefined::instance().integerType ||
-           min_type == Predefined::instance().charType) &&
-          std::any_cast<PascalInteger>(min_val) >= std::any_cast<PascalInteger>(max_val)) {
+      if (std::any_cast<PascalInteger>(min_val) >= std::any_cast<PascalInteger>(max_val)) {
         errorHandler()->flag(constant_token, PascalErrorCode::MIN_GT_MAX, currentParser());
-        std::cout << "Min value: " << std::any_cast<PascalInteger>(min_val) << " "
-                     "Max value: " << std::any_cast<PascalInteger>(max_val) << std::endl;
+//        std::cout << "Min value: " << std::any_cast<PascalInteger>(min_val) << " "
+//                     "Max value: " << std::any_cast<PascalInteger>(max_val) << std::endl;
       }
     }
   } else {
