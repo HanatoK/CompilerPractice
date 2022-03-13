@@ -213,40 +213,40 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
 }
 
 ParseTreePrinter::ParseTreePrinter(std::ostream &os)
-    : mOutputStream(os), mLength(0) {
-  mIndentSpaces = "";
-  for (int i = 0; i < INDENT_WIDTH; ++i) {
-    mIndentSpaces += " ";
-  }
+    : mOutputStream(os), mLength(0), mIndentSpaces(INDENT_WIDTH, ' ') {
 }
 
-void ParseTreePrinter::print(const std::shared_ptr<const ICodeImplBase>& intermediate_code) {
+void ParseTreePrinter::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) {
   const auto tmp_line_width = LINE_WIDTH;
   mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
-  printNode(intermediate_code->getRoot());
+  const auto& program_id = symbol_table_stack->programId();
+  const auto& iCode = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+  const auto root_node = iCode->getRoot();
+  printNode(root_node);
   printLine();
   mOutputStream << fmt::format("{:=^{}}\n", "", tmp_line_width);
 }
 
-void ParseTreePrinter::printNode(
-    const std::shared_ptr<ICodeNodeImplBase const>
-        &node) {
-  // opening tag
-  appendOutputLine(mLineIndentation);
-  appendOutputLine("<" + node->toString());
-  printAttributes(node);
-  printTypeSpec(node);
-  if (node->numChildren() > 0) {
-    appendOutputLine(">");
-    printLine();
-    printChildNodes(node);
+void ParseTreePrinter::printNode(const std::shared_ptr<const ICodeNodeImplBase>& node)
+{
+  if (node != nullptr) {
+    // opening tag
     appendOutputLine(mLineIndentation);
-    appendOutputLine("</" + node->toString() + ">");
-  } else {
-    appendOutputLine("");
-    appendOutputLine("/>");
+    appendOutputLine("<" + node->toString());
+    printAttributes(node);
+    printTypeSpec(node);
+    if (node->numChildren() > 0) {
+      appendOutputLine(">");
+      printLine();
+      printChildNodes(node);
+      appendOutputLine(mLineIndentation);
+      appendOutputLine("</" + node->toString() + ">");
+    } else {
+      appendOutputLine("");
+      appendOutputLine("/>");
+    }
+    printLine();
   }
-  printLine();
 }
 
 void ParseTreePrinter::printAttributes(const std::shared_ptr<const ICodeNodeImplBase>& node) {
@@ -346,9 +346,11 @@ ParseTreePrinterDot::ParseTreePrinterDot(std::ostream &os): mOutputStream(os), m
 
 }
 
-void ParseTreePrinterDot::print(const std::shared_ptr<const ICodeImplBase> &intermediate_code)
+void ParseTreePrinterDot::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack)
 {
-  auto root_node = intermediate_code->getRoot();
+  const auto& program_id = symbol_table_stack->programId();
+  const auto& iCode = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+  const auto root_node = iCode->getRoot();
   printNode(root_node);
   mOutputStream << "digraph \"parse tree\"\n{\n"
                 << "  rankdir=\"LR\"\n"

@@ -65,10 +65,10 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
     }
     if (intermediate) {
       ParseTreePrinter printer_xml(std::cout);
-      printer_xml.print(mICode);
+      printer_xml.print(mSymbolTableStack);
       std::ofstream ofs_dot((filePath + ".dot").c_str());
       ParseTreePrinterDot printer(ofs_dot);
-      printer.print(mICode);
+      printer.print(mSymbolTableStack);
     }
   }
   mBackend->process(mICode, mSymbolTableStack);

@@ -34,9 +34,9 @@ private:
 public:
   static const int INDENT_WIDTH = 4;
   static const int LINE_WIDTH = 80;
-  ParseTreePrinter(std::ostream& os);
-  void print(const std::shared_ptr<const ICodeImplBase > &intermediate_code);
-  void printNode(const std::shared_ptr<const ICodeNodeImplBase>& node);
+  explicit ParseTreePrinter(std::ostream& os);
+  void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
+  void printNode(const std::shared_ptr<const ICodeNodeImplBase> &node);
   void printAttributes(const std::shared_ptr<const ICodeNodeImplBase>& node);
   void printAttributes(const std::string& key, const std::any& value);
   void printChildNodes(const std::shared_ptr<const ICodeNodeImplBase> &parent_node);
@@ -52,8 +52,8 @@ private:
   std::vector<std::string> mNodeStyleLines;
   std::vector<std::string> mNodeConnectionLines;
 public:
-  ParseTreePrinterDot(std::ostream& os);
-  void print(const std::shared_ptr<const ICodeImplBase>& intermediate_code);
+  explicit ParseTreePrinterDot(std::ostream& os);
+  void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
   std::string printNode(const std::shared_ptr<const ICodeNodeImplBase>& node);
 };
 
