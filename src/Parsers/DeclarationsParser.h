@@ -13,7 +13,7 @@ public:
   static TokenTypeSet routineStartSet();
   explicit DeclarationsParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~DeclarationsParser();
-  virtual std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> parse(std::shared_ptr<PascalToken> token);
+  virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
 };
 
 #endif // DECLARATIONSPARSER_H

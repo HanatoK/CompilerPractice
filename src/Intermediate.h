@@ -97,7 +97,7 @@ public:
   // lookup an existing symbol table entry throughout the stack
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> lookup(const std::string& name) const = 0;
   // set the symbol table entry for the main program identifer
-  virtual void setProgramId(std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> entry) = 0;
+  virtual void setProgramId(const std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>>& entry) = 0;
   // get the symbol table entry for the main program identifier
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> programId() const = 0;
   // push a new symbol table into the stack,
@@ -117,7 +117,7 @@ public:
   virtual ~TypeSpec() {}
   virtual TypeFormT form() const = 0;
   // raw pointers are used to avoid the circular dependency
-  virtual void setIdentifier(std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> identifier) = 0;
+  virtual void setIdentifier(const std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>>& identifier) = 0;
   virtual std::shared_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> getIdentifier() const = 0;
   virtual void setAttribute(TypeKeyT key, const std::any& value) = 0;
   virtual std::any getAttribute(TypeKeyT key) const = 0;

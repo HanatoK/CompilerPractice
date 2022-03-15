@@ -12,7 +12,7 @@ ConstantDefinitionsParser::~ConstantDefinitionsParser()
   //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > ConstantDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
 {
   token = synchronize(ConstantDefinitionsParser::identifierSet());
   const auto next_start_set = ConstantDefinitionsParser::nextStartSet();

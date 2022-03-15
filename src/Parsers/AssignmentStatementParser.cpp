@@ -14,9 +14,9 @@ AssignmentStatementParser::~AssignmentStatementParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > AssignmentStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> AssignmentStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
-  auto assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::ASSIGN);
+  std::shared_ptr<ICodeNodeImplBase> assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::ASSIGN);
   // lookup the target identifier in the symbol table stack
   const std::string target_name = boost::algorithm::to_lower_copy(token->text());
   auto target_id = getSymbolTableStack()->lookup(target_name);

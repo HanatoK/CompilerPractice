@@ -13,7 +13,7 @@ TypeDefinitionsParser::~TypeDefinitionsParser()
   //#endif
 }
 
-std::unique_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> TypeDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
 {
   token = synchronize(TypeDefinitionsParser::identifierSet());
   // loop to parse a sequence of type definitions

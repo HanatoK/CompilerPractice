@@ -24,8 +24,7 @@ begin
 end;
 =============================================
  */
-std::unique_ptr<ICodeNodeImplBase>
-BlockParser::parse(std::shared_ptr<PascalToken> token,
+std::shared_ptr<ICodeNodeImplBase> BlockParser::parse(std::shared_ptr<PascalToken> token,
                    std::shared_ptr<SymbolTableEntryImplBase> routine_id) {
   DeclarationsParser declarations_parser(currentParser());
   StatementParser statement_parser(currentParser());
@@ -33,7 +32,7 @@ BlockParser::parse(std::shared_ptr<PascalToken> token,
   declarations_parser.parse(token);
   token = synchronize(StatementParser::statementStartSet());
   const auto token_type = token->type();
-  std::unique_ptr<ICodeNodeImplBase> root_node = nullptr;
+  std::shared_ptr<ICodeNodeImplBase> root_node = nullptr;
   if (token_type == PascalTokenTypeImpl::BEGIN) {
     root_node = statement_parser.parse(token);
   } else {

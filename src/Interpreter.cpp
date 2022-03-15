@@ -24,7 +24,7 @@ void Executor::process(
   mSymbolTableStack = symbol_table_stack;
   const auto start_time = std::chrono::high_resolution_clock::now();
   auto root_node = iCode->getRoot();
-  StatementExecutor executor(shared_from_this());
+  StatementExecutor executor(std::dynamic_pointer_cast<std::remove_reference<decltype(*this)>::type>(shared_from_this()));
   executor.execute(root_node);
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time = end_time - start_time;
@@ -45,7 +45,7 @@ void SubExecutorBase::sendSourceLineMessage(const std::shared_ptr<ICodeNodeImplB
 {
   const auto line_number_obj = node->getAttribute(ICodeKeyTypeImpl::LINE);
   if (line_number_obj.has_value()) {
-    const int line_number = std::any_cast<int>(line_number_obj);
+    const int line_number = cast_by_enum<ICodeKeyTypeImpl::LINE>(line_number_obj);
     mExecutor->sourceLineMessage(line_number);
   }
 }

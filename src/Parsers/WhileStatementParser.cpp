@@ -7,16 +7,16 @@ WhileStatementParser::WhileStatementParser(const std::shared_ptr<PascalParserTop
 
 }
 
-std::unique_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the WHILE
   token = nextToken();
   // create LOOP, TEST and NOT nodes
-  auto loop_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::LOOP);
-  auto break_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::TEST);
+  std::shared_ptr<ICodeNodeImplBase> loop_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::LOOP);
+  std::shared_ptr<ICodeNodeImplBase> break_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::TEST);
   // a WHILE loop exits when the test expression is false
   // this is adverse to the REPEAT node, so if NOT is used in REPEAT then it should not be used here
-  auto not_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::NOT);
+  std::shared_ptr<ICodeNodeImplBase> not_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::NOT);
   // parse the expression as a child of the NOT node
   ExpressionParser expression_parser(currentParser());
   // construct the parse tree

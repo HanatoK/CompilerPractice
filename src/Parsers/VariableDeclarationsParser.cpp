@@ -12,7 +12,7 @@ VariableDeclarationsParser::~VariableDeclarationsParser()
   //#endif
 }
 
-std::unique_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(std::shared_ptr<PascalToken> token)
 {
   token = synchronize(VariableDeclarationsParser::identifierSet());
   // loop to parse a sequence of variable declarations separated by semicolons

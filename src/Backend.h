@@ -35,7 +35,7 @@ private:
   int mErrorCount;
 };
 
-class Backend {
+class Backend: public std::enable_shared_from_this<Backend> {
 public:
   Backend();
   virtual ~Backend() {

@@ -17,8 +17,8 @@ StatementParser::~StatementParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
+  std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
       statement_node = nullptr;
   switch (token->type()) {
     case PascalTokenTypeImpl::BEGIN: {
@@ -67,7 +67,7 @@ std::unique_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<Pascal
 }
 
 void StatementParser::parseList(std::shared_ptr<PascalToken> token,
-    std::unique_ptr<ICodeNodeImplBase>& parent_node,
+    std::shared_ptr<ICodeNodeImplBase>& parent_node,
     const PascalTokenTypeImpl& terminator, const PascalErrorCode& error_code) {
   const auto stmt_start_set = StatementParser::statementStartSet();
   auto terminator_set = stmt_start_set;

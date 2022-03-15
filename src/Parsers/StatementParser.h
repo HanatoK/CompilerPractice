@@ -11,9 +11,9 @@ public:
   static TokenTypeSet statementFollowSet();
   explicit StatementParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~StatementParser();
-  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
+  virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
   virtual void parseList(std::shared_ptr<PascalToken> token,
-                         std::unique_ptr<ICodeNodeImplBase> &parent_node,
+                         std::shared_ptr<ICodeNodeImplBase>& parent_node,
                          const PascalTokenTypeImpl &terminator, const PascalErrorCode &error_code);
 };
 

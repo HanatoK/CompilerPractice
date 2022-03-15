@@ -69,8 +69,8 @@ public:
   std::shared_ptr<PascalErrorHandler> errorHandler();
   std::shared_ptr<PascalParserTopDown> currentParser();
   // TODO: what exactly does this function return??
-  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
-  static void setLineNumber(std::unique_ptr<ICodeNodeImplBase>& node,
+  virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
+  static void setLineNumber(std::shared_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> addOpsMap;

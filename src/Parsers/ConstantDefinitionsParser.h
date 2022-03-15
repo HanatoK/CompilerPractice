@@ -14,7 +14,7 @@ public:
   static TokenTypeSet nextStartSet();
   explicit ConstantDefinitionsParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~ConstantDefinitionsParser();
-  virtual std::unique_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
+  virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
   virtual std::any parseConstant(std::shared_ptr<PascalToken>& token);
   virtual std::any parseIdentifierConstant(std::shared_ptr<PascalToken>& token, SignType sign);
   virtual std::shared_ptr<TypeSpecImplBase> getConstantType(const std::any& value) const;

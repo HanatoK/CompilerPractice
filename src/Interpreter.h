@@ -4,7 +4,7 @@
 #include "Backend.h"
 #include "Intermediate.h"
 
-class Executor: public Backend, public std::enable_shared_from_this<Executor> {
+class Executor: public Backend {
 public:
   Executor();
   virtual ~Executor();

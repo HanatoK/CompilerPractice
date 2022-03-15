@@ -117,7 +117,7 @@ public:
   virtual std::shared_ptr<SymbolTableEntryImplBase> enterLocal(const std::string &name) override;
   virtual std::shared_ptr<SymbolTableEntryImplBase> lookupLocal(const std::string &name) const override;
   virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const override;
-  virtual void setProgramId(std::shared_ptr<SymbolTableEntryImplBase> entry) override;
+  virtual void setProgramId(const std::shared_ptr<SymbolTableEntryImplBase>& entry) override;
   virtual std::shared_ptr<SymbolTableEntryImplBase> programId() const override;
   virtual std::shared_ptr<SymbolTableImplBase> push() override;
   virtual std::shared_ptr<SymbolTableImplBase> push(std::shared_ptr<SymbolTableImplBase> symbol_table) override;
@@ -138,7 +138,7 @@ public:
   explicit TypeSpecImpl(const std::string& value);
   virtual ~TypeSpecImpl();
   virtual TypeFormImpl form() const override;
-  virtual void setIdentifier(std::shared_ptr<SymbolTableEntryImplBase> identifier) override;
+  virtual void setIdentifier(const std::shared_ptr<SymbolTableEntryImplBase>& identifier) override;
   virtual std::shared_ptr<SymbolTableEntryImplBase> getIdentifier() const override;
   virtual void setAttribute(TypeKeyImpl key, const std::any& value) override;
   virtual std::any getAttribute(TypeKeyImpl key) const override;

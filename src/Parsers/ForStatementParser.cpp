@@ -6,17 +6,17 @@
 ForStatementParser::ForStatementParser(const std::shared_ptr<PascalParserTopDown> &parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // cosume the FOR
   token = nextToken();
   const auto target_token = token;
   // create the COMPOUND, LOOP and TEST nodes
-  auto compound_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
-      ICodeNodeTypeImpl::COMPOUND);
-  auto loop_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
-      ICodeNodeTypeImpl::LOOP);
-  auto test_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
-      ICodeNodeTypeImpl::TEST);
+  std::shared_ptr<ICodeNodeImplBase> compound_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::COMPOUND);
+  std::shared_ptr<ICodeNodeImplBase> loop_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::LOOP);
+  std::shared_ptr<ICodeNodeImplBase> test_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::TEST);
   // parse the embedded initial assignment
   AssignmentStatementParser assignment_parser(currentParser());
   auto init_assign_node = assignment_parser.parse(token);
@@ -35,7 +35,8 @@ std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
                          currentParser());
   }
   // create a relational operator node
-  auto rel_op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
+  std::shared_ptr<ICodeNodeImplBase> rel_op_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       direction == PascalTokenTypeImpl::TO ? ICodeNodeTypeImpl::GT
                                            : ICodeNodeTypeImpl::LT);
   // copy the control VARIABLE node from the assignment node
@@ -58,18 +59,21 @@ std::unique_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
   StatementParser statement_parser(currentParser());
   loop_node->addChild(statement_parser.parse(token));
   // create an assignment with a copy of the control variable to advance the value of it
-  auto next_assign_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
+  std::shared_ptr<ICodeNodeImplBase> next_assign_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::ASSIGN);
   next_assign_node->addChild(std::move(control_variable_node->copy()));
   // create the arithmetic operator node
   // ADD for TO, or SUBTRACT for DOWNTO
-  auto arithmetic_op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
+  std::shared_ptr<ICodeNodeImplBase> arithmetic_op_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       direction == PascalTokenTypeImpl::TO ? ICodeNodeTypeImpl::ADD
                                            : ICodeNodeTypeImpl::SUBTRACT);
   arithmetic_op_node->addChild(std::move(control_variable_node->copy()));
-  auto one_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
+  std::shared_ptr<ICodeNodeImplBase> one_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::INTEGER_CONSTANT);
-  one_node->setAttribute(ICodeKeyTypeImpl::VALUE, 1ll);
+  one_node->setAttribute(ICodeKeyTypeImpl::VALUE, PascalInteger(1));
   arithmetic_op_node->addChild(std::move(one_node));
   // the next ASSIGN node adopts the arithmetic operator node as its second child,
   next_assign_node->addChild(std::move(arithmetic_op_node));

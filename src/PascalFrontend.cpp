@@ -133,7 +133,7 @@ void PascalParserTopDown::parse() {
   BlockParser block_parser(shared_from_this());
   auto token = nextToken();
   // parse a block
-  std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> root_node = block_parser.parse(token, mRoutineId);
+  std::shared_ptr<ICodeNodeImplBase> root_node = block_parser.parse(token, mRoutineId);
   intermediate_code->setRoot(std::move(root_node));
   mSymbolTableStack->pop();
   // look for the final .
@@ -792,7 +792,7 @@ std::shared_ptr<PascalParserTopDown> PascalSubparserTopDownBase::currentParser()
   return mPascalParser;
 }
 
-std::unique_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(std::shared_ptr<PascalToken> token)
 {
   // should not enter this function
   // the parser does not implement parse(std::shared_ptr<PascalToken>)!
@@ -803,7 +803,7 @@ std::unique_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(std::shared
 }
 
 void PascalSubparserTopDownBase::setLineNumber(
-    std::unique_ptr<ICodeNodeImplBase> &node,
+    std::shared_ptr<ICodeNodeImplBase> &node,
     const std::shared_ptr<PascalToken> &token) {
   if (node != nullptr) {
     node->setAttribute(ICodeKeyTypeImpl::LINE, token->lineNum());

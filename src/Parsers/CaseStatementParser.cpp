@@ -5,13 +5,12 @@
 CaseStatementParser::CaseStatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::unique_ptr<ICodeNodeImplBase>
-CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
   // consume the CASE
   token = nextToken();
   // create a SELECT node
-  auto select_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
-      ICodeNodeTypeImpl::SELECT);
+  std::shared_ptr<ICodeNodeImplBase> select_node
+      = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::SELECT);
   // parse the CASE expression
   // I use the expression parser here, which is different from the book.
   // Maybe I need something like constant expression in C++?

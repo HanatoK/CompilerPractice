@@ -44,7 +44,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std
   return result;
 }
 
-void SymbolTableStackImpl::setProgramId(std::shared_ptr<SymbolTableEntryImplBase> entry)
+void SymbolTableStackImpl::setProgramId(const std::shared_ptr<SymbolTableEntryImplBase>& entry)
 {
   mProgramId = entry;
 }
@@ -226,7 +226,8 @@ std::shared_ptr<ICodeNodeImplBase>
 ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeImplBase> node) {
   if (node != nullptr) {
     mChildren.push_back(node);
-    mChildren.back()->setParent(shared_from_this());
+    // SERIOUS BUG: this may be a unique_ptr!!
+    mChildren.back()->setParent(std::dynamic_pointer_cast<std::remove_reference_t<decltype(*this)>>(shared_from_this()));
   }
   return node;
 }
@@ -405,7 +406,7 @@ TypeFormImpl TypeSpecImpl::form() const
   return mForm;
 }
 
-void TypeSpecImpl::setIdentifier(std::shared_ptr<SymbolTableEntryImplBase> identifier)
+void TypeSpecImpl::setIdentifier(const std::shared_ptr<SymbolTableEntryImplBase>& identifier)
 {
   mIdentifier = identifier;
 }
@@ -451,7 +452,7 @@ std::shared_ptr<TypeSpecImplBase> TypeSpecImpl::baseType()
   if (mForm == TypeFormImpl::SUBRANGE) {
     return std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE));
   } else {
-    return shared_from_this();
+    return std::dynamic_pointer_cast<std::remove_reference_t<decltype(*this)>>(shared_from_this());
   }
 }
 

@@ -7,12 +7,13 @@ IfStatementParser::IfStatementParser(const std::shared_ptr<PascalParserTopDown> 
 
 }
 
-std::unique_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<PascalToken> token)
 {
   // consume the IF
   token = nextToken();
   // create the IF node
-  auto if_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
+  std::shared_ptr<ICodeNodeImplBase> if_node =
+      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
       ICodeNodeTypeImpl::IF);
   // parse the expression and adopt it as the child node of the IF node
   ExpressionParser expression_parser(currentParser());

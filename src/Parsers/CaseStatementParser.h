@@ -9,8 +9,8 @@ public:
   static TokenTypeSet ofSet();
   static TokenTypeSet commaSet();
   explicit CaseStatementParser(const std::shared_ptr<PascalParserTopDown>& parent);
-  virtual std::unique_ptr<ICodeNodeImplBase>
-  parse(std::shared_ptr<PascalToken> token);
+  virtual std::shared_ptr<ICodeNodeImplBase>
+  parse(std::shared_ptr<PascalToken> token) override;
 private:
   virtual std::unique_ptr<ICodeNodeImplBase>
   parseBranch(std::shared_ptr<PascalToken> token,

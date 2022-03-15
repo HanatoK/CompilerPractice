@@ -13,7 +13,7 @@ DeclarationsParser::~DeclarationsParser()
 //#endif
 }
 
-std::unique_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > DeclarationsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> DeclarationsParser::parse(std::shared_ptr<PascalToken> token)
 {
   token = synchronize(declarationStartSet());
   if (token->type() == PascalTokenTypeImpl::CONST) {
