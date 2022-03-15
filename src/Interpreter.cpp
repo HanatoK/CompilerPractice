@@ -17,9 +17,8 @@ Executor::~Executor()
 }
 
 void Executor::process(
-    std::shared_ptr<ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> const> iCode,
-    std::shared_ptr<SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>>
-        symbol_table_stack) {
+    std::shared_ptr<ICodeImplBase const> iCode,
+    std::shared_ptr<SymbolTableStackImplBase> symbol_table_stack) {
   mICode = iCode;
   mSymbolTableStack = symbol_table_stack;
   const auto start_time = std::chrono::high_resolution_clock::now();

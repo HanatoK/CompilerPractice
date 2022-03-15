@@ -114,7 +114,7 @@ std::vector<std::shared_ptr<SymbolTableEntryImplBase> > SymbolTableImpl::sortedE
 }
 
 SymbolTableEntryImpl::SymbolTableEntryImpl(
-    const std::string &name, std::shared_ptr<SymbolTableImplBase> symbol_table)
+    const std::string &name, const std::shared_ptr<SymbolTableImplBase>& symbol_table)
     : SymbolTableEntry(name, symbol_table), mSymbolTable(symbol_table), mName(name),
       mDefinition(DefinitionImpl::UNDEFINED), mTypeSpec(nullptr) {
 }

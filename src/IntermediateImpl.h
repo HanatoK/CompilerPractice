@@ -54,7 +54,6 @@ protected:
   virtual const ChildrenContainerTImpl& children() const;
 private:
   ICodeNodeTypeImpl mType;
-  // TODO: do I need to use weak pointer here?
   std::weak_ptr<const ICodeNodeImplBase> mParent;
   AttributeMapTImpl mHashTable;
   ChildrenContainerTImpl mChildren;
@@ -73,7 +72,7 @@ private:
 
 class SymbolTableEntryImpl : public SymbolTableEntryImplBase {
 public:
-  SymbolTableEntryImpl(const std::string &name, std::shared_ptr<SymbolTableImplBase> symbol_table);
+  SymbolTableEntryImpl(const std::string &name, const std::shared_ptr<SymbolTableImplBase>& symbol_table);
   virtual ~SymbolTableEntryImpl();
   virtual std::string name() const override;
   virtual std::shared_ptr<SymbolTableImplBase> symbolTable() const override;
