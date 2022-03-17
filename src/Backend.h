@@ -50,7 +50,7 @@ public:
   }
   boost::signals2::signal<void(const int, const std::string&)> runtimeErrorMessage;
 protected:
-  std::shared_ptr<const ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> mICode;
+  std::shared_ptr<const ICodeImplBase> mICode;
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
 };
 

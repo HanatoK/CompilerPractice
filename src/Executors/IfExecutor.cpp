@@ -7,7 +7,7 @@ IfExecutor::IfExecutor(const std::shared_ptr<Executor>& executor): SubExecutorBa
 
 }
 
-std::shared_ptr<SubExecutorBase> IfExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+std::shared_ptr<SubExecutorBase> IfExecutor::execute(const std::shared_ptr<ICodeNodeImplBase> &node)
 {
   auto it_child = node->childrenBegin();
   auto expr_node = *it_child++;

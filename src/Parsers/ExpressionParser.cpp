@@ -23,7 +23,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parse(std::shared_ptr<Pasca
   if (search != relOpsMap.end()) {
     // relational operator found
     const auto node_type = relOpsMap.at(token_type);
-    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
+    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode(node_type);
     op_node->addChild(std::move(root_node));
     // now root_node should be nullptr
     // consume the operator
@@ -50,34 +50,34 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
         errorHandler()->flag(token, PascalErrorCode::IDENTIFIER_UNDEFINED, currentParser());
         id = symbol_table_stack->enterLocal(name);
       }
-      root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::VARIABLE);
+      root_node = createICodeNode(ICodeNodeTypeImpl::VARIABLE);
       root_node->setAttribute(ICodeKeyTypeImpl::ID, id);
       id->appendLineNumber(token->lineNum());
       token = nextToken();
       break;
     }
     case PascalTokenTypeImpl::INTEGER: {
-      root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::INTEGER_CONSTANT);
+      root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
       root_node->setAttribute(ICodeKeyTypeImpl::VALUE, token->value());
       token = nextToken();
       break;
     }
     case PascalTokenTypeImpl::REAL: {
-      root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::REAL_CONSTANT);
+      root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
       root_node->setAttribute(ICodeKeyTypeImpl::VALUE, token->value());
       token = nextToken();
       break;
     }
     case PascalTokenTypeImpl::STRING: {
       const std::string s = any_to_string(token->value());
-      root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::STRING_CONSTANT);
+      root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
       root_node->setAttribute(ICodeKeyTypeImpl::VALUE, s);
       token = nextToken();
       break;
     }
     case PascalTokenTypeImpl::NOT: {
       token = nextToken();
-      root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::NOT);
+      root_node = createICodeNode(ICodeNodeTypeImpl::NOT);
       // parse the factor. The NOT node adopts it as child
       root_node->addChild(parseFactor(token));
       break;
@@ -112,7 +112,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseTerm(std::shared_ptr<P
   auto token_type = token->type();
   while (multOpsMap.find(token_type) != multOpsMap.end()) {
     const auto node_type = multOpsMap.at(token_type);
-    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
+    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode(node_type);
     op_node->addChild(std::move(root_node));
     token = nextToken();
     op_node->addChild(parseFactor(token));
@@ -136,7 +136,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
   auto root_node = parseTerm(token);
   if (sign_type == PascalTokenTypeImpl::MINUS) {
     // create a NEGATE node and adopt the current tree
-    std::shared_ptr<ICodeNodeImplBase> negate_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::NEGATE);
+    std::shared_ptr<ICodeNodeImplBase> negate_node = createICodeNode(ICodeNodeTypeImpl::NEGATE);
     negate_node->addChild(std::move(root_node));
     root_node = std::move(negate_node);
   }
@@ -147,7 +147,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
     // create a new operator node and adopt the current tree
     // as its first child
     const auto node_type = addOpsMap.at(token_type);
-    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(node_type);
+    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode(node_type);
     op_node->addChild(std::move(root_node));
     // consume the operator
     token = nextToken();

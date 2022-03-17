@@ -7,7 +7,7 @@ class LoopExecutor : public SubExecutorBase
 {
 public:
   explicit LoopExecutor(const std::shared_ptr<Executor>& executor);
-  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNodeImplBase>& node);
 };
 
 #endif // LOOPEXECUTOR_H

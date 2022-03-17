@@ -7,10 +7,10 @@ LoopExecutor::LoopExecutor(const std::shared_ptr<Executor> &executor): SubExecut
 
 }
 
-std::shared_ptr<SubExecutorBase> LoopExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+std::shared_ptr<SubExecutorBase> LoopExecutor::execute(const std::shared_ptr<ICodeNodeImplBase>& node)
 {
   bool exit_loop = false;
-  std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> expr_node = nullptr;
+  std::shared_ptr<ICodeNodeImplBase> expr_node = nullptr;
   ExpressionExecutor expression_executor(currentExecutor());
   StatementExecutor statement_executor(currentExecutor());
   while (!exit_loop) {

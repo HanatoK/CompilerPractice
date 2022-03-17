@@ -6,12 +6,19 @@
 #include <memory>
 #include <any>
 #include <vector>
+#include <map>
 #include <unordered_map>
+#include <deque>
+#include <variant>
+
+#define ATTRIBUTE_MAP_TYPE std::unordered_map
+#define CHILDREN_CONTAINTER_TYPE std::vector
+#define SYMBOL_STACK_CONTAINER_TYPE std::vector
 
 template <typename NodeT,
           typename KeyT,
-          template <typename...> typename AttributeMapT = std::unordered_map,
-          template <typename...> typename ChildrenContainerT = std::vector>
+          template <typename...> typename AttributeMapT,
+          template <typename...> typename ChildrenContainerT>
 class ICodeNode: public std::enable_shared_from_this<ICodeNode<NodeT, KeyT, AttributeMapT, ChildrenContainerT>> {
 public:
   using AttributeMapTImpl = AttributeMapT<KeyT, std::any>;
@@ -43,29 +50,33 @@ public:
 };
 
 template <typename ICodeNodeType, typename ICodeKeyType,
-          template <typename...> typename AttributeMapT = std::unordered_map,
-          template <typename...> typename ChildrenContainerT = std::vector>
+          template <typename...> typename AttributeMapT,
+          template <typename...> typename ChildrenContainerT>
 class ICode {
-private:
-  using ICodeNodeT = ICodeNode<ICodeNodeType, ICodeKeyType, AttributeMapT, ChildrenContainerT>;
 public:
+  using ICodeNodeT = ICodeNode<ICodeNodeType, ICodeKeyType, AttributeMapT, ChildrenContainerT>;
+  using AttributeMapTImpl = AttributeMapT<ICodeKeyType, std::any>;
   ICode() {}
   virtual ~ICode() {}
   virtual std::shared_ptr<ICodeNodeT> setRoot(std::shared_ptr<ICodeNodeT> node) = 0;
   virtual std::shared_ptr<ICodeNodeT> getRoot() const = 0;
 };
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
 class SymbolTable;
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
 class TypeSpec;
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
 class SymbolTableEntry {
 public:
-  using SymbolTableT = SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>;
-  using TypeSpecT = TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>;
+  using SymbolTableT = SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
+  using AttributeMapTImpl = AttributeMapT<SymbolTableKeyT, std::any>;
+  using TypeSpecT = TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
   SymbolTableEntry(const std::string&, const std::shared_ptr<SymbolTableT>&) {}
   virtual ~SymbolTableEntry() {}
   virtual std::string name() const = 0;
@@ -80,10 +91,12 @@ public:
   virtual std::shared_ptr<TypeSpecT> getTypeSpec() const = 0;
 };
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-class SymbolTable: public std::enable_shared_from_this<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> {
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
+class SymbolTable: public std::enable_shared_from_this<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> {
 public:
-  using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>;
+  using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
+  using SymbolTableMapT = AttributeMapT<std::string, std::shared_ptr<SymbolTableEntryT>>;
   explicit SymbolTable(int) {}
   virtual ~SymbolTable() {}
   virtual int nestingLevel() const = 0;
@@ -92,11 +105,14 @@ public:
   virtual std::vector<std::shared_ptr<SymbolTableEntryT>> sortedEntries() const = 0;
 };
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT,
+          template <typename...> typename StackContainerT>
 class SymbolTableStack {
 public:
-  using SymbolTableT = SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>;
-  using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>;
+  using SymbolTableT = SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
+  using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
+  using StackT = StackContainerT<std::shared_ptr<SymbolTableT>>;
   SymbolTableStack() {}
   virtual ~SymbolTableStack() {}
   virtual int currentNestingLevel() const = 0;
@@ -118,10 +134,12 @@ public:
   virtual std::shared_ptr<SymbolTableT> pop() = 0;
 };
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-class TypeSpec: public std::enable_shared_from_this<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> {
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
+class TypeSpec: public std::enable_shared_from_this<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> {
 public:
-  using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>;
+  using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
+  using TypeSpecMapT = AttributeMapT<TypeKeyT, std::any>;
   explicit TypeSpec(TypeFormT) {}
   explicit TypeSpec(const std::string&) {}
   virtual ~TypeSpec() {}
@@ -135,31 +153,42 @@ public:
   virtual std::shared_ptr<TypeSpec> baseType() = 0;
 };
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-std::unique_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createSymbolTableEntry(const std::string& name, std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> symbolTable);
+typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE> ICodeNodeImplBase;
+typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE> ICodeImplBase;
+typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE> SymbolTableEntryImplBase;
+typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE> SymbolTableImplBase;
+typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE, SYMBOL_STACK_CONTAINER_TYPE> SymbolTableStackImplBase;
+typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE> TypeSpecImplBase;
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-std::unique_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createSymbolTable(int nestingLevel);
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
+std::unique_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>>
+createSymbolTableEntry(const std::string& name, std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> symbolTable);
+std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string& name, std::shared_ptr<SymbolTableImplBase> symbolTable);
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-std::unique_ptr<SymbolTableStack<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createSymbolTableStack();
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
+std::unique_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> createSymbolTable(int nestingLevel);
+std::unique_ptr<SymbolTableImplBase> createSymbolTable(int nestingLevel);
 
-template <typename ICodeNodeType, typename ICodeKeyType>
-std::unique_ptr<ICode<ICodeNodeType, ICodeKeyType>> createICode();
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT,
+          template <typename...> typename StackContainerT>
+std::unique_ptr<SymbolTableStack<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT, StackContainerT>> createSymbolTableStack();
+std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack();
 
-template <typename ICodeNodeType, typename ICodeKeyType>
-std::unique_ptr<ICodeNode<ICodeNodeType, ICodeKeyType>> createICodeNode(const ICodeNodeType& type);
+template <typename ICodeNodeType, typename ICodeKeyType, template <typename...> typename AttributeMapT, template <typename...> typename ChildrenContainerT>
+std::unique_ptr<ICode<ICodeNodeType, ICodeKeyType, AttributeMapT, ChildrenContainerT>> createICode();
+std::unique_ptr<ICodeImplBase> createICode();
 
-template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT>
-std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>> createType(const TypeFormT& form);
+template <typename NodeT, typename KeyT, template <typename...> typename AttributeMapT, template <typename...> typename ChildrenContainerT>
+std::unique_ptr<ICodeNode<NodeT, KeyT, AttributeMapT, ChildrenContainerT>> createICodeNode(const NodeT& type);
+std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type);
 
-typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, std::unordered_map, std::vector> ICodeNodeImplBase;
-typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> ICodeImplBase;
-typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableEntryImplBase;
-typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableImplBase;
-typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> SymbolTableStackImplBase;
-typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl> TypeSpecImplBase;
-
+template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
+          template <typename...> typename AttributeMapT>
+std::unique_ptr<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> createType(const TypeFormT& form);
+std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form);
 std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value);
 
 template <SymbolTableKeyTypeImpl> struct SymbolTableKeyToEnum;
@@ -167,6 +196,7 @@ template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::CONSTANT_VALUE> 
 template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB> { using type = std::shared_ptr<SymbolTableImplBase>; };
 template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ICODE> { using type = std::shared_ptr<ICodeImplBase>; };
 template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::DATA_VALUE> { using type = VariableValueT; };
 
 template <ICodeKeyTypeImpl> struct ICodeKeyTypeImplToEnum;
 template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::ID> { using type = std::shared_ptr<SymbolTableEntryImplBase>; };

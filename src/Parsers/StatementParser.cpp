@@ -18,7 +18,7 @@ StatementParser::~StatementParser()
 }
 
 std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
-  std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
+  std::shared_ptr<ICodeNodeImplBase>
       statement_node = nullptr;
   switch (token->type()) {
     case PascalTokenTypeImpl::BEGIN: {
@@ -58,7 +58,7 @@ std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<Pascal
     }
     default: {
       ICodeNodeTypeImpl t(ICodeNodeTypeImpl::NO_OP);
-      statement_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(t);
+      statement_node = createICodeNode(t);
       break;
     }
   }

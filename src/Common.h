@@ -98,7 +98,7 @@ enum class SymbolTableKeyTypeImpl {
   ROUTINE_CODE, ROUTINE_SYMTAB, ROUTINE_ICODE,
   ROUTINE_PARMS, ROUTINE_ROUTINES,
   // Variable or record field value
-  DATA_VALUE, DATA_INTERNAL_TYPE
+  DATA_VALUE
 };
 
 enum class ICodeKeyTypeImpl {
@@ -127,7 +127,7 @@ enum class VariableInternalType {
   INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
 };
 
-typedef std::variant<bool, long long, double, std::string> VariableValueT;
+using VariableValueT = std::variant<bool, PascalInteger, PascalFloat, std::string>;
 
 enum class TypeFormImpl {
   SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD
@@ -185,5 +185,10 @@ bool any_is(const std::any& a) {
     return false;
   }
 }
+
+template<class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 #endif // COMMON_H

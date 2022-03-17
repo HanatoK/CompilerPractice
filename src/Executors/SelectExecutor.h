@@ -10,22 +10,22 @@ class SelectExecutor : public SubExecutorBase
 {
 public:
   explicit SelectExecutor(const std::shared_ptr<Executor>& executor);
-  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNodeImplBase>& node);
 private:
-  std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > searchBranches(
+  std::shared_ptr<ICodeNodeImplBase> searchBranches(
       const ExpressionExecutor& expression_result,
-      const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+      const std::shared_ptr<ICodeNodeImplBase>& node);
   bool searchConstants(const ExpressionExecutor& expression_result,
-                       const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& branch_node);
+                       const std::shared_ptr<ICodeNodeImplBase>& branch_node);
 };
 
 class SelectExecutorOpt : public SubExecutorBase
 {
 public:
   explicit SelectExecutorOpt(const std::shared_ptr<Executor>& executor);
-  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>& node);
+  virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNodeImplBase>& node);
 private:
-  typedef std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>> NodeT;
+  typedef std::shared_ptr<ICodeNodeImplBase> NodeT;
   typedef std::unordered_map<VariableValueT, NodeT> JumpTableT;
   std::unordered_map<NodeT, JumpTableT> mJumpCache;
 };

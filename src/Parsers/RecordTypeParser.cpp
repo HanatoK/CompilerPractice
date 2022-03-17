@@ -14,7 +14,7 @@ RecordTypeParser::~RecordTypeParser()
 
 std::shared_ptr<TypeSpecImplBase> RecordTypeParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
-  auto record_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::RECORD);
+  auto record_type = createType(TypeFormImpl::RECORD);
   token = nextToken();
   // push a new symbol table for the record type specification
   record_type->setAttribute(TypeKeyImpl::RECORD_SYMTAB, getSymbolTableStack()->push());

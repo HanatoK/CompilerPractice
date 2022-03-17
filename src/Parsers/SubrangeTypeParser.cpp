@@ -13,7 +13,7 @@ SubrangeTypeParser::~SubrangeTypeParser()
 
 std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
-  auto subrange_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SUBRANGE);
+  auto subrange_type = createType(TypeFormImpl::SUBRANGE);
   // parse the minimum constant
   decltype(token) constant_token = token->clone();
   ConstantDefinitionsParser parser(currentParser());

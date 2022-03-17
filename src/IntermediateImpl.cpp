@@ -5,9 +5,8 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 SymbolTableStackImpl::SymbolTableStackImpl() : SymbolTableStack() {
-  mCurrentNestingLevel = 0;
-  mStack.push_back(
-      createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(mCurrentNestingLevel));
+//  mCurrentNestingLevel = 0;
+  mStack.push_back(createSymbolTable(0));
 }
 
 SymbolTableStackImpl::~SymbolTableStackImpl() {
@@ -17,20 +16,21 @@ SymbolTableStackImpl::~SymbolTableStackImpl() {
 }
 
 int SymbolTableStackImpl::currentNestingLevel() const {
-  return mCurrentNestingLevel;
+//  return mCurrentNestingLevel;
+  return static_cast<int>(mStack.size()) - 1;
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::localSymbolTable() const {
-  return mStack[mCurrentNestingLevel];
+  return mStack.back();
 }
 
 std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::enterLocal(const std::string &name) {
-  return mStack[mCurrentNestingLevel]->enter(name);
+  return mStack.back()->enter(name);
 }
 
 std::shared_ptr<SymbolTableEntryImplBase>
 SymbolTableStackImpl::lookupLocal(const std::string &name) const {
-  return mStack[mCurrentNestingLevel]->lookup(name);
+  return mStack.back()->lookup(name);
 }
 
 std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std::string &name) const {
@@ -56,23 +56,24 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::programId() cons
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push()
 {
-  auto symbol_table = createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(++mCurrentNestingLevel);
+  auto symbol_table = createSymbolTable(mStack.size() + 1);
   mStack.push_back(std::move(symbol_table));
   return mStack.back();
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push(std::shared_ptr<SymbolTableImplBase> symbol_table)
 {
-  ++mCurrentNestingLevel;
-  mStack.push_back(std::move(symbol_table));
+//  ++mCurrentNestingLevel;
+  mStack.push_back(symbol_table);
   return mStack.back();
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::pop()
 {
-  auto symbol_table = mStack.at(mCurrentNestingLevel);
-  mStack.erase(mStack.begin() + mCurrentNestingLevel);
-  --mCurrentNestingLevel;
+  auto symbol_table = mStack.back();
+//  auto symbol_table = mStack.at(mCurrentNestingLevel);
+  mStack.pop_back();
+//  --mCurrentNestingLevel;
   return symbol_table;
 }
 
@@ -226,7 +227,6 @@ std::shared_ptr<ICodeNodeImplBase>
 ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeImplBase> node) {
   if (node != nullptr) {
     mChildren.push_back(node);
-    // SERIOUS BUG: this may be a unique_ptr!!
     mChildren.back()->setParent(shared_from_this());
   }
   return node;
@@ -248,8 +248,7 @@ std::any ICodeNodeImpl::getAttribute(const ICodeKeyTypeImpl &key) const {
 
 std::unique_ptr<ICodeNodeImplBase> ICodeNodeImpl::copy() const {
   // only copy this node itself, not the parent and children!
-  auto new_node =
-      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(this->mType);
+  auto new_node = createICodeNode(this->mType);
   auto tmp_ptr = dynamic_cast<ICodeNodeImpl *>(new_node.get());
   for (auto it = mHashTable.cbegin(); it != mHashTable.cend(); ++it) {
     tmp_ptr->mHashTable[it->first] = it->second;
@@ -359,9 +358,17 @@ std::unique_ptr<ICodeImplBase> createICode() {
   return std::make_unique<ICodeImpl>();
 }
 
+std::unique_ptr<ICodeImplBase> createICode() {
+  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE>();
+}
+
 template <>
 std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type) {
   return std::make_unique<ICodeNodeImpl>(type);
+}
+
+std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type) {
+  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE>(type);
 }
 
 template <>
@@ -370,15 +377,29 @@ std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::stri
   return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
 }
 
+std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string &name,
+                       std::shared_ptr<SymbolTableImplBase> symbolTable) {
+  return createSymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(name, symbolTable);
+}
+
 template <>
 std::unique_ptr<SymbolTableImplBase>
 createSymbolTable(int nestingLevel) {
   return std::make_unique<SymbolTableImpl>(nestingLevel);
 }
 
+std::unique_ptr<SymbolTableImplBase>
+createSymbolTable(int nestingLevel) {
+  return createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(nestingLevel);
+}
+
 template <>
 std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
   return std::make_unique<SymbolTableStackImpl>();
+}
+
+std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
+  return createSymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE, SYMBOL_STACK_CONTAINER_TYPE>();
 }
 
 TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
@@ -388,7 +409,7 @@ TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
 TypeSpecImpl::TypeSpecImpl(const std::string& value)
     : TypeSpecImplBase(value), mIdentifier() {
   mForm = TypeFormImpl::ARRAY;
-  std::shared_ptr<TypeSpecImplBase> index_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::SUBRANGE);
+  std::shared_ptr<TypeSpecImplBase> index_type = createType(TypeFormImpl::SUBRANGE);
   index_type->setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
   index_type->setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
   index_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<PascalInteger>(value.size()));
@@ -406,7 +427,7 @@ TypeFormImpl TypeSpecImpl::form() const
   return mForm;
 }
 
-void TypeSpecImpl::setIdentifier(const std::shared_ptr<SymbolTableEntryImplBase>& identifier)
+void TypeSpecImpl::setIdentifier(const std::shared_ptr<SymbolTableEntryT>& identifier)
 {
   mIdentifier = identifier;
 }
@@ -460,6 +481,10 @@ template <>
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
 {
   return std::make_unique<TypeSpecImpl>(form);
+}
+
+std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form) {
+  return createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(form);
 }
 
 std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value) {

@@ -39,7 +39,7 @@ std::shared_ptr<ICodeNodeImplBase> BlockParser::parse(std::shared_ptr<PascalToke
     // missing BEGIN: attempt to parse anyway if possible
     errorHandler()->flag(token, PascalErrorCode::MISSING_BEGIN, currentParser());
     if (StatementParser::statementStartSet().contains(token_type)) {
-      root_node = createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(ICodeNodeTypeImpl::COMPOUND);
+      root_node = createICodeNode(ICodeNodeTypeImpl::COMPOUND);
       statement_parser.parseList(token, root_node, PascalTokenTypeImpl::END, PascalErrorCode::MISSING_END);
     }
   }

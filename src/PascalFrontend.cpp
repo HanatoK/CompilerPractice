@@ -121,7 +121,7 @@ PascalParserTopDown::~PascalParserTopDown() {
 
 void PascalParserTopDown::parse() {
   const auto start_time = std::chrono::high_resolution_clock::now();
-  std::shared_ptr<ICodeImplBase> intermediate_code = createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>();
+  std::shared_ptr<ICodeImplBase> intermediate_code = createICode();
   // create a dummy program identifier symbol table entry
   mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
   mRoutineId->setDefinition(DefinitionImpl::PROGRAM);

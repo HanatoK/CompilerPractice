@@ -12,9 +12,7 @@ std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
   // consume the IF
   token = nextToken();
   // create the IF node
-  std::shared_ptr<ICodeNodeImplBase> if_node =
-      createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>(
-      ICodeNodeTypeImpl::IF);
+  std::shared_ptr<ICodeNodeImplBase> if_node = createICodeNode(ICodeNodeTypeImpl::IF);
   // parse the expression and adopt it as the child node of the IF node
   ExpressionParser expression_parser(currentParser());
   if_node->addChild(expression_parser.parse(token));

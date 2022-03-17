@@ -242,7 +242,7 @@ template <typename SymbolTableKeyT, typename DefinitionT,
 Parser<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, ICodeNodeT, ICodeKeyT, TokenT, ScannerT>::Parser(
     std::shared_ptr<ScannerT> scanner)
     : mSymbolTableStack(nullptr), mScanner(std::move(scanner)) {
-  mSymbolTableStack = createSymbolTableStack<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT>();
+  mSymbolTableStack = createSymbolTableStack();
   Predefined::instance(mSymbolTableStack);
   //  scanner->setParent(this);
 }

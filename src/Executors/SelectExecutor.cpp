@@ -7,7 +7,7 @@ SelectExecutor::SelectExecutor(const std::shared_ptr<Executor> &executor): SubEx
 
 }
 
-std::shared_ptr<SubExecutorBase> SelectExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+std::shared_ptr<SubExecutorBase> SelectExecutor::execute(const std::shared_ptr<ICodeNodeImplBase> &node)
 {
   auto it_child = node->childrenBegin();
   auto expr_node = *it_child++;
@@ -23,8 +23,8 @@ std::shared_ptr<SubExecutorBase> SelectExecutor::execute(const std::shared_ptr<I
   return nullptr;
 }
 
-std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > SelectExecutor::searchBranches(const ExpressionExecutor& expression_result,
-    const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node)
+std::shared_ptr<ICodeNodeImplBase> SelectExecutor::searchBranches(const ExpressionExecutor& expression_result,
+    const std::shared_ptr<ICodeNodeImplBase>& node)
 {
   auto it_child = node->childrenBegin();
   for (auto it = it_child + 1; it != node->childrenEnd(); ++it) {
@@ -37,7 +37,7 @@ std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > SelectExecutor:
 }
 
 bool SelectExecutor::searchConstants(const ExpressionExecutor& expression_result,
-                                     const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& branch_node)
+                                     const std::shared_ptr<ICodeNodeImplBase>& branch_node)
 {
   const auto constant_node = (*branch_node->childrenBegin());
   const auto select_value = expression_result.value();
@@ -56,7 +56,7 @@ SelectExecutorOpt::SelectExecutorOpt(const std::shared_ptr<Executor>& executor):
 
 }
 
-std::shared_ptr<SubExecutorBase> SelectExecutorOpt::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> >& node)
+std::shared_ptr<SubExecutorBase> SelectExecutorOpt::execute(const std::shared_ptr<ICodeNodeImplBase>& node)
 {
   const auto it_select_child = node->childrenBegin();
   if (mJumpCache.find(node) == mJumpCache.end()) {

@@ -12,15 +12,14 @@ public:
   virtual std::shared_ptr<SubExecutorBase>
   execute(const std::shared_ptr<ICodeNodeImplBase>& node);
   VariableValueT value() const;
-  VariableInternalType valueType() const;
+//  VariableInternalType valueType() const;
 
 private:
   static const std::set<ICodeNodeTypeImpl> mArithOps;
   VariableValueT mValue;
-  VariableInternalType mValueType;
+//  VariableInternalType mValueType;
   std::shared_ptr<SubExecutorBase> executeBinaryOperator(
-      const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl>>
-          &node,
+      const std::shared_ptr<ICodeNodeImplBase> &node,
       const ICodeNodeTypeImpl node_type);
 };
 

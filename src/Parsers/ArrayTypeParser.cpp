@@ -15,7 +15,7 @@ ArrayTypeParser::~ArrayTypeParser()
 std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
   // TODO: Fix nested array parser!
-  std::shared_ptr<TypeSpecImplBase> array_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::ARRAY);
+  std::shared_ptr<TypeSpecImplBase> array_type = createType(TypeFormImpl::ARRAY);
   // consume ARRAY
   nextToken();
   // synchronize at [
@@ -67,7 +67,7 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
         another_index = true;
       }
     } else if (token_type == PascalTokenTypeImpl::COMMA) {
-      std::shared_ptr<TypeSpecImplBase> new_element_type = createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl>(TypeFormImpl::ARRAY);
+      std::shared_ptr<TypeSpecImplBase> new_element_type = createType(TypeFormImpl::ARRAY);
       element_type->setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, new_element_type);
       // is this work?
       element_type = std::move(new_element_type);

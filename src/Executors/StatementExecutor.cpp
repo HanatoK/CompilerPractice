@@ -10,7 +10,7 @@ StatementExecutor::StatementExecutor(const std::shared_ptr<Executor>& executor):
 
 }
 
-std::shared_ptr<SubExecutorBase> StatementExecutor::execute(const std::shared_ptr<ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl> > &node)
+std::shared_ptr<SubExecutorBase> StatementExecutor::execute(const std::shared_ptr<ICodeNodeImplBase>& node)
 {
   auto node_type = node->type();
   sendSourceLineMessage(node);

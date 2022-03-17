@@ -63,8 +63,8 @@ class ICodeImpl : public ICodeImplBase {
 public:
   ICodeImpl();
   virtual ~ICodeImpl();
-  virtual std::shared_ptr<ICodeNodeImplBase> setRoot(std::shared_ptr<ICodeNodeImplBase> node);
-  virtual std::shared_ptr<ICodeNodeImplBase> getRoot() const;
+  virtual std::shared_ptr<ICodeNodeImplBase> setRoot(std::shared_ptr<ICodeNodeImplBase> node) override;
+  virtual std::shared_ptr<ICodeNodeImplBase> getRoot() const override;
 
 private:
   std::shared_ptr<ICodeNodeImplBase> mRoot;
@@ -89,7 +89,7 @@ private:
   std::weak_ptr<SymbolTableImplBase> mSymbolTable;
   std::vector<int> mLineNumbers;
   std::string mName;
-  std::unordered_map<SymbolTableKeyTypeImpl, std::any> mEntryMap;
+  AttributeMapTImpl mEntryMap;
   DefinitionImpl mDefinition;
   std::shared_ptr<TypeSpecImplBase> mTypeSpec;
 };
@@ -104,7 +104,7 @@ public:
   virtual std::vector<std::shared_ptr<SymbolTableEntryImplBase>> sortedEntries() const override;
 private:
   int mNestingLevel;
-  std::map<std::string, std::shared_ptr<SymbolTableEntryImplBase>> mSymbolMap;
+  SymbolTableMapT mSymbolMap;
 };
 
 class SymbolTableStackImpl : public SymbolTableStackImplBase {
@@ -124,10 +124,9 @@ public:
 private:
   // why is it necessary to maintain a standalone variable for recording the nesting level?
   // Isn't mStack.size() enough?
-  int mCurrentNestingLevel;
-  std::vector<std::shared_ptr<SymbolTableImplBase>> mStack;
+//  int mCurrentNestingLevel;
+  StackT mStack;
   // entry for the main program identifier
-  // TODO: do I need to use weak pointer here?
   std::weak_ptr<SymbolTableEntryImplBase> mProgramId;
 };
 
@@ -146,7 +145,7 @@ public:
 private:
   TypeFormImpl mForm;
   std::weak_ptr<SymbolTableEntryImplBase> mIdentifier;
-  std::unordered_map<TypeKeyImpl, std::any> mTypeSpecMap;
+  TypeSpecMapT mTypeSpecMap;
 };
 
 template <>
