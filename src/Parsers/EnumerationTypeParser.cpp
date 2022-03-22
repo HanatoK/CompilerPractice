@@ -13,7 +13,7 @@ EnumerationTypeParser::~EnumerationTypeParser()
 
 std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_ptr<PascalToken> token)
 {
-  std::shared_ptr<TypeSpecImplBase> enumeration_type = createType(TypeFormImpl::ENUMERATION);
+  auto enumeration_type = std::shared_ptr(createType(TypeFormImpl::ENUMERATION));
   PascalInteger value = -1;
   std::vector<std::weak_ptr<SymbolTableEntryImplBase>> constants;
   // consume the opening (

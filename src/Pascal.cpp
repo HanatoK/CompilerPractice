@@ -58,7 +58,7 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   if (mParser->errorCount() == 0) {
     mSymbolTableStack = mParser->getSymbolTableStack();
     const auto program_id = mSymbolTableStack->programId();
-    mICode = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+    mICode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
     if (xref) {
       CrossReferencer cross_referencer;
       cross_referencer.print(mSymbolTableStack);

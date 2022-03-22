@@ -12,8 +12,8 @@ std::shared_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(std::shared_ptr<
   // consume the REPEAT
   token = nextToken();
   // create the LOOP and TEST node
-  std::shared_ptr<ICodeNodeImplBase> loop_node = createICodeNode(ICodeNodeTypeImpl::LOOP);
-  std::shared_ptr<ICodeNodeImplBase> test_node = createICodeNode(ICodeNodeTypeImpl::TEST);
+  auto loop_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::LOOP));
+  auto test_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::TEST));
   // parse the statement list terminated by the UNTIL token
   StatementParser statement_parser(currentParser());
   // the LOOP node is the parent of the statement subtrees

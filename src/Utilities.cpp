@@ -45,7 +45,7 @@ void CrossReferencer::printRoutine(const std::shared_ptr<SymbolTableEntryImplBas
   fmt::print("\n*** {} {} ***", definitionimpl_to_string(definition), routine_id->name());
   printColumnHeadings();
   // print the entries in the routine's symbol table
-  const auto symbol_table = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB));
+  const auto symbol_table = routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>();
   std::vector<std::shared_ptr<TypeSpecImplBase>> new_record_types;
   printSymbolTable(symbol_table, new_record_types);
   // print cross-reference tables for any records defined in the routine
@@ -70,7 +70,7 @@ void CrossReferencer::printRecords(const std::vector<std::shared_ptr<TypeSpecImp
     fmt::print("\n--- RECORD {} ---", name);
     printColumnHeadings();
     // print the entries in the record's symbol table
-    const auto symbol_table = cast_by_enum<TypeKeyImpl::RECORD_SYMTAB>(record_type->getAttribute(TypeKeyImpl::RECORD_SYMTAB));
+    const auto symbol_table = record_type->getAttribute<TypeKeyImpl::RECORD_SYMTAB>();
     std::vector<std::shared_ptr<TypeSpecImplBase>> new_record_types;
     printSymbolTable(symbol_table, new_record_types);
     // print cross-reference tables for any nested records
@@ -221,7 +221,7 @@ void ParseTreePrinter::print(const std::shared_ptr<SymbolTableStackImplBase>& sy
   const auto tmp_line_width = LINE_WIDTH;
   mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
   const auto& program_id = symbol_table_stack->programId();
-  const auto& iCode = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+  const auto& iCode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
   const auto root_node = iCode->getRoot();
   printNode(root_node);
   printLine();
@@ -350,7 +350,7 @@ ParseTreePrinterDot::ParseTreePrinterDot(std::ostream &os): mOutputStream(os), m
 void ParseTreePrinterDot::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack)
 {
   const auto& program_id = symbol_table_stack->programId();
-  const auto& iCode = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+  const auto& iCode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
   const auto root_node = iCode->getRoot();
   printNode(root_node);
   mOutputStream << "digraph \"parse tree\"\n{\n"

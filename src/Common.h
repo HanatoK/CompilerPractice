@@ -186,9 +186,9 @@ bool any_is(const std::any& a) {
   }
 }
 
-template<class... Ts>
+template<typename... Ts>
 struct overloaded : Ts... { using Ts::operator()...; };
 
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 #endif // COMMON_H

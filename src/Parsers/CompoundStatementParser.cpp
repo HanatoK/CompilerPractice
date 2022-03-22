@@ -16,7 +16,7 @@ std::shared_ptr<ICodeNodeImplBase> CompoundStatementParser::parse(std::shared_pt
   // consume the BEGIN
   token = nextToken();
   // create the compound node
-  std::shared_ptr<ICodeNodeImplBase> compound_node = createICodeNode(ICodeNodeTypeImpl::COMPOUND);
+  auto compound_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::COMPOUND));
   // parse the statement list terminated by the END token
   StatementParser statement_parser(currentParser());
   statement_parser.parseList(token, compound_node, PascalTokenTypeImpl::END, PascalErrorCode::MISSING_END);

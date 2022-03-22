@@ -16,14 +16,14 @@ ExpressionParser::~ExpressionParser()
 std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parse(std::shared_ptr<PascalToken> token)
 {
   // parse a simple expression and make the root of its tree the root node
-  std::shared_ptr<ICodeNodeImplBase> root_node = parseSimpleExpression(token);
+  auto root_node = std::shared_ptr(parseSimpleExpression(token));
   token = currentToken();
   const auto token_type = token->type();
   const auto search = relOpsMap.find(token_type);
   if (search != relOpsMap.end()) {
     // relational operator found
     const auto node_type = relOpsMap.at(token_type);
-    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode(node_type);
+    auto op_node = std::shared_ptr(createICodeNode(node_type));
     op_node->addChild(std::move(root_node));
     // now root_node should be nullptr
     // consume the operator
@@ -107,12 +107,12 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
 std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseTerm(std::shared_ptr<PascalToken> token)
 {
   // parse a factor and make its node the root node
-  std::shared_ptr<ICodeNodeImplBase> root_node = parseFactor(token);
+  auto root_node = parseFactor(token);
   token = currentToken();
   auto token_type = token->type();
   while (multOpsMap.find(token_type) != multOpsMap.end()) {
     const auto node_type = multOpsMap.at(token_type);
-    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode(node_type);
+    auto op_node = std::shared_ptr(createICodeNode(node_type));
     op_node->addChild(std::move(root_node));
     token = nextToken();
     op_node->addChild(parseFactor(token));
@@ -136,7 +136,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
   auto root_node = parseTerm(token);
   if (sign_type == PascalTokenTypeImpl::MINUS) {
     // create a NEGATE node and adopt the current tree
-    std::shared_ptr<ICodeNodeImplBase> negate_node = createICodeNode(ICodeNodeTypeImpl::NEGATE);
+    auto negate_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::NEGATE));
     negate_node->addChild(std::move(root_node));
     root_node = std::move(negate_node);
   }
@@ -147,7 +147,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
     // create a new operator node and adopt the current tree
     // as its first child
     const auto node_type = addOpsMap.at(token_type);
-    std::shared_ptr<ICodeNodeImplBase> op_node = createICodeNode(node_type);
+    auto op_node = std::shared_ptr(createICodeNode(node_type));
     op_node->addChild(std::move(root_node));
     // consume the operator
     token = nextToken();

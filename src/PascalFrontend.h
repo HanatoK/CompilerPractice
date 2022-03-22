@@ -57,7 +57,7 @@ protected:
 
 class PascalSubparserTopDownBase {
 public:
-  typedef std::set<PascalTokenTypeImpl> TokenTypeSet;
+  using TokenTypeSet = std::set<PascalTokenTypeImpl>;
   explicit PascalSubparserTopDownBase(const std::shared_ptr<PascalParserTopDown>& pascal_parser);
   virtual ~PascalSubparserTopDownBase();
   std::shared_ptr<PascalToken> currentToken() const;

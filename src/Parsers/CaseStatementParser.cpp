@@ -10,7 +10,7 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<Pa
   // consume the CASE
   token = nextToken();
   // create a SELECT node
-  std::shared_ptr<ICodeNodeImplBase> select_node = createICodeNode(ICodeNodeTypeImpl::SELECT);
+  auto select_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT));
   // parse the CASE expression
   // I use the expression parser here, which is different from the book.
   // Maybe I need something like constant expression in C++?
@@ -57,8 +57,8 @@ std::shared_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
                                  std::vector<std::any> &constant_set) {
   // create an SELECT_BRANCH node and a SELECT_CONSTANTS node
-  std::shared_ptr<ICodeNodeImplBase> branch_node = createICodeNode(ICodeNodeTypeImpl::SELECT_BRANCH);
-  std::shared_ptr<ICodeNodeImplBase> constants_node = createICodeNode(ICodeNodeTypeImpl::SELECT_CONSTANTS);
+  auto branch_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT_BRANCH));
+  auto constants_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT_CONSTANTS));
   parseConstantList(token, constants_node, constant_set);
   // look for the : token
   token = currentToken();
@@ -163,12 +163,12 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parseIdentifierConstant(
 
 std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parseIntegerConstant(const std::string &value,
                                           const PascalTokenTypeImpl sign) {
-  std::shared_ptr<ICodeNodeImplBase> constant_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
+  auto constant_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT));
   const auto int_value = std::stoll(value);
   constant_node->setAttribute(ICodeKeyTypeImpl::VALUE, int_value);
   // this differs from the book!
   if (sign == PascalTokenTypeImpl::MINUS) {
-    std::shared_ptr<ICodeNodeImplBase> negate_node = createICodeNode(ICodeNodeTypeImpl::NEGATE);
+    auto negate_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::NEGATE));
     negate_node->addChild(std::move(constant_node));
     return negate_node;
   } else {
@@ -190,7 +190,7 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parseCharacterConstant(
                            currentParser());
       return nullptr;
     } else {
-      std::shared_ptr<ICodeNodeImplBase> constant_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
+      auto constant_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT));
       constant_node->setAttribute(ICodeKeyTypeImpl::VALUE, value);
       return constant_node;
     }

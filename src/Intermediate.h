@@ -15,6 +15,9 @@
 #define CHILDREN_CONTAINTER_TYPE std::vector
 #define SYMBOL_STACK_CONTAINER_TYPE std::vector
 
+template <auto EnumVal>
+auto cast_by_enum(const std::any& x);
+
 template <typename NodeT,
           typename KeyT,
           template <typename...> typename AttributeMapT,
@@ -36,6 +39,10 @@ public:
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const KeyT& key) const = 0;
+  template <KeyT key>
+  auto getAttribute() const {
+    return cast_by_enum<key>(getAttribute(key));
+  }
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
   virtual std::string toString() const = 0;
   virtual attribute_map_iterator attributeMapBegin() = 0;
@@ -85,6 +92,10 @@ public:
   virtual std::vector<int> lineNumbers() const = 0;
   virtual void setAttribute(const SymbolTableKeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const SymbolTableKeyT& key, bool* ok = nullptr) const = 0;
+  template <SymbolTableKeyT key>
+  auto getAttribute() const {
+    return cast_by_enum<key>(getAttribute(key));
+  }
   virtual void setDefinition(const DefinitionT&) = 0;
   virtual DefinitionT getDefinition() const = 0;
   virtual void setTypeSpec(std::shared_ptr<TypeSpecT> type_spec) = 0;
@@ -149,6 +160,10 @@ public:
   virtual std::shared_ptr<SymbolTableEntryT> getIdentifier() const = 0;
   virtual void setAttribute(TypeKeyT key, const std::any& value) = 0;
   virtual std::any getAttribute(TypeKeyT key) const = 0;
+  template <TypeKeyT key>
+  auto getAttribute() const {
+    return cast_by_enum<key>(getAttribute(key));
+  }
   virtual bool isPascalString() const = 0;
   virtual std::shared_ptr<TypeSpec> baseType() = 0;
 };

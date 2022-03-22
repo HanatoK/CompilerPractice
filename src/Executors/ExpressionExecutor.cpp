@@ -15,23 +15,18 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
   case ICodeNodeTypeImpl::VARIABLE: {
     const auto entry = cast_by_enum<ICodeKeyTypeImpl::ID>(node->getAttribute(ICodeKeyTypeImpl::ID));
     mValue = cast_by_enum<SymbolTableKeyTypeImpl::DATA_VALUE>(entry->getAttribute(SymbolTableKeyTypeImpl::DATA_VALUE));
-//    mValueType = std::any_cast<VariableInternalType>(
-//        entry->getAttribute(SymbolTableKeyTypeImpl::DATA_INTERNAL_TYPE));
     break;
   }
   case ICodeNodeTypeImpl::INTEGER_CONSTANT: {
     mValue = std::any_cast<PascalInteger>(node->getAttribute(ICodeKeyTypeImpl::VALUE));
-//    mValueType = VariableInternalType::INTEGER;
     break;
   }
   case ICodeNodeTypeImpl::REAL_CONSTANT: {
     mValue = std::any_cast<PascalFloat>(node->getAttribute(ICodeKeyTypeImpl::VALUE));
-//    mValueType = VariableInternalType::REAL;
     break;
   }
   case ICodeNodeTypeImpl::STRING_CONSTANT: {
     mValue = std::any_cast<std::string>(node->getAttribute(ICodeKeyTypeImpl::VALUE));
-//    mValueType = VariableInternalType::STRING;
     break;
   }
   case ICodeNodeTypeImpl::NEGATE: {
@@ -54,12 +49,9 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
     auto operand = *children_it;
     ExpressionExecutor executor(currentExecutor());
     executor.execute(operand);
-    // if (executor.valueType() == VariableInternalType::BOOLEAN) {
     if (std::holds_alternative<bool>(executor.value())) {
       mValue = !std::get<bool>(executor.value());
-//      mValueType = VariableInternalType::BOOLEAN;
     } else {
-      // implicit type conversion?
       errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
                            currentExecutor());
     }
@@ -74,7 +66,6 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
 
 VariableValueT ExpressionExecutor::value() const { return mValue; }
 
-//VariableInternalType ExpressionExecutor::valueType() const { return mValueType; }
 
 std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const std::shared_ptr<ICodeNodeImplBase>& node,
     const ICodeNodeTypeImpl node_type) {
@@ -90,15 +81,10 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
   const auto lhs_value = executor_lhs.value();
   const auto rhs_value = executor_rhs.value();
   // check if this is integer operator
-//  const auto type_lhs = executor_lhs.valueType();
-//  const auto type_rhs = executor_rhs.valueType();
-//  const bool integer_mode = (type_lhs == VariableInternalType::INTEGER) &&
-//                            (type_rhs == VariableInternalType::INTEGER);
   const bool integer_mode = std::holds_alternative<PascalInteger>(lhs_value) &&
                             std::holds_alternative<PascalInteger>(rhs_value);
   // check if the operator is in mArithOps
-  const auto search = mArithOps.find(node_type);
-  if (search != mArithOps.end()) {
+  if (mArithOps.contains(node_type)) {
     // arithmetic operators
     if (integer_mode) {
       const auto lhs_value_int = std::get<PascalInteger>(lhs_value);
@@ -106,27 +92,22 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       switch (node_type) {
       case ICodeNodeTypeImpl::ADD: {
         mValue = lhs_value_int + rhs_value_int;
-//        mValueType = VariableInternalType::INTEGER;
         break;
       }
       case ICodeNodeTypeImpl::SUBTRACT: {
         mValue = lhs_value_int - rhs_value_int;
-//        mValueType = VariableInternalType::INTEGER;
         break;
       }
       case ICodeNodeTypeImpl::MULTIPLY: {
         mValue = lhs_value_int * rhs_value_int;
-//        mValueType = VariableInternalType::INTEGER;
         break;
       }
       case ICodeNodeTypeImpl::FLOAT_DIVIDE: {
         if (rhs_value_int != 0) {
           mValue = static_cast<PascalFloat>(lhs_value_int) /
                    static_cast<PascalFloat>(rhs_value_int);
-//          mValueType = VariableInternalType::REAL;
         } else {
           mValue = 0.0;
-//          mValueType = VariableInternalType::REAL;
           errorHandler()->flag(node, RuntimeErrorCode::DIVISION_BY_ZERO,
                                currentExecutor());
         }
@@ -135,10 +116,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       case ICodeNodeTypeImpl::INTEGER_DIVIDE: {
         if (rhs_value_int != 0) {
           mValue = lhs_value_int / rhs_value_int;
-//          mValueType = VariableInternalType::INTEGER;
         } else {
           mValue = 0;
-//          mValueType = VariableInternalType::INTEGER;
           errorHandler()->flag(node, RuntimeErrorCode::DIVISION_BY_ZERO,
                                currentExecutor());
         }
@@ -147,10 +126,8 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       case ICodeNodeTypeImpl::MOD: {
         if (rhs_value_int != 0) {
           mValue = lhs_value_int % rhs_value_int;
-//          mValueType = VariableInternalType::INTEGER;
         } else {
           mValue = 0;
-//          mValueType = VariableInternalType::INTEGER;
           errorHandler()->flag(node, RuntimeErrorCode::DIVISION_BY_ZERO,
                                currentExecutor());
         }
@@ -163,7 +140,6 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
       }
       }
     } else {
-      // TODO: BUG: Use type safe methods
       const PascalFloat lhs_value_float =
           std::holds_alternative<PascalInteger>(lhs_value)
               ? static_cast<PascalFloat>(
@@ -174,7 +150,6 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
               ? static_cast<PascalFloat>(
                     std::get<PascalInteger>(rhs_value))
               : std::get<PascalFloat>(rhs_value);
-//      mValueType = VariableInternalType::REAL;
       switch (node_type) {
       case ICodeNodeTypeImpl::ADD: {
         mValue = lhs_value_float + rhs_value_float;
@@ -212,51 +187,13 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
     // and and or
     const bool lhs_value_bool = std::get<bool>(lhs_value);
     const bool rhs_value_bool = std::get<bool>(rhs_value);
-//    mValueType = VariableInternalType::BOOLEAN;
     switch (node_type) {
-    case ICodeNodeTypeImpl::AND: {
-      mValue = lhs_value_bool && rhs_value_bool;
-      break;
-    }
-    case ICodeNodeTypeImpl::OR: {
-      mValue = lhs_value_bool || rhs_value_bool;
-      break;
-    }
-    default: {
-//      errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
-//                           currentExecutor());
-//      break;
-    }
-    }
-  } else {
-    // relational operators
-//    mValueType = VariableInternalType::BOOLEAN;
-    if (integer_mode) {
-      const auto lhs_value_int = std::get<PascalInteger>(lhs_value);
-      const auto rhs_value_int = std::get<PascalInteger>(rhs_value);
-      switch (node_type) {
-      case ICodeNodeTypeImpl::EQ: {
-        mValue = bool(lhs_value_int == rhs_value_int);
+      case ICodeNodeTypeImpl::AND: {
+        mValue = lhs_value_bool && rhs_value_bool;
         break;
       }
-      case ICodeNodeTypeImpl::NE: {
-        mValue = bool(lhs_value_int != rhs_value_int);
-        break;
-      }
-      case ICodeNodeTypeImpl::LT: {
-        mValue = bool(lhs_value_int < rhs_value_int);
-        break;
-      }
-      case ICodeNodeTypeImpl::LE: {
-        mValue = bool(lhs_value_int <= rhs_value_int);
-        break;
-      }
-      case ICodeNodeTypeImpl::GT: {
-        mValue = bool(lhs_value_int > rhs_value_int);
-        break;
-      }
-      case ICodeNodeTypeImpl::GE: {
-        mValue = bool(lhs_value_int >= rhs_value_int);
+      case ICodeNodeTypeImpl::OR: {
+        mValue = lhs_value_bool || rhs_value_bool;
         break;
       }
       default: {
@@ -264,6 +201,42 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
                              currentExecutor());
         break;
       }
+    }
+  } else {
+    // relational operators
+    if (integer_mode) {
+      const auto lhs_value_int = std::get<PascalInteger>(lhs_value);
+      const auto rhs_value_int = std::get<PascalInteger>(rhs_value);
+      switch (node_type) {
+        case ICodeNodeTypeImpl::EQ: {
+          mValue = bool(lhs_value_int == rhs_value_int);
+          break;
+        }
+        case ICodeNodeTypeImpl::NE: {
+          mValue = bool(lhs_value_int != rhs_value_int);
+          break;
+        }
+        case ICodeNodeTypeImpl::LT: {
+          mValue = bool(lhs_value_int < rhs_value_int);
+          break;
+        }
+        case ICodeNodeTypeImpl::LE: {
+          mValue = bool(lhs_value_int <= rhs_value_int);
+          break;
+        }
+        case ICodeNodeTypeImpl::GT: {
+          mValue = bool(lhs_value_int > rhs_value_int);
+          break;
+        }
+        case ICodeNodeTypeImpl::GE: {
+          mValue = bool(lhs_value_int >= rhs_value_int);
+          break;
+        }
+        default: {
+          errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
+                               currentExecutor());
+          break;
+        }
       }
     } else {
       const PascalFloat lhs_value_float =
