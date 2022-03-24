@@ -12,6 +12,7 @@
 #include <ratio>
 #include <set>
 
+// TODO: use initializer list
 std::map<PascalTokenTypeImpl, std::string> initReservedWordsMap() {
   std::map<PascalTokenTypeImpl, std::string> reserve_words_map;
   // reserved words
@@ -85,7 +86,6 @@ std::map<PascalTokenTypeImpl, std::string> initSpecialSymbolsMap() {
 
 std::map<PascalTokenTypeImpl, std::string> initSpecialWordsMap() {
   std::map<PascalTokenTypeImpl, std::string> special_words_map;
-  // split this
   special_words_map[PascalTokenTypeImpl::IDENTIFIER] = std::string("identifier");
   special_words_map[PascalTokenTypeImpl::INTEGER] = std::string("integer");
   special_words_map[PascalTokenTypeImpl::REAL] = std::string("real");
@@ -96,6 +96,7 @@ std::map<PascalTokenTypeImpl, std::string> initSpecialWordsMap() {
   return special_words_map;
 }
 
+// TODO: clean-up these global variables
 std::map<PascalTokenTypeImpl, std::string> reservedWordsMap =
     initReservedWordsMap();
 std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap =

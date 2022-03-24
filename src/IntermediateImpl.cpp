@@ -44,7 +44,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std
   return result;
 }
 
-void SymbolTableStackImpl::setProgramId(const std::shared_ptr<SymbolTableEntryImplBase>& entry)
+void SymbolTableStackImpl::setProgramId(const std::weak_ptr<SymbolTableEntryImplBase>& entry)
 {
   mProgramId = entry;
 }
@@ -101,7 +101,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableImpl::lookup(const std::str
 
 std::shared_ptr<SymbolTableEntryImplBase>
 SymbolTableImpl::enter(const std::string &name) {
-  mSymbolMap[name] = createSymbolTableEntry(name, shared_from_this());
+  mSymbolMap[name] = createSymbolTableEntry(name, weak_from_this());
   return mSymbolMap[name];
 }
 
@@ -114,8 +114,7 @@ std::vector<std::shared_ptr<SymbolTableEntryImplBase> > SymbolTableImpl::sortedE
   return result;
 }
 
-SymbolTableEntryImpl::SymbolTableEntryImpl(
-    const std::string &name, const std::shared_ptr<SymbolTableImplBase>& symbol_table)
+SymbolTableEntryImpl::SymbolTableEntryImpl(const std::string &name, const std::weak_ptr<SymbolTableImplBase>& symbol_table)
     : SymbolTableEntry(name, symbol_table), mSymbolTable(symbol_table), mName(name),
       mDefinition(DefinitionImpl::UNDEFINED), mTypeSpec(nullptr) {
 }
@@ -218,16 +217,15 @@ ICodeNodeTypeImpl ICodeNodeImpl::type() const { return mType; }
 
 const std::shared_ptr<const ICodeNodeImplBase> ICodeNodeImpl::parent() const { return mParent.lock(); }
 
-const std::shared_ptr<const ICodeNodeImplBase> ICodeNodeImpl::setParent(const std::shared_ptr<const ICodeNodeImplBase>& new_parent) {
+void ICodeNodeImpl::setParent(const std::weak_ptr<const ICodeNodeImplBase>& new_parent) {
   mParent = new_parent;
-  return mParent.lock();
 }
 
 std::shared_ptr<ICodeNodeImplBase>
 ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeImplBase> node) {
   if (node != nullptr) {
     mChildren.push_back(node);
-    mChildren.back()->setParent(shared_from_this());
+    mChildren.back()->setParent(weak_from_this());
   }
   return node;
 }
@@ -337,19 +335,19 @@ std::string ICodeNodeImpl::toString() const {
   }
 }
 
-ICodeNodeImpl::AttributeMapTImpl &ICodeNodeImpl::attributeMap() {
+ICodeNodeImpl::AttributeMapImpl &ICodeNodeImpl::attributeMap() {
   return mHashTable;
 }
 
-const ICodeNodeImpl::AttributeMapTImpl &ICodeNodeImpl::attributeMap() const {
+const ICodeNodeImpl::AttributeMapImpl &ICodeNodeImpl::attributeMap() const {
   return mHashTable;
 }
 
-ICodeNodeImpl::ChildrenContainerTImpl &ICodeNodeImpl::children() {
+ICodeNodeImpl::ChildrenContainerImpl &ICodeNodeImpl::children() {
   return mChildren;
 }
 
-const ICodeNodeImpl::ChildrenContainerTImpl &ICodeNodeImpl::children() const {
+const ICodeNodeImpl::ChildrenContainerImpl &ICodeNodeImpl::children() const {
   return mChildren;
 }
 
@@ -359,7 +357,7 @@ std::unique_ptr<ICodeImplBase> createICode() {
 }
 
 std::unique_ptr<ICodeImplBase> createICode() {
-  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE>();
+  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl>();
 }
 
 template <>
@@ -368,18 +366,18 @@ std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type
 }
 
 std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type) {
-  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE>(type);
+  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl>(type);
 }
 
 template <>
 std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string &name,
-                       std::shared_ptr<SymbolTableImplBase> symbolTable) {
+                       const std::weak_ptr<SymbolTableImplBase>& symbolTable) {
   return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
 }
 
 std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string &name,
-                       std::shared_ptr<SymbolTableImplBase> symbolTable) {
-  return createSymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(name, symbolTable);
+                       const std::weak_ptr<SymbolTableImplBase>& symbolTable) {
+  return createSymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl>(name, symbolTable);
 }
 
 template <>
@@ -390,7 +388,7 @@ createSymbolTable(int nestingLevel) {
 
 std::unique_ptr<SymbolTableImplBase>
 createSymbolTable(int nestingLevel) {
-  return createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(nestingLevel);
+  return createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl>(nestingLevel);
 }
 
 template <>
@@ -399,7 +397,7 @@ std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
 }
 
 std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
-  return createSymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE, SYMBOL_STACK_CONTAINER_TYPE>();
+  return createSymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl, SymbolStackContainerTImpl>();
 }
 
 TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
@@ -427,7 +425,7 @@ TypeFormImpl TypeSpecImpl::form() const
   return mForm;
 }
 
-void TypeSpecImpl::setIdentifier(const std::shared_ptr<SymbolTableEntryT>& identifier)
+void TypeSpecImpl::setIdentifier(const std::weak_ptr<SymbolTableEntryT>& identifier)
 {
   mIdentifier = identifier;
 }
@@ -484,7 +482,7 @@ std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
 }
 
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form) {
-  return createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(form);
+  return createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl>(form);
 }
 
 std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value) {

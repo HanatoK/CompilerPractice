@@ -11,9 +11,14 @@
 #include <deque>
 #include <variant>
 
-#define ATTRIBUTE_MAP_TYPE std::unordered_map
-#define CHILDREN_CONTAINTER_TYPE std::vector
-#define SYMBOL_STACK_CONTAINER_TYPE std::vector
+template <typename KeyT, typename ValueT>
+using AttributeMapTImpl = std::unordered_map<KeyT, ValueT>;
+
+template <typename ValueT>
+using ChildrenContainerTImpl = std::vector<ValueT>;
+
+template <typename ValueT>
+using SymbolStackContainerTImpl = std::vector<ValueT>;
 
 template <auto EnumVal>
 auto cast_by_enum(const std::any& x);
@@ -24,8 +29,8 @@ template <typename NodeT,
           template <typename...> typename ChildrenContainerT>
 class ICodeNode: public std::enable_shared_from_this<ICodeNode<NodeT, KeyT, AttributeMapT, ChildrenContainerT>> {
 public:
-  using AttributeMapTImpl = AttributeMapT<KeyT, std::any>;
-  using ChildrenContainerTImpl = ChildrenContainerT<std::shared_ptr<ICodeNode>>;
+  using AttributeMapImpl = AttributeMapT<KeyT, std::any>;
+  using ChildrenContainerImpl = ChildrenContainerT<std::shared_ptr<ICodeNode>>;
   using attribute_map_iterator = typename AttributeMapT<KeyT, std::any>::iterator;
   using const_attribute_map_iterator = typename AttributeMapT<KeyT, std::any>::const_iterator;
   using children_iterator = typename ChildrenContainerT<std::shared_ptr<ICodeNode>>::iterator;
@@ -34,14 +39,14 @@ public:
   explicit ICodeNode(const NodeT& pType) {}
   virtual ~ICodeNode() {}
   virtual NodeT type() const = 0;
-  virtual const std::shared_ptr<const ICodeNode> setParent(const std::shared_ptr<const ICodeNode>& new_parent) = 0;
+  virtual void setParent(const std::weak_ptr<const ICodeNode>& new_parent) = 0;
   virtual const std::shared_ptr<const ICodeNode> parent() const = 0;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const KeyT& key) const = 0;
-  template <KeyT key>
+  template <KeyT KeyVal>
   auto getAttribute() const {
-    return cast_by_enum<key>(getAttribute(key));
+    return cast_by_enum<KeyVal>(getAttribute(KeyVal));
   }
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
   virtual std::string toString() const = 0;
@@ -62,7 +67,6 @@ template <typename ICodeNodeType, typename ICodeKeyType,
 class ICode {
 public:
   using ICodeNodeT = ICodeNode<ICodeNodeType, ICodeKeyType, AttributeMapT, ChildrenContainerT>;
-  using AttributeMapTImpl = AttributeMapT<ICodeKeyType, std::any>;
   ICode() {}
   virtual ~ICode() {}
   virtual std::shared_ptr<ICodeNodeT> setRoot(std::shared_ptr<ICodeNodeT> node) = 0;
@@ -82,9 +86,9 @@ template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, ty
 class SymbolTableEntry {
 public:
   using SymbolTableT = SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
-  using AttributeMapTImpl = AttributeMapT<SymbolTableKeyT, std::any>;
+  using AttributeMapImpl = AttributeMapT<SymbolTableKeyT, std::any>;
   using TypeSpecT = TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
-  SymbolTableEntry(const std::string&, const std::shared_ptr<SymbolTableT>&) {}
+  SymbolTableEntry(const std::string&, const std::weak_ptr<SymbolTableT>&) {}
   virtual ~SymbolTableEntry() {}
   virtual std::string name() const = 0;
   virtual std::shared_ptr<SymbolTableT> symbolTable() const = 0;
@@ -92,9 +96,9 @@ public:
   virtual std::vector<int> lineNumbers() const = 0;
   virtual void setAttribute(const SymbolTableKeyT& key, const std::any& value) = 0;
   virtual std::any getAttribute(const SymbolTableKeyT& key, bool* ok = nullptr) const = 0;
-  template <SymbolTableKeyT key>
+  template <SymbolTableKeyT KeyVal>
   auto getAttribute() const {
-    return cast_by_enum<key>(getAttribute(key));
+    return cast_by_enum<KeyVal>(getAttribute(KeyVal));
   }
   virtual void setDefinition(const DefinitionT&) = 0;
   virtual DefinitionT getDefinition() const = 0;
@@ -133,7 +137,7 @@ public:
   // lookup an existing symbol table entry throughout the stack
   virtual std::shared_ptr<SymbolTableEntryT> lookup(const std::string& name) const = 0;
   // set the symbol table entry for the main program identifer
-  virtual void setProgramId(const std::shared_ptr<SymbolTableEntryT>& entry) = 0;
+  virtual void setProgramId(const std::weak_ptr<SymbolTableEntryT>& entry) = 0;
   // get the symbol table entry for the main program identifier
   virtual std::shared_ptr<SymbolTableEntryT> programId() const = 0;
   // push a new symbol table into the stack,
@@ -150,36 +154,36 @@ template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, ty
 class TypeSpec: public std::enable_shared_from_this<TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> {
 public:
   using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
-  using TypeSpecMapT = AttributeMapT<TypeKeyT, std::any>;
+  using typespec_map_impl = AttributeMapT<TypeKeyT, std::any>;
   explicit TypeSpec(TypeFormT) {}
   explicit TypeSpec(const std::string&) {}
   virtual ~TypeSpec() {}
   virtual TypeFormT form() const = 0;
   // raw pointers are used to avoid the circular dependency
-  virtual void setIdentifier(const std::shared_ptr<SymbolTableEntryT>& identifier) = 0;
+  virtual void setIdentifier(const std::weak_ptr<SymbolTableEntryT>& identifier) = 0;
   virtual std::shared_ptr<SymbolTableEntryT> getIdentifier() const = 0;
   virtual void setAttribute(TypeKeyT key, const std::any& value) = 0;
   virtual std::any getAttribute(TypeKeyT key) const = 0;
-  template <TypeKeyT key>
+  template <TypeKeyT KeyVal>
   auto getAttribute() const {
-    return cast_by_enum<key>(getAttribute(key));
+    return cast_by_enum<KeyVal>(getAttribute(KeyVal));
   }
   virtual bool isPascalString() const = 0;
   virtual std::shared_ptr<TypeSpec> baseType() = 0;
 };
 
-typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE> ICodeNodeImplBase;
-typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE> ICodeImplBase;
-typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE> SymbolTableEntryImplBase;
-typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE> SymbolTableImplBase;
-typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE, SYMBOL_STACK_CONTAINER_TYPE> SymbolTableStackImplBase;
-typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE> TypeSpecImplBase;
+typedef ICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl> ICodeNodeImplBase;
+typedef ICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl> ICodeImplBase;
+typedef SymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl> SymbolTableEntryImplBase;
+typedef SymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl> SymbolTableImplBase;
+typedef SymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl, SymbolStackContainerTImpl> SymbolTableStackImplBase;
+typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl> TypeSpecImplBase;
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
           template <typename...> typename AttributeMapT>
 std::unique_ptr<SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>>
-createSymbolTableEntry(const std::string& name, std::shared_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>> symbolTable);
-std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string& name, std::shared_ptr<SymbolTableImplBase> symbolTable);
+createSymbolTableEntry(const std::string& name, const std::weak_ptr<SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>>& symbolTable);
+std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string& name, const std::weak_ptr<SymbolTableImplBase>& symbolTable);
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
           template <typename...> typename AttributeMapT>
