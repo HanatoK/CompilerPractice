@@ -3,11 +3,23 @@
 
 #include "Intermediate.h"
 
-class TypeChecker
+namespace TypeChecker
 {
-public:
-  TypeChecker();
-  static bool isInteger(const std::shared_ptr<TypeSpecImplBase>& type_spec);
+  using TypeSpecPtr = std::shared_ptr<TypeSpecImplBase>;
+  namespace TypeChecking {
+    bool isInteger(const TypeSpecPtr& type_spec);
+    bool areBothInteger(const TypeSpecPtr& type_spec_a, const TypeSpecPtr& type_spec_b);
+    bool isReal(const TypeSpecPtr& type_spec);
+    bool isIntegerOrReal(const TypeSpecPtr& type_spec);
+    bool isAtLeastOneReal(const TypeSpecPtr& type_spec_a, const TypeSpecPtr& type_spec_b);
+    bool isBoolean(const TypeSpecPtr& type_spec);
+    bool areBothBoolean(const TypeSpecPtr& type_spec_a, const TypeSpecPtr& type_spec_b);
+    bool isChar(const TypeSpecPtr& type_spec);
+  }
+  namespace TypeCompatibility {
+    bool areAssignmentCompatible(const TypeSpecPtr& target_type_spec, const TypeSpecPtr& value_type_spec);
+    bool areComparisonCompatible(const TypeSpecPtr& type_spec_a, const TypeSpecPtr& type_spec_b);
+  }
 };
 
 #endif // TYPECHECKER_H

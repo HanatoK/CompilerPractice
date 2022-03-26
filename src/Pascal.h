@@ -31,7 +31,7 @@ private:
   std::shared_ptr<ICodeImplBase> mICode;
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
   std::shared_ptr<Backend> mBackend;
-  std::ifstream mTextStream;
+  std::shared_ptr<std::ifstream> mTextStream;
 };
 
 #endif // PASCAL_H

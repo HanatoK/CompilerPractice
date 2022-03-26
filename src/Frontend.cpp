@@ -2,7 +2,7 @@
 
 #include <istream>
 
-Source::Source(std::ifstream &ifs): mStream(ifs)
+Source::Source(const std::shared_ptr<std::ifstream>& ifs): mStream(ifs)
 {
   mLineNum = 0;
   mCurrentPos = -2;
@@ -48,7 +48,7 @@ char Source::peekChar()
 
 void Source::readLine()
 {
-  mReadOk = std::getline(mStream, mLine).good();
+  mReadOk = std::getline(*mStream, mLine).good();
   mCurrentPos = -1;
   if (mReadOk) {
     // not EOF or error

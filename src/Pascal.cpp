@@ -10,13 +10,13 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
                const std::string &flags)
     : mParser(nullptr),
       mSource(nullptr), mICode(nullptr), mSymbolTableStack(nullptr),
-      mBackend(nullptr), mTextStream(nullptr) {
+      mBackend(nullptr), mTextStream(std::make_shared<std::ifstream>()) {
   auto search_xref = flags.find('x');
   auto search_intermediate = flags.find('i');
   const bool xref = (search_xref == std::string::npos) ? false : true;
   const bool intermediate = (search_intermediate == std::string::npos) ? false : true;
-  mTextStream.open(filePath.c_str());
-  if (!mTextStream.is_open()) {
+  mTextStream->open(filePath.c_str());
+  if (!mTextStream->is_open()) {
     std::cerr << "Cannot open " << filePath << std::endl;
     throw std::invalid_argument("Invalid filename, please see the error above.");
   }
@@ -78,19 +78,6 @@ Pascal::~Pascal() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
-//  if (mTextStream != nullptr) {
-//    delete mTextStream;
-//    mTextStream = nullptr;
-//  }
-//  if (mSource != nullptr) {
-//    //    delete mSource;
-//    //    mSource = nullptr;
-//    qDebug() << "Shared pointer mSource use count: " << mSource.use_count();
-//  }
-  //  if (mParser != nullptr) {
-  //    delete mParser;
-  //    mParser = nullptr;
-  //  }
 }
 
 void Pascal::sourceMessage(const int lineNumber, const std::string &line) const {

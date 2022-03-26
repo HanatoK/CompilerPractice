@@ -22,7 +22,7 @@ class Source;
 class Source {
 public:
   // constructor from an input stream
-  Source(std::ifstream &ifs);
+  Source(const std::shared_ptr<std::ifstream>& ifs);
   // return the source character of the current position
   char currentChar();
   // consume the current source character and return the next one
@@ -40,7 +40,7 @@ private:
 
 private:
   static const char EOL = '\n';
-  std::ifstream &mStream; // input stream of the source program
+  std::shared_ptr<std::ifstream> mStream; // input stream of the source program
   std::string mLine;        // source line
   bool mReadOk;
   int mLineNum;         // current source line number

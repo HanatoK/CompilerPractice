@@ -47,6 +47,8 @@ public:
   virtual size_t numChildren() const override {
     return children().size();
   }
+  virtual void setTypeSpec(const std::shared_ptr<TypeSpecImplBase>& type_spec) override;
+  virtual std::shared_ptr<TypeSpecImplBase> getTypeSpec() const override;
 protected:
   virtual AttributeMapImpl& attributeMap();
   virtual const AttributeMapImpl& attributeMap() const;
@@ -57,6 +59,7 @@ private:
   std::weak_ptr<const ICodeNodeImplBase> mParent;
   AttributeMapImpl mHashTable;
   ChildrenContainerImpl mChildren;
+  std::shared_ptr<TypeSpecImplBase> mTypeSpec;
 };
 
 class ICodeImpl : public ICodeImplBase {

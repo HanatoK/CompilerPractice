@@ -101,7 +101,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableImpl::lookup(const std::str
 
 std::shared_ptr<SymbolTableEntryImplBase>
 SymbolTableImpl::enter(const std::string &name) {
-  mSymbolMap[name] = createSymbolTableEntry(name, weak_from_this());
+  mSymbolMap[name] = std::shared_ptr(createSymbolTableEntry(name, weak_from_this()));
   return mSymbolMap[name];
 }
 
@@ -205,7 +205,7 @@ std::shared_ptr<ICodeNodeImplBase> ICodeImpl::getRoot() const {
 
 ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType)
     : ICodeNodeImplBase(pType), mType(pType),
-      mParent(std::weak_ptr<ICodeNodeImplBase>()) {}
+      mParent(std::weak_ptr<ICodeNodeImplBase>()), mTypeSpec(nullptr) {}
 
 ICodeNodeImpl::~ICodeNodeImpl() {
 #ifdef DEBUG_DESTRUCTOR
@@ -335,6 +335,16 @@ std::string ICodeNodeImpl::toString() const {
   }
 }
 
+void ICodeNodeImpl::setTypeSpec(const std::shared_ptr<TypeSpecImplBase>& type_spec)
+{
+  mTypeSpec = type_spec;
+}
+
+std::shared_ptr<TypeSpecImplBase> ICodeNodeImpl::getTypeSpec() const
+{
+  return mTypeSpec;
+}
+
 ICodeNodeImpl::AttributeMapImpl &ICodeNodeImpl::attributeMap() {
   return mHashTable;
 }
@@ -357,7 +367,7 @@ std::unique_ptr<ICodeImplBase> createICode() {
 }
 
 std::unique_ptr<ICodeImplBase> createICode() {
-  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl>();
+  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl, TypeSpecImplBase>();
 }
 
 template <>
@@ -366,7 +376,7 @@ std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type
 }
 
 std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type) {
-  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl>(type);
+  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl, TypeSpecImplBase>(type);
 }
 
 template <>
