@@ -16,6 +16,7 @@ private:
   std::shared_ptr<ICodeNodeImplBase> parseFactor(std::shared_ptr<PascalToken> token);
   std::shared_ptr<ICodeNodeImplBase> parseTerm(std::shared_ptr<PascalToken> token);
   std::shared_ptr<ICodeNodeImplBase> parseSimpleExpression(std::shared_ptr<PascalToken> token);
+  std::shared_ptr<ICodeNodeImplBase> parseIdentifier(std::shared_ptr<PascalToken> token);
 };
 
 #endif // EXPRESSIONPARSER_H
