@@ -85,7 +85,7 @@ public:
   void flag(const std::shared_ptr<PascalToken> &token, PascalErrorCode errorCode,
             const std::shared_ptr<PascalParserTopDown>& parser);
   static void abortTranslation(PascalErrorCode errorCode, const std::shared_ptr<PascalParserTopDown>& parser);
-  int errorCount() const;
+  [[nodiscard]] int errorCount() const;
 private:
   static const int maxError = 25;
   static std::map<PascalErrorCode, std::string> errorMessageMap;

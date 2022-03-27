@@ -50,7 +50,7 @@ private:
 template <typename T> class Token {
 public:
   Token();
-  explicit Token(std::shared_ptr<Source> source, bool use_default_extract = true);
+  explicit Token(std::weak_ptr<Source> source, bool use_default_extract = true);
   virtual ~Token();
   [[nodiscard]] int lineNum() const;
   [[nodiscard]] int position() const;
@@ -59,6 +59,7 @@ public:
   [[nodiscard]] virtual bool isEof() const;
   virtual T type() const;
   virtual std::unique_ptr<Token<T>> clone() const;
+  std::shared_ptr<Source> currentSource() const;
 protected:
   // default method to extract only one-character tokens from the source
   virtual void extract();
@@ -68,7 +69,7 @@ protected:
   char peekChar();
 
 protected:
-  std::shared_ptr<Source> mSource;
+  std::weak_ptr<Source> mSource;
   std::string mText;
   std::any mValue;
   int mLineNum;
@@ -76,16 +77,16 @@ protected:
   T mType;
 };
 
-template <typename T> Token<T>::Token() : mSource(nullptr) {
+template <typename T> Token<T>::Token() /*: mSource(nullptr)*/ {
   mLineNum = -1;
   mPosition = -2;
 }
 
 template <typename T>
-Token<T>::Token(std::shared_ptr<Source> source, bool use_default_extract)
-    : mSource(std::move(source)) {
-  mLineNum = mSource->lineNum();
-  mPosition = mSource->currentPos();
+Token<T>::Token(std::weak_ptr<Source> source, bool use_default_extract)
+    : mSource(source) {
+  mLineNum = currentSource()->lineNum();
+  mPosition = currentSource()->currentPos();
   // NOTE: C++ code should call extract() explicitly in the derived class
   if (use_default_extract) {
     Token<T>::extract();
@@ -105,12 +106,12 @@ template <typename T> void Token<T>::extract() {
 }
 
 template <typename T> char Token<T>::currentChar() {
-  return mSource->currentChar();
+  return currentSource()->currentChar();
 }
 
-template <typename T> char Token<T>::nextChar() { return mSource->nextChar(); }
+template <typename T> char Token<T>::nextChar() { return currentSource()->nextChar(); }
 
-template <typename T> char Token<T>::peekChar() { return mSource->peekChar(); }
+template <typename T> char Token<T>::peekChar() { return currentSource()->peekChar(); }
 
 template <typename T> const std::string &Token<T>::text() const { return mText; }
 
@@ -126,8 +127,14 @@ template <typename T> int Token<T>::lineNum() const { return mLineNum; }
 
 template <typename T>
 std::unique_ptr<Token<T>> Token<T>::clone() const {
-  std::unique_ptr<Token<T>> result = std::make_unique<Token<T>>(this->mSource, true);
+  std::unique_ptr<Token<T>> result = std::make_unique<Token<T>>(*this);
   return result;
+}
+
+template<typename T>
+std::shared_ptr<Source> Token<T>::currentSource() const
+{
+  return mSource.lock();
 }
 
 template <typename T> class EofToken : public Token<T> {
@@ -160,7 +167,7 @@ template <typename T> bool EofToken<T>::isEof() const { return true; }
 
 template <typename T>
 std::unique_ptr<Token<T>> EofToken<T>::clone() const {
-  std::unique_ptr<Token<T>> result = std::make_unique<EofToken<T>>(this->mSource);
+  std::unique_ptr<Token<T>> result = std::make_unique<EofToken<T>>(*this);
   return result;
 }
 
