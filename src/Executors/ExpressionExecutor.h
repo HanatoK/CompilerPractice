@@ -9,9 +9,9 @@
 class ExpressionExecutor : public SubExecutorBase {
 public:
   explicit ExpressionExecutor(const std::shared_ptr<Executor>& executor);
-  virtual std::shared_ptr<SubExecutorBase>
-  execute(const std::shared_ptr<ICodeNodeImplBase>& node);
-  VariableValueT value() const;
+  std::shared_ptr<SubExecutorBase>
+  execute(const std::shared_ptr<ICodeNodeImplBase>& node) override;
+  [[nodiscard]] VariableValueT value() const;
 //  VariableInternalType valueType() const;
 
 private:
@@ -20,7 +20,7 @@ private:
 //  VariableInternalType mValueType;
   std::shared_ptr<SubExecutorBase> executeBinaryOperator(
       const std::shared_ptr<ICodeNodeImplBase> &node,
-      const ICodeNodeTypeImpl node_type);
+      ICodeNodeTypeImpl node_type);
 };
 
 #endif // EXPRESSIONEXECUTOR_H

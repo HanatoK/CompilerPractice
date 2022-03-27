@@ -70,8 +70,11 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
       ParseTreePrinterDot printer(ofs_dot);
       printer.print(mSymbolTableStack);
     }
+    mBackend->process(mICode, mSymbolTableStack);
+  } else {
+    std::cout << "Number of error(s): " << mParser->errorCount() << "\n";
+    std::cout << "Error(s) encountered, will not call backend\n";
   }
-  mBackend->process(mICode, mSymbolTableStack);
 }
 
 Pascal::~Pascal() {

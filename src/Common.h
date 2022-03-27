@@ -123,11 +123,11 @@ enum class ICodeNodeTypeImpl {
   STRING_CONSTANT, BOOLEAN_CONSTANT
 };
 
-enum class VariableInternalType {
-  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
-};
+//enum class VariableInternalType {
+//  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
+//};
 
-using VariableValueT = std::variant<bool, PascalInteger, PascalFloat, std::string>;
+using VariableValueT = std::variant<std::monostate, bool, PascalInteger, PascalFloat, std::string>;
 
 enum class TypeFormImpl {
   SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD

@@ -6,7 +6,7 @@ const std::set<ICodeNodeTypeImpl> ExpressionExecutor::mArithOps = {
     ICodeNodeTypeImpl::INTEGER_DIVIDE};
 
 ExpressionExecutor::ExpressionExecutor(const std::shared_ptr<Executor>& executor)
-    : SubExecutorBase(executor) {}
+    : SubExecutorBase(executor), mValue(VariableValueT{}) {}
 
 std::shared_ptr<SubExecutorBase> ExpressionExecutor::execute(
     const std::shared_ptr<ICodeNodeImplBase> &node) {
@@ -196,11 +196,11 @@ std::shared_ptr<SubExecutorBase> ExpressionExecutor::executeBinaryOperator(const
         mValue = lhs_value_bool || rhs_value_bool;
         break;
       }
-      default: {
-        errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
-                             currentExecutor());
-        break;
-      }
+//      default: {
+//        errorHandler()->flag(node, RuntimeErrorCode::UNIMPLEMENTED_FEATURE,
+//                             currentExecutor());
+//        break;
+//      }
     }
   } else {
     // relational operators

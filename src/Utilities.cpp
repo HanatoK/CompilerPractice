@@ -92,8 +92,8 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
   printType(type_spec);
   switch (definition) {
     case DefinitionImpl::CONSTANT: {
-      const auto val = entry->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
-      fmt::print("{} {}\n", INDENT, "Value = " + any_to_string(val));
+      const auto val = entry->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
+      fmt::print("{} {}\n", INDENT, "Value = " + variable_value_to_string(val));
       // print the type details only if the type is unnamed
       if (type_spec->getIdentifier() == nullptr) {
         printTypeDetail(type_spec, record_types);
@@ -101,8 +101,8 @@ void CrossReferencer::printEntry(const std::shared_ptr<const SymbolTableEntryImp
       break;
     }
     case DefinitionImpl::ENUMERATION_CONSTANT: {
-      const auto val = entry->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
-      fmt::print("{} {}\n", INDENT, "Value = " + any_to_string(val));
+      const auto val = entry->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
+      fmt::print("{} {}\n", INDENT, "Value = " + variable_value_to_string(val));
       break;
     }
     case DefinitionImpl::TYPE: {
@@ -149,8 +149,8 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
         for (const auto& id: constant_ids) {
           const auto id_ptr = id.lock();
           const auto name = id_ptr->name();
-          const auto val = id_ptr->getAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE);
-          fmt::print("{} {}\n", INDENT, name + " = " + any_to_string(val));
+          const auto val = id_ptr->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
+          fmt::print("{} {}\n", INDENT, name + " = " + variable_value_to_string(val));
         }
       } else {
         fmt::print("BUG: CrossReferencer::printTypeDetail empty attribute: {}\n",
@@ -159,8 +159,8 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
       break;
     }
     case TypeFormImpl::SUBRANGE: {
-      const auto min_val = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE);
-      const auto max_val = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE);
+      const auto min_val = type_spec->getAttribute<TypeKeyImpl::SUBRANGE_MIN_VALUE>();
+      const auto max_val = type_spec->getAttribute<TypeKeyImpl::SUBRANGE_MAX_VALUE>();
       const auto base_type_spec_any = type_spec->getAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE);
       fmt::print("{} {}\n", INDENT, "--- Base type ---");
       if (base_type_spec_any.has_value()) {
@@ -170,7 +170,7 @@ void CrossReferencer::printTypeDetail(const std::shared_ptr<TypeSpecImplBase>& t
         if (base_type_spec->getIdentifier() == nullptr) {
           printTypeDetail(base_type_spec, record_types);
         }
-        fmt::print("{} {}\n", INDENT, "Range: " + any_to_string(min_val) + ".." + any_to_string(max_val));
+        fmt::print("{} {}\n", INDENT, "Range: " + variable_value_to_string(min_val) + ".." + variable_value_to_string(max_val));
       } else {
         fmt::print("BUG: CrossReferencer::printTypeDetail empty attribute: {}\n",
                    "TypeKeyImpl::SUBRANGE_BASE_TYPE");

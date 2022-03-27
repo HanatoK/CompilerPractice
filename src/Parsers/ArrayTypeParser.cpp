@@ -90,10 +90,11 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
   PascalInteger count = 0;
   // check the index type and set the element count
   if (form == TypeFormImpl::SUBRANGE) {
-    const auto min_value = index_type->getAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE);
-    const auto max_value = index_type->getAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE);
-    if (min_value.has_value() && max_value.has_value()) {
-      count = std::any_cast<PascalInteger>(max_value) - std::any_cast<PascalInteger>(min_value) + 1;
+    const auto min_value = index_type->getAttribute<TypeKeyImpl::SUBRANGE_MIN_VALUE>();
+    const auto max_value = index_type->getAttribute<TypeKeyImpl::SUBRANGE_MAX_VALUE>();
+    if (std::holds_alternative<PascalInteger>(max_value) &&
+        std::holds_alternative<PascalInteger>(max_value)) {
+      count = std::get<PascalInteger>(max_value) - std::get<PascalInteger>(min_value) + 1;
     }
   } else if (form == TypeFormImpl::ENUMERATION) {
     const auto constants = index_type->getAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS);

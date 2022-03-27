@@ -44,7 +44,7 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
 }
 
 void EnumerationTypeParser::parseEnumerationIdentifier(
-  std::shared_ptr<PascalToken>& token, PascalInteger value, std::shared_ptr<TypeSpecImplBase> enumeration_type,
+  std::shared_ptr<PascalToken>& token, VariableValueT value, std::shared_ptr<TypeSpecImplBase> enumeration_type,
   std::vector<std::weak_ptr<SymbolTableEntryImplBase> >& constants)
 {
   const auto token_type = token->type();
@@ -56,7 +56,7 @@ void EnumerationTypeParser::parseEnumerationIdentifier(
     } else {
       constant_id = getSymbolTableStack()->enterLocal(token->text());
       constant_id->setDefinition(DefinitionImpl::ENUMERATION_CONSTANT);
-      constant_id->setTypeSpec(enumeration_type);
+      constant_id->setTypeSpec(std::move(enumeration_type));
       constant_id->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, value);
       constant_id->appendLineNumber(token->lineNum());
       constants.push_back(constant_id);

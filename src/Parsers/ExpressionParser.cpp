@@ -278,12 +278,23 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
 std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared_ptr<PascalToken> token)
 {
   // TODO: type checking
+  std::shared_ptr<ICodeNodeImplBase> root_node = nullptr;
   auto symbol_table_stack = getSymbolTableStack();
   auto name = boost::algorithm::to_lower_copy(token->text());
   auto id = symbol_table_stack->lookup(name);
   if (id == nullptr) {
     errorHandler()->flag(token, PascalErrorCode::IDENTIFIER_UNDEFINED, currentParser());
     id = symbol_table_stack->enterLocal(name);
+    id->setDefinition(DefinitionImpl::UNDEFINED);
+    id->setTypeSpec(Predefined::instance().undefinedType);
+  }
+  auto definition_code = id->getDefinition();
+  switch (definition_code) {
+    // TODO: type check
+    case DefinitionImpl::CONSTANT: {
+      const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
+      const auto type_spec = id->getTypeSpec();
+    }
   }
   auto result_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::VARIABLE));
   result_node->setAttribute(ICodeKeyTypeImpl::ID, id);
