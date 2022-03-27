@@ -82,7 +82,7 @@ public:
   virtual void appendLineNumber(int line_number) override;
   virtual std::vector<int> lineNumbers() const override;
   virtual void setAttribute(const SymbolTableKeyTypeImpl &key, const std::any &value) override;
-  virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok = nullptr) const override;
+  virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key) const override;
   virtual void setDefinition(const DefinitionImpl& definition) override;
   virtual DefinitionImpl getDefinition() const override;
   virtual void setTypeSpec(std::shared_ptr<TypeSpecImplBase> type_spec) override;

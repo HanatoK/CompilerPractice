@@ -148,20 +148,13 @@ void SymbolTableEntryImpl::setAttribute(const SymbolTableKeyTypeImpl &key,
   mEntryMap[key] = value;
 }
 
-std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key,
-                                            bool *ok) const {
+std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key) const {
   //  const SymbolTableKeyImpl* key_impl = static_cast<const
   //  SymbolTableKeyImpl*>(key);
   auto search = mEntryMap.find(key);
   if (search != mEntryMap.end()) {
-    if (ok) {
-      *ok = true;
-    }
     return search->second;
   } else {
-    if (ok) {
-      *ok = false;
-    }
     return std::any{};
   }
 }

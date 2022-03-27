@@ -99,7 +99,7 @@ public:
   virtual void appendLineNumber(int line_number) = 0;
   virtual std::vector<int> lineNumbers() const = 0;
   virtual void setAttribute(const SymbolTableKeyT& key, const std::any& value) = 0;
-  virtual std::any getAttribute(const SymbolTableKeyT& key, bool* ok = nullptr) const = 0;
+  virtual std::any getAttribute(const SymbolTableKeyT& key) const = 0;
   template <SymbolTableKeyT KeyVal>
   auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
