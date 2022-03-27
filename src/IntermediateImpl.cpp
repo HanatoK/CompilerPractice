@@ -187,9 +187,8 @@ ICodeImpl::~ICodeImpl() {
 #endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> ICodeImpl::setRoot(std::shared_ptr<ICodeNodeImplBase> node) {
+void ICodeImpl::setRoot(const std::shared_ptr<ICodeNodeImplBase>& node) {
   mRoot = node;
-  return getRoot();
 }
 
 std::shared_ptr<ICodeNodeImplBase> ICodeImpl::getRoot() const {

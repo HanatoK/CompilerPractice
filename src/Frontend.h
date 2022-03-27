@@ -22,7 +22,7 @@ class Source;
 class Source {
 public:
   // constructor from an input stream
-  Source(const std::shared_ptr<std::ifstream>& ifs);
+  explicit Source(std::shared_ptr<std::ifstream> ifs);
   // return the source character of the current position
   char currentChar();
   // consume the current source character and return the next one
@@ -52,11 +52,11 @@ public:
   Token();
   explicit Token(std::shared_ptr<Source> source, bool use_default_extract = true);
   virtual ~Token();
-  int lineNum() const;
-  int position() const;
-  const std::any &value() const;
-  const std::string &text() const;
-  virtual bool isEof() const;
+  [[nodiscard]] int lineNum() const;
+  [[nodiscard]] int position() const;
+  [[nodiscard]] const std::any &value() const;
+  [[nodiscard]] const std::string &text() const;
+  [[nodiscard]] virtual bool isEof() const;
   virtual T type() const;
   virtual std::unique_ptr<Token<T>> clone() const;
 protected:
@@ -83,7 +83,7 @@ template <typename T> Token<T>::Token() : mSource(nullptr) {
 
 template <typename T>
 Token<T>::Token(std::shared_ptr<Source> source, bool use_default_extract)
-    : mSource(source) {
+    : mSource(std::move(source)) {
   mLineNum = mSource->lineNum();
   mPosition = mSource->currentPos();
   // NOTE: C++ code should call extract() explicitly in the derived class
@@ -136,7 +136,7 @@ public:
   explicit EofToken(std::shared_ptr<Source> source);
   virtual void extract() override;
   virtual ~EofToken();
-  virtual bool isEof() const override;
+  [[nodiscard]] virtual bool isEof() const override;
   virtual std::unique_ptr<Token<T>> clone() const override;
 };
 
@@ -167,7 +167,7 @@ std::unique_ptr<Token<T>> EofToken<T>::clone() const {
 template <typename TokenT> class Scanner {
 public:
   Scanner();
-  Scanner(std::shared_ptr<Source> source);
+  explicit Scanner(std::shared_ptr<Source> source);
   virtual ~Scanner();
   std::shared_ptr<Token<TokenT>> currentToken() const;
   virtual std::shared_ptr<Token<TokenT>> extractToken() = 0;
@@ -187,7 +187,7 @@ Scanner<TokenT>::Scanner() : mSource(nullptr), mCurrentToken(nullptr) {}
 
 template <typename TokenT>
 Scanner<TokenT>::Scanner(std::shared_ptr<Source> source)
-    : mSource(source), mCurrentToken(nullptr) {}
+    : mSource(std::move(source)), mCurrentToken(nullptr) {}
 
 template <typename TokenT> Scanner<TokenT>::~Scanner() {
 #ifdef DEBUG_DESTRUCTOR
@@ -220,15 +220,14 @@ template <typename SymbolTableKeyT, typename DefinitionT,
           typename TokenT, typename ScannerT>
 class Parser {
 public:
-  Parser(std::shared_ptr<ScannerT> scanner);
+  explicit Parser(std::shared_ptr<ScannerT> scanner);
   virtual ~Parser();
   virtual void parse() = 0;
-  virtual int errorCount() const = 0;
+  [[nodiscard]] virtual int errorCount() const = 0;
   std::shared_ptr<Token<TokenT>> currentToken() const;
   std::shared_ptr<Token<TokenT>> nextToken();
-  std::shared_ptr<SymbolTableStackImplBase>
-  getSymbolTableStack() const;
-  std::shared_ptr<ScannerT> scanner() const;
+  [[nodiscard]] std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack() const;
+  [[nodiscard]] std::shared_ptr<ScannerT> scanner() const;
 
 protected:
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;

@@ -44,21 +44,21 @@ public:
   using const_attribute_map_iterator = typename AttributeMapT<KeyT, std::any>::const_iterator;
   using children_iterator = typename ChildrenContainerT<std::shared_ptr<ICodeNode>>::iterator;
   using const_children_iterator = typename ChildrenContainerT<std::shared_ptr<ICodeNode>>::const_iterator;
-  ICodeNode() {}
+  ICodeNode() = default;
   explicit ICodeNode(const NodeT& pType) {}
-  virtual ~ICodeNode() {}
-  virtual NodeT type() const = 0;
+  virtual ~ICodeNode() = default;
+  [[nodiscard]] virtual NodeT type() const = 0;
   virtual void setParent(const std::weak_ptr<const ICodeNode>& new_parent) = 0;
-  virtual const std::shared_ptr<const ICodeNode> parent() const = 0;
+  [[nodiscard]] virtual const std::shared_ptr<const ICodeNode> parent() const = 0;
   virtual std::shared_ptr<ICodeNode> addChild(std::shared_ptr<ICodeNode> node) = 0;
   virtual void setAttribute(const KeyT& key, const std::any& value) = 0;
-  virtual std::any getAttribute(const KeyT& key) const = 0;
+  [[nodiscard]] virtual std::any getAttribute(const KeyT& key) const = 0;
   template <KeyT KeyVal>
-  auto getAttribute() const {
+  [[nodiscard]] auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
   }
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
-  virtual std::string toString() const = 0;
+  [[nodiscard]] virtual std::string toString() const = 0;
   virtual attribute_map_iterator attributeMapBegin() = 0;
   virtual attribute_map_iterator attributeMapEnd() = 0;
   virtual const_attribute_map_iterator attributeMapBegin() const = 0;
@@ -67,9 +67,9 @@ public:
   virtual children_iterator childrenEnd() = 0;
   virtual const_children_iterator childrenBegin() const = 0;
   virtual const_children_iterator childrenEnd() const = 0;
-  virtual size_t numChildren() const = 0;
+  [[nodiscard]] virtual size_t numChildren() const = 0;
   virtual void setTypeSpec(const std::shared_ptr<TypeSpecT>& type_spec) = 0;
-  virtual std::shared_ptr<TypeSpecT> getTypeSpec() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<TypeSpecT> getTypeSpec() const = 0;
 };
 
 template <typename ICodeNodeType, typename ICodeKeyType,
@@ -79,10 +79,10 @@ template <typename ICodeNodeType, typename ICodeKeyType,
 class ICode {
 public:
   using ICodeNodeT = ICodeNode<ICodeNodeType, ICodeKeyType, AttributeMapT, ChildrenContainerT, TypeSpecT>;
-  ICode() {}
-  virtual ~ICode() {}
-  virtual std::shared_ptr<ICodeNodeT> setRoot(std::shared_ptr<ICodeNodeT> node) = 0;
-  virtual std::shared_ptr<ICodeNodeT> getRoot() const = 0;
+  ICode() = default;
+  virtual ~ICode() = default;
+  virtual void setRoot(const std::shared_ptr<ICodeNodeT>& node) = 0;
+  [[nodiscard]] virtual std::shared_ptr<ICodeNodeT> getRoot() const = 0;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
@@ -93,21 +93,21 @@ public:
   using AttributeMapImpl = AttributeMapT<SymbolTableKeyT, std::any>;
   using TypeSpecT = TypeSpec<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
   SymbolTableEntry(const std::string&, const std::weak_ptr<SymbolTableT>&) {}
-  virtual ~SymbolTableEntry() {}
-  virtual std::string name() const = 0;
-  virtual std::shared_ptr<SymbolTableT> symbolTable() const = 0;
+  virtual ~SymbolTableEntry() = default;
+  [[nodiscard]] virtual std::string name() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableT> symbolTable() const = 0;
   virtual void appendLineNumber(int line_number) = 0;
-  virtual std::vector<int> lineNumbers() const = 0;
+  [[nodiscard]]virtual std::vector<int> lineNumbers() const = 0;
   virtual void setAttribute(const SymbolTableKeyT& key, const std::any& value) = 0;
-  virtual std::any getAttribute(const SymbolTableKeyT& key) const = 0;
+  [[nodiscard]] virtual std::any getAttribute(const SymbolTableKeyT& key) const = 0;
   template <SymbolTableKeyT KeyVal>
-  auto getAttribute() const {
+  [[nodiscard]] auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
   }
   virtual void setDefinition(const DefinitionT&) = 0;
-  virtual DefinitionT getDefinition() const = 0;
+  [[nodiscard]] virtual DefinitionT getDefinition() const = 0;
   virtual void setTypeSpec(std::shared_ptr<TypeSpecT> type_spec) = 0;
-  virtual std::shared_ptr<TypeSpecT> getTypeSpec() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<TypeSpecT> getTypeSpec() const = 0;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
@@ -117,11 +117,11 @@ public:
   using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
   using SymbolTableMapT = AttributeMapT<std::string, std::shared_ptr<SymbolTableEntryT>>;
   explicit SymbolTable(int) {}
-  virtual ~SymbolTable() {}
-  virtual int nestingLevel() const = 0;
+  virtual ~SymbolTable() = default;
+  [[nodiscard]] virtual int nestingLevel() const = 0;
   virtual std::shared_ptr<SymbolTableEntryT> lookup(const std::string& name) const = 0;
   virtual std::shared_ptr<SymbolTableEntryT> enter(const std::string& name) = 0;
-  virtual std::vector<std::shared_ptr<SymbolTableEntryT>> sortedEntries() const = 0;
+  [[nodiscard]] virtual std::vector<std::shared_ptr<SymbolTableEntryT>> sortedEntries() const = 0;
 };
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
@@ -132,18 +132,18 @@ public:
   using SymbolTableT = SymbolTable<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
   using SymbolTableEntryT = SymbolTableEntry<SymbolTableKeyT, DefinitionT, TypeFormT, TypeKeyT, AttributeMapT>;
   using StackT = StackContainerT<std::shared_ptr<SymbolTableT>>;
-  SymbolTableStack() {}
-  virtual ~SymbolTableStack() {}
-  virtual int currentNestingLevel() const = 0;
-  virtual std::shared_ptr<SymbolTableT> localSymbolTable() const = 0;
-  virtual std::shared_ptr<SymbolTableEntryT> enterLocal(const std::string& name) = 0;
-  virtual std::shared_ptr<SymbolTableEntryT> lookupLocal(const std::string& name) const = 0;
+  SymbolTableStack() = default;
+  virtual ~SymbolTableStack() = default;
+  [[nodiscard]] virtual int currentNestingLevel() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableT> localSymbolTable() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableEntryT> enterLocal(const std::string& name) = 0;
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableEntryT> lookupLocal(const std::string& name) const = 0;
   // lookup an existing symbol table entry throughout the stack
-  virtual std::shared_ptr<SymbolTableEntryT> lookup(const std::string& name) const = 0;
-  // set the symbol table entry for the main program identifer
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableEntryT> lookup(const std::string& name) const = 0;
+  // set the symbol table entry for the main program identifier
   virtual void setProgramId(const std::weak_ptr<SymbolTableEntryT>& entry) = 0;
   // get the symbol table entry for the main program identifier
-  virtual std::shared_ptr<SymbolTableEntryT> programId() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableEntryT> programId() const = 0;
   // push a new symbol table into the stack,
   // and return the pushed symbol table
   virtual std::shared_ptr<SymbolTableT> push() = 0;
@@ -161,19 +161,19 @@ public:
   using typespec_map_impl = AttributeMapT<TypeKeyT, std::any>;
   explicit TypeSpec(TypeFormT) {}
   explicit TypeSpec(const std::string&) {}
-  virtual ~TypeSpec() {}
-  virtual TypeFormT form() const = 0;
+  virtual ~TypeSpec() = default;
+  [[nodiscard]] virtual TypeFormT form() const = 0;
   // raw pointers are used to avoid the circular dependency
   virtual void setIdentifier(const std::weak_ptr<SymbolTableEntryT>& identifier) = 0;
-  virtual std::shared_ptr<SymbolTableEntryT> getIdentifier() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<SymbolTableEntryT> getIdentifier() const = 0;
   virtual void setAttribute(TypeKeyT key, const std::any& value) = 0;
-  virtual std::any getAttribute(TypeKeyT key) const = 0;
+  [[nodiscard]] virtual std::any getAttribute(TypeKeyT key) const = 0;
   template <TypeKeyT KeyVal>
-  auto getAttribute() const {
+  [[nodiscard]] auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
   }
-  virtual bool isPascalString() const = 0;
-  virtual std::shared_ptr<TypeSpec> baseType() = 0;
+  [[nodiscard]] virtual bool isPascalString() const = 0;
+  [[nodiscard]] virtual std::shared_ptr<TypeSpec> baseType() = 0;
 };
 
 typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl> TypeSpecImplBase;

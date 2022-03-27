@@ -2,7 +2,7 @@
 
 #include <istream>
 
-Source::Source(const std::shared_ptr<std::ifstream>& ifs): mStream(ifs)
+Source::Source(std::shared_ptr<std::ifstream> ifs): mStream(std::move(ifs))
 {
   mLineNum = 0;
   mCurrentPos = -2;
