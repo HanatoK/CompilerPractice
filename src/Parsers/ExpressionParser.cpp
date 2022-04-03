@@ -1,4 +1,5 @@
 #include "ExpressionParser.h"
+#include "VariableParser.h"
 #include "TypeChecker.h"
 
 ExpressionParser::ExpressionParser(const std::shared_ptr<PascalParserTopDown>& parent):
@@ -294,13 +295,45 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared
     case DefinitionImpl::CONSTANT: {
       const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
       const auto type_spec = id->getTypeSpec();
+      if (std::holds_alternative<PascalInteger>(value)) {
+        root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
+        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      } else if (std::holds_alternative<PascalFloat>(value)) {
+        root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
+        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      } else if (std::holds_alternative<std::string>(value)) {
+        root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
+        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      }
+      id->appendLineNumber(token->lineNum());
+      token = nextToken();
+      if (root_node != nullptr) {
+        root_node->setTypeSpec(type_spec);
+      }
+      break;
+    }
+    case DefinitionImpl::ENUMERATION_CONSTANT: {
+      const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
+      const auto type_spec = id->getTypeSpec();
+      root_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT));
+      root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      id->appendLineNumber(token->lineNum());
+      token = nextToken();
+      root_node->setTypeSpec(type_spec);
+      break;
+    }
+    default: {
+      VariableParser parser(currentParser());
+      root_node = parser.parseVariable(token, id);
+      break;
     }
   }
-  auto result_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::VARIABLE));
-  result_node->setAttribute(ICodeKeyTypeImpl::ID, id);
-  id->appendLineNumber(token->lineNum());
-  token = nextToken();
-  return result_node;
+//  auto result_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::VARIABLE));
+//  result_node->setAttribute(ICodeKeyTypeImpl::ID, id);
+//  id->appendLineNumber(token->lineNum());
+//  token = nextToken();
+//  return result_node;
+  return root_node;
 }
 
 PascalSubparserTopDownBase::TokenTypeSet ExpressionParser::expressionStartSet() {

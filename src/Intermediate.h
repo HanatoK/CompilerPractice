@@ -21,6 +21,9 @@ template <typename ValueT>
 using SymbolStackContainerTImpl = std::vector<ValueT>;
 
 template <auto EnumVal>
+struct EnumToType;
+
+template <auto EnumVal>
 auto cast_by_enum(const std::any& x);
 
 template <typename SymbolTableKeyT, typename DefinitionT, typename TypeFormT, typename TypeKeyT,
@@ -56,6 +59,10 @@ public:
   template <KeyT KeyVal>
   [[nodiscard]] auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
+  }
+  template <KeyT KeyVal>
+  void setAttribute(const typename EnumToType<KeyVal>::type& val) {
+    setAttribute(KeyVal, val);
   }
   virtual std::unique_ptr<ICodeNode> copy() const = 0;
   [[nodiscard]] virtual std::string toString() const = 0;
@@ -103,6 +110,10 @@ public:
   template <SymbolTableKeyT KeyVal>
   [[nodiscard]] auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
+  }
+  template <SymbolTableKeyT KeyVal>
+  void setAttribute(const typename EnumToType<KeyVal>::type& val) {
+    setAttribute(KeyVal, val);
   }
   virtual void setDefinition(const DefinitionT&) = 0;
   [[nodiscard]] virtual DefinitionT getDefinition() const = 0;
@@ -171,6 +182,10 @@ public:
   template <TypeKeyT KeyVal>
   [[nodiscard]] auto getAttribute() const {
     return cast_by_enum<KeyVal>(getAttribute(KeyVal));
+  }
+  template <TypeKeyT KeyVal>
+  void setAttribute(const typename EnumToType<KeyVal>::type& val) {
+    setAttribute(KeyVal, val);
   }
   [[nodiscard]] virtual bool isPascalString() const = 0;
   [[nodiscard]] virtual std::shared_ptr<TypeSpec> baseType() = 0;

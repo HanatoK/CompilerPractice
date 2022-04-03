@@ -63,7 +63,8 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Executors/IfExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.h
-            ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.h)
+            ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.h
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.h)
 
 set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Backend.cpp
@@ -104,7 +105,8 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Executors/IfExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.cpp
-            ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.cpp)
+            ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 #find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
