@@ -1,6 +1,7 @@
 #include "RepeatStatementParser.h"
 #include "StatementParser.h"
 #include "ExpressionParser.h"
+#include "TypeChecker.h"
 
 RepeatStatementParser::RepeatStatementParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
 {
@@ -21,7 +22,13 @@ std::shared_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(std::shared_ptr<
   token = currentToken();
   // parse the expression in the TEST node
   ExpressionParser expression_parser(currentParser());
-  test_node->addChild(expression_parser.parse(token));
+  auto expr_node = expression_parser.parse(token);
+  const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
+  using namespace TypeChecker::TypeChecking;
+  if (!isBoolean(expr_type)) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
+  test_node->addChild(std::move(expr_node));
   loop_node->addChild(std::move(test_node));
   return loop_node;
 }

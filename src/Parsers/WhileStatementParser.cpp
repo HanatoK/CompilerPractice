@@ -1,6 +1,7 @@
 #include "WhileStatementParser.h"
 #include "StatementParser.h"
 #include "ExpressionParser.h"
+#include "TypeChecker.h"
 
 WhileStatementParser::WhileStatementParser(const std::shared_ptr<PascalParserTopDown> &parent): PascalSubparserTopDownBase(parent)
 {
@@ -19,8 +20,14 @@ std::shared_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<P
   auto not_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::NOT));
   // parse the expression as a child of the NOT node
   ExpressionParser expression_parser(currentParser());
+  auto expr_node = expression_parser.parse(token);
+  // type check: the test expression must be boolean
+  const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
+  if (!TypeChecker::TypeChecking::isBoolean(expr_type)) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
   // construct the parse tree
-  not_node->addChild(expression_parser.parse(token));
+  not_node->addChild(std::move(expr_node));
   break_node->addChild(std::move(not_node));
   loop_node->addChild(std::move(break_node));
   token = synchronize(WhileStatementParser::doSet());

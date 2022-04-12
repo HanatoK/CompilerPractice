@@ -1,6 +1,7 @@
 #include "CaseStatementParser.h"
 #include "ExpressionParser.h"
 #include "StatementParser.h"
+#include "TypeChecker.h"
 //#include "ExpressionExecutor.h"
 
 CaseStatementParser::CaseStatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
@@ -12,10 +13,16 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<Pa
   // create a SELECT node
   auto select_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT));
   // parse the CASE expression
-  // I use the expression parser here, which is different from the book.
-  // Maybe I need something like constant expression in C++?
   ExpressionParser expression_parser(currentParser());
-  select_node->addChild(expression_parser.parse(token));
+  auto expr_node = expression_parser.parse(token);
+  const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
+  // type check: the CASE expression's type must be integer, character, or enumeration
+  if (!TypeChecker::TypeChecking::isInteger(expr_type) &&
+      !TypeChecker::TypeChecking::isChar(expr_type) &&
+      (expr_type->form() != TypeFormImpl::ENUMERATION)) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
+  select_node->addChild(std::move(expr_node));
   // synchronize to OF
   token = synchronize(CaseStatementParser::ofSet());
   if (token->type() == PascalTokenTypeImpl::OF) {
@@ -28,7 +35,7 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<Pa
   std::vector<std::any> constant_set;
   // loop to parse each CASE until the END token
   while (!token->isEof() && token->type() != PascalTokenTypeImpl::END) {
-    select_node->addChild(parseBranch(token, constant_set));
+    select_node->addChild(parseBranch(token, constant_set, expr_type));
     token = currentToken();
     const auto token_type = token->type();
     // look for the semicolon between CASE branches
@@ -55,11 +62,12 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<Pa
 
 std::shared_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
-                                 std::vector<std::any> &constant_set) {
+                                 std::vector<std::any> &constant_set,
+                                 const std::shared_ptr<TypeSpecImplBase>& expression_type) {
   // create an SELECT_BRANCH node and a SELECT_CONSTANTS node
   auto branch_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT_BRANCH));
   auto constants_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT_CONSTANTS));
-  parseConstantList(token, constants_node, constant_set);
+  parseConstantList(token, constants_node, constant_set, expression_type);
   // look for the : token
   token = currentToken();
   if (token->type() == PascalTokenTypeImpl::COLON) {
@@ -78,13 +86,13 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
 
 void CaseStatementParser::parseConstantList(std::shared_ptr<PascalToken> token,
     std::shared_ptr<ICodeNodeImplBase>& constants_node,
-    std::vector<std::any> &constant_set) {
+    std::vector<std::any> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type) {
   // loop to parse each constant
   const auto constant_start_set = CaseStatementParser::constantStartSet();
 //  auto search = constant_start_set.find(token->type());
   while (constant_start_set.contains(token->type())) {
     // the constants list node adopts the constant node
-    constants_node->addChild(parseConstant(token, constant_set));
+    constants_node->addChild(parseConstant(token, constant_set, expression_type));
     // synchronize to the COMMA
     token = synchronize(CaseStatementParser::commaSet());
     // look for the COMMA
@@ -102,9 +110,11 @@ void CaseStatementParser::parseConstantList(std::shared_ptr<PascalToken> token,
 
 std::shared_ptr<ICodeNodeImplBase>
 CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
-                                   std::vector<std::any> &constant_set) {
+                                   std::vector<std::any> &constant_set,
+                                   const std::shared_ptr<TypeSpecImplBase>& expression_type) {
   token = synchronize(CaseStatementParser::constantStartSet());
   std::shared_ptr<ICodeNodeImplBase> constant_node = nullptr;
+  auto constant_type = Predefined::instance().undefinedType;
   auto sign = PascalTokenTypeImpl::UNKNOWN;
   if (token->type() == PascalTokenTypeImpl::PLUS ||
       token->type() == PascalTokenTypeImpl::MINUS) {
@@ -115,15 +125,20 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
   switch (token->type()) {
   case PascalTokenTypeImpl::IDENTIFIER: {
     constant_node = parseIdentifierConstant(token, sign);
+    if (constant_node != nullptr) {
+      constant_type = constant_node->getTypeSpec();
+    }
     break;
   }
   case PascalTokenTypeImpl::INTEGER: {
     constant_node = parseIntegerConstant(token->text(), sign);
+    constant_type = Predefined::instance().integerType;
     break;
   }
   case PascalTokenTypeImpl::STRING: {
     constant_node = parseCharacterConstant(
         token, std::any_cast<std::string>(token->value()), sign);
+    constant_type = Predefined::instance().charType;
     break;
   }
   default: {
@@ -148,14 +163,21 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
       constant_set.push_back(constant_value);
     }
   }
+  // type check: the constant type must be comparison compatible with the CASE expression type
+  // TODO
+  if (!TypeChecker::TypeCompatibility::areComparisonCompatible(expression_type, constant_type)) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
   // consume the constant
   nextToken();
+  constant_node->setTypeSpec(constant_type);
   return constant_node;
 }
 
 std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parseIdentifierConstant(const std::shared_ptr<PascalToken>& token,
                                              const PascalTokenTypeImpl sign) {
   // don't allow for now
+  // TODO
   errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
                        currentParser());
   return nullptr;

@@ -2,12 +2,13 @@
 #include "AssignmentStatementParser.h"
 #include "ExpressionParser.h"
 #include "StatementParser.h"
+#include "TypeChecker.h"
 
 ForStatementParser::ForStatementParser(const std::shared_ptr<PascalParserTopDown> &parent)
     : PascalSubparserTopDownBase(parent) {}
 
 std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
-  // cosume the FOR
+  // consume the FOR
   token = nextToken();
   const auto target_token = token;
   // create the COMPOUND, LOOP and TEST nodes
@@ -17,6 +18,12 @@ std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
   // parse the embedded initial assignment
   AssignmentStatementParser assignment_parser(currentParser());
   auto init_assign_node = assignment_parser.parse(token);
+  const auto control_type = (init_assign_node != nullptr) ? init_assign_node->getTypeSpec() : Predefined::instance().undefinedType;
+  // type check: the control variable's type must be integer or enumeration
+  if (!TypeChecker::TypeChecking::isInteger(control_type) &&
+      control_type->form() != TypeFormImpl::ENUMERATION) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
   // set the current line number attribute
   setLineNumber(init_assign_node, target_token);
   // synchronize at the TO or DOWNTO
@@ -40,7 +47,13 @@ std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
   rel_op_node->addChild(std::move(control_variable_node->copy()));
   // parse the termination expression
   ExpressionParser expression_parser(currentParser());
-  rel_op_node->addChild(expression_parser.parse(token));
+  auto expr_node = expression_parser.parse(token);
+  const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
+  // type check: the termination expression type must be assignment compatible with the control variable's type
+  if (!TypeChecker::TypeCompatibility::areAssignmentCompatible(control_type, expr_type)) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
+  rel_op_node->addChild(std::move(expr_node));
   test_node->addChild(std::move(rel_op_node));
   loop_node->addChild(std::move(test_node));
   // synchronize to the DO set
