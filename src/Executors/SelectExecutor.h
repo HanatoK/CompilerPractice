@@ -25,8 +25,9 @@ public:
   explicit SelectExecutorOpt(const std::shared_ptr<Executor>& executor);
   virtual std::shared_ptr<SubExecutorBase> execute(const std::shared_ptr<ICodeNodeImplBase>& node);
 private:
-  typedef std::shared_ptr<ICodeNodeImplBase> NodeT;
-  typedef std::unordered_map<VariableValueT, NodeT> JumpTableT;
+  using NodeT = std::shared_ptr<ICodeNodeImplBase>;
+  using JumpTableT = std::unordered_map<VariableValueT, NodeT>;
+  JumpTableT createJumpTable(NodeT node) const;
   std::unordered_map<NodeT, JumpTableT> mJumpCache;
 };
 

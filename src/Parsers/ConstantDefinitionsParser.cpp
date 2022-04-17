@@ -90,12 +90,12 @@ VariableValueT ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalTo
     }
     case PascalTokenTypeImpl::INTEGER: {
       // integers are stored as PascalFloat
-      const PascalInteger val = sign_value * std::any_cast<PascalInteger>(token->value());
+      const PascalInteger val = sign_value * std::get<PascalInteger>(token->value());
       nextToken();
       return val;
     }
     case PascalTokenTypeImpl::REAL: {
-      const PascalFloat val = sign_value * std::any_cast<PascalFloat>(token->value());
+      const PascalFloat val = sign_value * std::get<PascalFloat>(token->value());
       nextToken();
       return val;
     }
@@ -104,7 +104,7 @@ VariableValueT ConstantDefinitionsParser::parseConstant(std::shared_ptr<PascalTo
         errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
       }
       nextToken();
-      return std::any_cast<std::string>(token->value());
+      return std::get<std::string>(token->value());
     }
     default: {
       errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());

@@ -43,72 +43,72 @@ void clear_line_ending(std::string& line) {
   }
 }
 
-bool compare_any(const std::any &a, const std::any &b)
-{
-  if (a.type() != b.type()) {
-    return false;
-  } else {
-    if (!a.has_value() && !b.has_value()) {
-      return true;
-    } else {
-      if (a.has_value() && b.has_value()) {
-        // try type casting
-        if (a.type() == typeid(bool)) {
-          const auto value_a = std::any_cast<bool>(a);
-          const auto value_b = std::any_cast<bool>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(int)) {
-          const auto value_a = std::any_cast<int>(a);
-          const auto value_b = std::any_cast<int>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(long)) {
-          const auto value_a = std::any_cast<long>(a);
-          const auto value_b = std::any_cast<long>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(long long)) {
-          const auto value_a = std::any_cast<long long>(a);
-          const auto value_b = std::any_cast<long long>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(float)) {
-          const auto value_a = std::any_cast<float>(a);
-          const auto value_b = std::any_cast<float>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(double)) {
-          const auto value_a = std::any_cast<double>(a);
-          const auto value_b = std::any_cast<double>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(std::string)) {
-          const auto value_a = std::any_cast<std::string>(a);
-          const auto value_b = std::any_cast<std::string>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(unsigned int)) {
-          const auto value_a = std::any_cast<unsigned int>(a);
-          const auto value_b = std::any_cast<unsigned int>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(unsigned long)) {
-          const auto value_a = std::any_cast<unsigned long>(a);
-          const auto value_b = std::any_cast<unsigned long>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(unsigned long long)) {
-          const auto value_a = std::any_cast<unsigned long long>(a);
-          const auto value_b = std::any_cast<unsigned long long>(b);
-          return value_a == value_b;
-        } else if (a.type() == typeid(const char*)) {
-          const auto value_a = std::any_cast<const char*>(a);
-          const auto value_b = std::any_cast<const char*>(b);
-          return std::strcmp(value_a, value_b) == 0;
-        } else {
-          fmt::print("BUG: in bool compare_any(const std::any &a, const std::any &b):\n");
-          fmt::print("BUG: failed to cast std::any!\n");
-          fmt::print("BUG: type is {}\n", a.type().name());
-          return false;
-        }
-      } else {
-        return false;
-      }
-    }
-  }
-}
+//bool compare_any(const std::any &a, const std::any &b)
+//{
+//  if (a.type() != b.type()) {
+//    return false;
+//  } else {
+//    if (!a.has_value() && !b.has_value()) {
+//      return true;
+//    } else {
+//      if (a.has_value() && b.has_value()) {
+//        // try type casting
+//        if (a.type() == typeid(bool)) {
+//          const auto value_a = std::any_cast<bool>(a);
+//          const auto value_b = std::any_cast<bool>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(int)) {
+//          const auto value_a = std::any_cast<int>(a);
+//          const auto value_b = std::any_cast<int>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(long)) {
+//          const auto value_a = std::any_cast<long>(a);
+//          const auto value_b = std::any_cast<long>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(long long)) {
+//          const auto value_a = std::any_cast<long long>(a);
+//          const auto value_b = std::any_cast<long long>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(float)) {
+//          const auto value_a = std::any_cast<float>(a);
+//          const auto value_b = std::any_cast<float>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(double)) {
+//          const auto value_a = std::any_cast<double>(a);
+//          const auto value_b = std::any_cast<double>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(std::string)) {
+//          const auto value_a = std::any_cast<std::string>(a);
+//          const auto value_b = std::any_cast<std::string>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(unsigned int)) {
+//          const auto value_a = std::any_cast<unsigned int>(a);
+//          const auto value_b = std::any_cast<unsigned int>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(unsigned long)) {
+//          const auto value_a = std::any_cast<unsigned long>(a);
+//          const auto value_b = std::any_cast<unsigned long>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(unsigned long long)) {
+//          const auto value_a = std::any_cast<unsigned long long>(a);
+//          const auto value_b = std::any_cast<unsigned long long>(b);
+//          return value_a == value_b;
+//        } else if (a.type() == typeid(const char*)) {
+//          const auto value_a = std::any_cast<const char*>(a);
+//          const auto value_b = std::any_cast<const char*>(b);
+//          return std::strcmp(value_a, value_b) == 0;
+//        } else {
+//          fmt::print("BUG: in bool compare_any(const std::any &a, const std::any &b):\n");
+//          fmt::print("BUG: failed to cast std::any!\n");
+//          fmt::print("BUG: type is {}\n", a.type().name());
+//          return false;
+//        }
+//      } else {
+//        return false;
+//      }
+//    }
+//  }
+//}
 
 std::string variable_value_to_string(const VariableValueT& a)
 {

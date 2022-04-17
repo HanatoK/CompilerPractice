@@ -430,7 +430,7 @@ PascalErrorToken::PascalErrorToken(std::shared_ptr<Source> source,
                                    const std::string &tokenText)
     : PascalToken(source, false) {
   this->mType = PascalTokenTypeImpl::ERROR;
-  this->mValue = errorCode;
+  this->mValue = VariableValueT();
   this->mText = tokenText;
   PascalErrorToken::extract();
 }
@@ -444,7 +444,7 @@ void PascalErrorToken::extract() {}
 PascalWordToken::PascalWordToken(std::shared_ptr<Source> source)
     : PascalToken(source, false) {
   PascalWordToken::extract();
-  mValue.reset();
+  mValue = VariableValueT();
 }
 
 unique_ptr<PascalToken> PascalWordToken::clone() const {
@@ -507,7 +507,7 @@ void PascalStringToken::extract() {
     mValue = value;
   } else {
     mType = PascalTokenTypeImpl::ERROR;
-    mValue = PascalErrorCode::UNEXPECTED_EOF;
+    mValue = VariableValueT();
   }
   mText = text;
 }
@@ -587,7 +587,7 @@ void PascalSpecialSymbolToken::extract() {
     nextChar(); // consume bad character
     invalid_type = true;
     mType = PascalTokenTypeImpl::ERROR;
-    mValue = PascalErrorCode::INVALID_CHARACTER;
+    mValue = VariableValueT();
   }
   }
   if (!invalid_type) {
@@ -669,7 +669,7 @@ std::string PascalNumberToken::unsignedIntegerDigits(std::string &text) {
   char current_char = currentChar();
   if (!std::isdigit(current_char)) {
     mType = PascalTokenTypeImpl::ERROR;
-    mValue = PascalErrorCode::INVALID_NUMBER;
+    mValue = VariableValueT();
     return "null";
   }
   std::string digits;
@@ -696,7 +696,7 @@ PascalInteger PascalNumberToken::computeIntegerValue(const std::string &digits) 
   } else {
     mType = PascalTokenTypeImpl::ERROR;
     // TODO: check if integer out of range
-    mValue = PascalErrorCode::INVALID_NUMBER;
+    mValue = VariableValueT();
     return 0;
   }
 }
@@ -725,7 +725,7 @@ PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits
   } else {
     mType = PascalTokenTypeImpl::ERROR;
     // TODO: check if integer out of range
-    mValue = PascalErrorCode::INVALID_NUMBER;
+    mValue = VariableValueT();
     return 0;
   }
 }

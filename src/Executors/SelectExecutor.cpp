@@ -58,6 +58,7 @@ SelectExecutorOpt::SelectExecutorOpt(const std::shared_ptr<Executor>& executor):
 
 std::shared_ptr<SubExecutorBase> SelectExecutorOpt::execute(const std::shared_ptr<ICodeNodeImplBase>& node)
 {
+  // TODO: use createJumpTable
   const auto it_select_child = node->childrenBegin();
   if (mJumpCache.find(node) == mJumpCache.end()) {
     ExpressionExecutor constant_expression_executor(currentExecutor());
@@ -86,4 +87,27 @@ std::shared_ptr<SubExecutorBase> SelectExecutorOpt::execute(const std::shared_pt
   }
   ++executionCount();
   return nullptr;
+}
+
+SelectExecutorOpt::JumpTableT SelectExecutorOpt::createJumpTable(SelectExecutorOpt::NodeT node) const {
+  JumpTableT jump_table;
+  // loop over children that are SELECT_BRANCH nodes
+  for (auto children_it = node->childrenBegin();
+       children_it != node->childrenEnd(); ++children_it) {
+    auto branch_node = *children_it;
+    auto constant_node = *(branch_node->childrenBegin());
+    auto statement_node = *(std::next(branch_node->childrenBegin()));
+    // loop over the constants children of the branch's CONSTANTS_NODE
+    for (auto constants_list_it = constant_node->childrenBegin();
+         constants_list_it != constant_node->childrenEnd();
+         ++constants_list_it) {
+      // create a jump table entry
+      auto value = (*constants_list_it)->getAttribute<ICodeKeyTypeImpl::VALUE>();
+      if ((*constants_list_it)->type() == ICodeNodeTypeImpl::STRING_CONSTANT) {
+        value = (std::any_cast<std::string>(value))[0];
+      }
+      jump_table.insert({value, statement_node});
+    }
+  }
+  return jump_table;
 }

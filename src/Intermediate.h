@@ -246,7 +246,7 @@ template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::DATA_VALUE> { us
 template <ICodeKeyTypeImpl> struct ICodeKeyTypeImplToEnum;
 template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::ID> { using type = std::shared_ptr<SymbolTableEntryImplBase>; };
 template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::LINE> { using type = int; };
-template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::VALUE> { using type = std::any; };
+template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::VALUE> { using type = VariableValueT; };
 
 template <TypeKeyImpl> struct TypeKeyImplToEnum;
 template <> struct TypeKeyImplToEnum<TypeKeyImpl::ENUMERATION_CONSTANTS> { using type = std::vector<std::weak_ptr<SymbolTableEntryImplBase>>; };

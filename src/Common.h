@@ -168,7 +168,7 @@ std::string any_to_string(const std::any& a);
 
 std::string variable_value_to_string(const VariableValueT& a);
 
-bool compare_any(const std::any& a, const std::any& b);
+//bool compare_any(const std::any& a, const std::any& b);
 
 void clear_line_ending(std::string& line);
 

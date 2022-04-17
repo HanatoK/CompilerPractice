@@ -63,14 +63,14 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
     }
     case PascalTokenTypeImpl::INTEGER: {
       root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
-      root_node->setAttribute(ICodeKeyTypeImpl::VALUE, token->value());
+      root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(token->value());
       root_node->setTypeSpec(Predefined::instance().integerType);
       token = nextToken();
       break;
     }
     case PascalTokenTypeImpl::REAL: {
       root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
-      root_node->setAttribute(ICodeKeyTypeImpl::VALUE, token->value());
+      root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(token->value());
       root_node->setTypeSpec(Predefined::instance().realType);
       token = nextToken();
       break;
@@ -78,7 +78,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
     case PascalTokenTypeImpl::STRING: {
       const std::string s = any_to_string(token->value());
       root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
-      root_node->setAttribute(ICodeKeyTypeImpl::VALUE, s);
+      root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(s);
       root_node->setTypeSpec(s.size() == 1 ? Predefined::instance().charType : createStringType(s));
       token = nextToken();
       break;

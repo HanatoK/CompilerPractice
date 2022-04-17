@@ -54,7 +54,7 @@ public:
   virtual ~Token();
   [[nodiscard]] int lineNum() const;
   [[nodiscard]] int position() const;
-  [[nodiscard]] const std::any &value() const;
+  [[nodiscard]] const VariableValueT &value() const;
   [[nodiscard]] const std::string &text() const;
   [[nodiscard]] virtual bool isEof() const;
   virtual T type() const;
@@ -71,7 +71,7 @@ protected:
 protected:
   std::weak_ptr<Source> mSource;
   std::string mText;
-  std::any mValue;
+  VariableValueT mValue;
   int mLineNum;
   int mPosition;
   T mType;
@@ -101,7 +101,7 @@ template <typename T> Token<T>::~Token() {
 
 template <typename T> void Token<T>::extract() {
   mText = std::string{currentChar()};
-  mValue.reset();
+  mValue = VariableValueT();
   nextChar();
 }
 
@@ -119,7 +119,7 @@ template <typename T> bool Token<T>::isEof() const { return false; }
 
 template <typename T> T Token<T>::type() const { return mType; }
 
-template <typename T> const std::any &Token<T>::value() const { return mValue; }
+template <typename T> const VariableValueT &Token<T>::value() const { return mValue; }
 
 template <typename T> int Token<T>::position() const { return mPosition; }
 

@@ -12,12 +12,12 @@ public:
   std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
 private:
   virtual std::shared_ptr<ICodeNodeImplBase> parseBranch(std::shared_ptr<PascalToken> token,
-              std::vector<std::any> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type);
+              std::vector<VariableValueT> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type);
   virtual void parseConstantList(std::shared_ptr<PascalToken> token,
       std::shared_ptr<ICodeNodeImplBase>& constants_node,
-      std::vector<std::any> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type);
+      std::vector<VariableValueT> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type);
   virtual std::shared_ptr<ICodeNodeImplBase> parseConstant(std::shared_ptr<PascalToken> token,
-                std::vector<std::any> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type);
+                std::vector<VariableValueT> &constant_set, const std::shared_ptr<TypeSpecImplBase>& expression_type);
   virtual std::shared_ptr<ICodeNodeImplBase> parseIdentifierConstant(const std::shared_ptr<PascalToken>& token,
                           PascalTokenTypeImpl sign);
   virtual std::shared_ptr<ICodeNodeImplBase>

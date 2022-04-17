@@ -77,7 +77,7 @@ std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<Pas
                                            : ICodeNodeTypeImpl::SUBTRACT));
   arithmetic_op_node->addChild(std::move(control_variable_node->copy()));
   auto one_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT));
-  one_node->setAttribute(ICodeKeyTypeImpl::VALUE, PascalInteger(1));
+  one_node->setAttribute<ICodeKeyTypeImpl::VALUE>(PascalInteger(1));
   arithmetic_op_node->addChild(std::move(one_node));
   // the next ASSIGN node adopts the arithmetic operator node as its second child,
   next_assign_node->addChild(std::move(arithmetic_op_node));

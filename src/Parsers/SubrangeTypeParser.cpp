@@ -59,9 +59,9 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
   } else {
     errorHandler()->flag(constant_token, PascalErrorCode::INVALID_SUBRANGE_TYPE, currentParser());
   }
-  subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, min_type);
-  subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, min_val);
-  subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, max_val);
+  subrange_type->setAttribute<TypeKeyImpl::SUBRANGE_BASE_TYPE>(min_type);
+  subrange_type->setAttribute<TypeKeyImpl::SUBRANGE_MIN_VALUE>(min_val);
+  subrange_type->setAttribute<TypeKeyImpl::SUBRANGE_MAX_VALUE>(max_val);
   return subrange_type;
 }
 
