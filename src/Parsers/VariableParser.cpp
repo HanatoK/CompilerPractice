@@ -92,7 +92,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseSubscripts(std::shared_p
     } else {
       // not an array type, so too many subscripts
       errorHandler()->flag(token, PascalErrorCode::TOO_MANY_SUBSCRIPTS, currentParser());
-      expression_parser->parse(token);
+      expression_parser.parse(token);
     }
     token = currentToken();
   } while (token->type() == PascalTokenTypeImpl::COMMA);
