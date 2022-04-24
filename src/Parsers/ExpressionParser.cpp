@@ -76,7 +76,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
       break;
     }
     case PascalTokenTypeImpl::STRING: {
-      const std::string s = any_to_string(token->value());
+      const std::string s = std::get<std::string>(token->value());
       root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
       root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(s);
       root_node->setTypeSpec(s.size() == 1 ? Predefined::instance().charType : createStringType(s));

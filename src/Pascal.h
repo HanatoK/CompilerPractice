@@ -19,8 +19,6 @@ public:
   void parserSummary(int lineNumber, int errorCount, float elapsedTime) const;
   void compilerSummary(int instructionCount, float elapsedTime) const;
   void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime) const;
-  void tokenMessage(int lineNumber, int position, PascalTokenTypeImpl tokenType,
-                    const std::string& text, const std::any& value) const;
   void syntaxErrorMessage(int lineNumber, int position, const std::string& text,
                           const std::string& error) const;
   void assignmentMessage(int line_number, const std::string& variable_name, const VariableValueT& value) const;

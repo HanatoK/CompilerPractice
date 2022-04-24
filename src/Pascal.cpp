@@ -28,9 +28,6 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   mParser->parserSummary.connect(
       std::bind(&Pascal::parserSummary, this, std::placeholders::_1,
                 std::placeholders::_2, std::placeholders::_3));
-  mParser->pascalTokenMessage.connect(std::bind(
-      &Pascal::tokenMessage, this, std::placeholders::_1, std::placeholders::_2,
-      std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
   mParser->syntaxErrorMessage.connect(std::bind(
       &Pascal::syntaxErrorMessage, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
@@ -103,18 +100,6 @@ void Pascal::interpreterSummary(const int executionCount, const int runtimeError
   fmt::print("\n{:10d} statements executed.", executionCount);
   fmt::print("\n{:10d} runtime errors.", runtimeErrors);
   fmt::print("\n{:10.5f} seconds total execution time.\n\n", elapsedTime);
-}
-
-void Pascal::tokenMessage(const int lineNumber, const int position,
-                          const PascalTokenTypeImpl tokenType, const std::string& text,
-                          const std::any& value) const {
-  const auto type_str = typeToStr(tokenType);
-  fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
-             type_str, lineNumber, position, text);
-  if (value.has_value()) {
-    fmt::print(", value = {}", any_to_string(value));
-  }
-  fmt::print("\n");
 }
 
 void Pascal::syntaxErrorMessage(const int lineNumber, const int position, const std::string& text,

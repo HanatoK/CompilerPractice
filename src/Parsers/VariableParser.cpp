@@ -32,7 +32,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(std::shared_ptr<PascalT
   if (variable_id == nullptr) {
     errorHandler()->flag(token, PascalErrorCode::IDENTIFIER_UNDEFINED, currentParser());
     variable_id = getSymbolTableStack()->enterLocal(name);
-    variable_id ->setDefinition(DefinitionImpl::UNDEFINED);
+    variable_id->setDefinition(DefinitionImpl::UNDEFINED);
     variable_id->setTypeSpec(Predefined::instance().undefinedType);
   }
   return parseVariable(token, variable_id);
@@ -50,6 +50,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseVariable(std::shared_ptr
   id->appendLineNumber(token->lineNum());
   auto variable_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::VARIABLE));
   variable_node->setAttribute<ICodeKeyTypeImpl::ID>(id);
+  // consume the identifier
   token = nextToken();
   // parse array subscripts or record fields
   auto variable_type = id->getTypeSpec();
@@ -84,6 +85,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseSubscripts(std::shared_p
       const auto index_type = variable_type->getAttribute<TypeKeyImpl::ARRAY_INDEX_TYPE>();
       using namespace TypeChecker::TypeCompatibility;
       if (!areAssignmentCompatible(index_type, expression_type)) {
+        // TODO: there is a bug of incompatible type!
         errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
       }
       // the subscripts node adopts the subscript expression tree

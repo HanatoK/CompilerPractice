@@ -39,7 +39,7 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseSpec(std::shared_ptr<Pas
   } else {
     errorHandler()->flag(token, PascalErrorCode::MISSING_OF, currentParser());
   }
-  element_type->setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, parseElementType(token));
+  element_type->setAttribute<TypeKeyImpl::ARRAY_ELEMENT_TYPE>(parseElementType(token));
   return array_type;
 }
 

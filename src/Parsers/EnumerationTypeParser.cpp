@@ -39,7 +39,7 @@ std::shared_ptr<TypeSpecImplBase> EnumerationTypeParser::parseSpec(std::shared_p
   } else {
     errorHandler()->flag(token, PascalErrorCode::MISSING_RIGHT_PAREN, currentParser());
   }
-  enumeration_type->setAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS, constants);
+  enumeration_type->setAttribute<TypeKeyImpl::ENUMERATION_CONSTANTS>(constants);
   return enumeration_type;
 }
 
@@ -57,7 +57,7 @@ void EnumerationTypeParser::parseEnumerationIdentifier(
       constant_id = getSymbolTableStack()->enterLocal(token->text());
       constant_id->setDefinition(DefinitionImpl::ENUMERATION_CONSTANT);
       constant_id->setTypeSpec(std::move(enumeration_type));
-      constant_id->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, value);
+      constant_id->setAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>(value);
       constant_id->appendLineNumber(token->lineNum());
       constants.push_back(constant_id);
     }

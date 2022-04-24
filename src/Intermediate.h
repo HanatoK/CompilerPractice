@@ -189,6 +189,7 @@ public:
   }
   [[nodiscard]] virtual bool isPascalString() const = 0;
   [[nodiscard]] virtual std::shared_ptr<TypeSpec> baseType() = 0;
+  virtual std::string anonymousName() const = 0;
 };
 
 typedef TypeSpec<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl> TypeSpecImplBase;

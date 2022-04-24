@@ -144,6 +144,7 @@ public:
   [[nodiscard]] std::any getAttribute(TypeKeyImpl key) const override;
   [[nodiscard]] bool isPascalString() const override;
   [[nodiscard]] std::shared_ptr<TypeSpecImplBase> baseType() override;
+  std::string anonymousName() const override;
 private:
   TypeFormImpl mForm;
   std::weak_ptr<SymbolTableEntryImplBase> mIdentifier;

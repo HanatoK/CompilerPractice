@@ -477,6 +477,60 @@ std::shared_ptr<TypeSpecImplBase> TypeSpecImpl::baseType()
   }
 }
 
+std::string TypeSpecImpl::anonymousName() const {
+  std::string type_form_name;
+  switch (form()) {
+    case TypeFormImpl::SCALAR: type_form_name += "scalar"; break;
+    case TypeFormImpl::ENUMERATION: type_form_name += "enum"; break;
+    case TypeFormImpl::SUBRANGE: type_form_name += "subrange"; break;
+    case TypeFormImpl::ARRAY: type_form_name += "array"; break;
+    case TypeFormImpl::RECORD: type_form_name += "record"; break;
+  }
+  auto mangled_name = std::to_string(type_form_name.size()) + type_form_name;
+  switch (form()) {
+    case TypeFormImpl::SCALAR: {
+      // nothing special for scalar type
+      break;
+    }
+    case TypeFormImpl::ENUMERATION: {
+      mangled_name += "N";
+      const auto enum_constant = TypeSpecImplBase::getAttribute<TypeKeyImpl::ENUMERATION_CONSTANTS>();
+      for (const auto& it_enum_item : enum_constant) {
+        mangled_name += it_enum_item.lock()->getTypeSpec()->anonymousName();
+      }
+      mangled_name += "E";
+      break;
+    }
+    case TypeFormImpl::SUBRANGE: {
+      mangled_name += "N";
+      const auto subrange_base_type = TypeSpecImplBase::getAttribute<TypeKeyImpl::SUBRANGE_BASE_TYPE>();
+      mangled_name += subrange_base_type->anonymousName();
+      mangled_name += "E";
+      break;
+    }
+    case TypeFormImpl::ARRAY: {
+      mangled_name += "N";
+      const auto array_index_type = TypeSpecImplBase::getAttribute<TypeKeyImpl::ARRAY_INDEX_TYPE>();
+      mangled_name += "N";
+      mangled_name += array_index_type->anonymousName();
+      mangled_name += "E";
+      mangled_name += "N";
+      const auto array_element_count = TypeSpecImplBase::getAttribute<TypeKeyImpl::ARRAY_ELEMENT_COUNT>();
+      mangled_name += std::to_string(array_element_count);
+      const auto array_element_type = TypeSpecImplBase::getAttribute<TypeKeyImpl::ARRAY_ELEMENT_TYPE>();
+      mangled_name += array_element_type->anonymousName();
+      mangled_name += "E";
+      mangled_name += "E";
+      break;
+    }
+    case TypeFormImpl::RECORD: {
+      // nothing special for record type
+      break;
+    }
+  }
+  return mangled_name;
+}
+
 template <>
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
 {

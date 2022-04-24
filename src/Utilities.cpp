@@ -258,52 +258,41 @@ void ParseTreePrinter::printAttributes(const std::shared_ptr<const ICodeNodeImpl
        ++it) {
     std::string key_string;
     switch (it->first) {
-    case ICodeKeyTypeImpl::LINE: {
-      key_string += "LINE";
-      break;
+      case ICodeKeyTypeImpl::LINE: {
+        key_string += "LINE";
+        printAttributes(key_string, cast_by_enum<ICodeKeyTypeImpl::LINE>(it->second));
+        break;
+      }
+      case ICodeKeyTypeImpl::ID: {
+        key_string += "ID";
+        printAttributes(key_string, cast_by_enum<ICodeKeyTypeImpl::ID>(it->second));
+        break;
+      }
+      case ICodeKeyTypeImpl::VALUE: {
+        key_string += "VALUE";
+        printAttributes(key_string, cast_by_enum<ICodeKeyTypeImpl::VALUE>(it->second));
+        break;
+      }
     }
-    case ICodeKeyTypeImpl::ID: {
-      key_string += "ID";
-      break;
-    }
-    case ICodeKeyTypeImpl::VALUE: {
-      key_string += "VALUE";
-      break;
-    }
-    }
-    printAttributes(key_string, it->second);
   }
   mLineIndentation = saved_indentation;
 }
 
 void ParseTreePrinter::printAttributes(const std::string &key,
-                                       const std::any &value) {
+                                       const std::shared_ptr<SymbolTableEntryImplBase> &value) {
   // if the value is a symbol table entry, use the identifier's name
   // else just use the value string
-  std::string value_string;
-  if (value.type() ==
-      typeid(std::shared_ptr<SymbolTableEntryImplBase>)) {
-    const auto tmp_value = std::any_cast<
-        std::shared_ptr<SymbolTableEntryImplBase>>(value);
-    value_string = tmp_value->name();
-  } else {
-    value_string = any_to_string(value);
-  }
+  std::string value_string = value->name();
   const std::string text =
       boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
   appendOutputLine(" ");
   appendOutputLine(text);
-  if (value.type() ==
-      typeid(std::shared_ptr<SymbolTableEntryImplBase>)) {
-    const auto tmp_value = std::any_cast<
-        std::shared_ptr<SymbolTableEntryImplBase>>(value);
-    const int level = tmp_value->symbolTable()->nestingLevel();
-    printAttributes("LEVEL", level);
-  }
+  const int level = value->symbolTable()->nestingLevel();
+  printAttributes("LEVEL", level);
 }
 
 void ParseTreePrinter::printChildNodes(const std::shared_ptr<const ICodeNodeImplBase>& parent_node) {
-  auto saved_indentation = mLineIndentation;
+  const auto saved_indentation = mLineIndentation;
   mLineIndentation += mIndentSpaces;
   //  for (const auto& elem: parent_node) {
   //    printNode(elem);
@@ -315,9 +304,23 @@ void ParseTreePrinter::printChildNodes(const std::shared_ptr<const ICodeNodeImpl
   mLineIndentation = saved_indentation;
 }
 
-void ParseTreePrinter::printTypeSpec(
-    const std::shared_ptr<const ICodeNodeImplBase>
-        &node) {}
+void ParseTreePrinter::printTypeSpec(const std::shared_ptr<const ICodeNodeImplBase>& node) {
+  const auto type_spec = node->getTypeSpec();
+  if (type_spec != nullptr) {
+    auto saved_indentation = mLineIndentation;
+    mLineIndentation += mIndentSpaces;
+    std::string type_name;
+    const auto type_id = type_spec->getIdentifier();
+    if (type_id != nullptr) {
+      // named type: print the type identifier's name
+      type_name = type_id->name();
+    } else {
+      // unnamed type: print an artificial type identifier name
+      type_name = type_spec->anonymousName();
+    }
+    printAttributes("TYPE_ID", type_name);
+  }
+}
 
 void ParseTreePrinter::appendOutputLine(const std::string &text) {
   const auto text_length = text.size();
@@ -340,6 +343,22 @@ void ParseTreePrinter::printLine() {
     mLine.clear();
     mLength = 0;
   }
+}
+
+void ParseTreePrinter::printAttributes(const std::string &key, const VariableValueT &value) {
+  const auto value_string = variable_value_to_string(value);
+  const std::string text =
+      boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
+  appendOutputLine(" ");
+  appendOutputLine(text);
+}
+
+void ParseTreePrinter::printAttributes(const std::string &key, const int &value) {
+  const auto value_string = std::to_string(value);
+  const std::string text =
+      boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
+  appendOutputLine(" ");
+  appendOutputLine(text);
 }
 
 ParseTreePrinterDot::ParseTreePrinterDot(std::ostream &os): mOutputStream(os), mIndex(0)
@@ -375,27 +394,21 @@ std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode
     const auto value = it->second;
     std::string key_string;
     switch (it->first) {
-    case ICodeKeyTypeImpl::LINE: {
-      key_string += "LINE";
-      break;
-    }
-    case ICodeKeyTypeImpl::ID: {
-      key_string += "ID";
-      break;
-    }
-    case ICodeKeyTypeImpl::VALUE: {
-      key_string += "VALUE";
-      break;
-    }
-    }
-    if (value.type() ==
-        typeid(std::shared_ptr<SymbolTableEntryImplBase>)) {
-      const auto tmp_value = std::any_cast<
-          std::shared_ptr<SymbolTableEntryImplBase>>(value);
-
-      node_label += "\\n" + key_string + ": " + tmp_value->name();
-    } else {
-      node_label += "\\n" + key_string + ": " + any_to_string(value);
+      case ICodeKeyTypeImpl::LINE: {
+        key_string += "LINE";
+        node_label += "\\n" + key_string + ": " + std::to_string(cast_by_enum<ICodeKeyTypeImpl::LINE>(it->second));
+        break;
+      }
+      case ICodeKeyTypeImpl::ID: {
+        key_string += "ID";
+        node_label += "\\n" + key_string + ": " + cast_by_enum<ICodeKeyTypeImpl::ID>(it->second)->name();
+        break;
+      }
+      case ICodeKeyTypeImpl::VALUE: {
+        key_string += "VALUE";
+        node_label += "\\n" + key_string + ": " + variable_value_to_string(cast_by_enum<ICodeKeyTypeImpl::VALUE>(it->second));
+        break;
+      }
     }
   }
   std::string node_name = "node" + std::to_string(mIndex++) + " ";
