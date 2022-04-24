@@ -410,7 +410,13 @@ std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode
     }
     const auto type_spec = node->getTypeSpec();
     if (type_spec != nullptr) {
-      node_label += std::string{"\\n"} + "TYPE: " + foldString(type_spec->anonymousName());
+      node_label += std::string{"\\n"} + "TYPE: ";
+      const auto type_id = type_spec->getIdentifier();
+      if (type_id != nullptr) {
+        node_label += type_id->name();
+      } else {
+        node_label += foldString(type_spec->anonymousName());
+      }
     }
   }
   std::string node_name = "node" + std::to_string(mIndex++) + " ";
