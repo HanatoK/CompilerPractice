@@ -23,7 +23,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
                   parser.getConstantType(constant_token):
                   parser.getConstantType(min_val);
   min_val = checkValueType(constant_token, min_val, min_type);
-  std::any max_val;
+  VariableValueT max_val;
   token = currentToken();
   bool saw_dot_dot = false;
   // look for the .. token
@@ -48,8 +48,9 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
       errorHandler()->flag(constant_token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
     } else if (min_type != max_type) { // is this comparison valid?
       errorHandler()->flag(constant_token, PascalErrorCode::INVALID_SUBRANGE_TYPE, currentParser());
-    } else if (min_val.has_value() && max_val.has_value()) {
-      if (std::any_cast<PascalInteger>(min_val) >= std::any_cast<PascalInteger>(max_val)) {
+    } else if (std::holds_alternative<PascalInteger>(min_val) &&
+               std::holds_alternative<PascalInteger>(max_val)) {
+      if (std::get<PascalInteger>(min_val) >= std::get<PascalInteger>(max_val)) {
         errorHandler()->flag(constant_token, PascalErrorCode::MIN_GT_MAX, currentParser());
 //        std::cout << "Min value: " << std::any_cast<PascalInteger>(min_val) << " "
 //                     "Max value: " << std::any_cast<PascalInteger>(max_val) << std::endl;
@@ -58,20 +59,20 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
   } else {
     errorHandler()->flag(constant_token, PascalErrorCode::INVALID_SUBRANGE_TYPE, currentParser());
   }
-  subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, min_type);
-  subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, min_val);
-  subrange_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, max_val);
+  subrange_type->setAttribute<TypeKeyImpl::SUBRANGE_BASE_TYPE>(min_type);
+  subrange_type->setAttribute<TypeKeyImpl::SUBRANGE_MIN_VALUE>(min_val);
+  subrange_type->setAttribute<TypeKeyImpl::SUBRANGE_MAX_VALUE>(max_val);
   return subrange_type;
 }
 
-std::any SubrangeTypeParser::checkValueType(
+VariableValueT SubrangeTypeParser::checkValueType(
     const std::shared_ptr<PascalToken>& token,
-    const std::any& value, const std::shared_ptr<TypeSpecImplBase>& type)
+    const VariableValueT& value, const std::shared_ptr<TypeSpecImplBase>& type)
 {
   if (type == nullptr || type == Predefined::instance().integerType) return value;
   if (type == Predefined::instance().integerType) return value;
   else if (type == Predefined::instance().charType) {
-    const auto ch = std::any_cast<std::string>(value)[0];
+    const auto ch = std::get<std::string>(value)[0];
     return PascalInteger(ch);
   } else if (type->form() == TypeFormImpl::ENUMERATION) {
     return value;

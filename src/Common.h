@@ -123,11 +123,11 @@ enum class ICodeNodeTypeImpl {
   STRING_CONSTANT, BOOLEAN_CONSTANT
 };
 
-enum class VariableInternalType {
-  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
-};
+//enum class VariableInternalType {
+//  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
+//};
 
-using VariableValueT = std::variant<bool, PascalInteger, PascalFloat, std::string>;
+using VariableValueT = std::variant<std::monostate, bool, PascalInteger, PascalFloat, std::string>;
 
 enum class TypeFormImpl {
   SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD
@@ -164,11 +164,7 @@ std::map<T2, T1> reverse_map(const std::map<T1, T2>& map_in) {
   return map_out;
 }
 
-std::string any_to_string(const std::any& a);
-
 std::string variable_value_to_string(const VariableValueT& a);
-
-bool compare_any(const std::any& a, const std::any& b);
 
 void clear_line_ending(std::string& line);
 
@@ -186,9 +182,9 @@ bool any_is(const std::any& a) {
   }
 }
 
-template<class... Ts>
+template<typename... Ts>
 struct overloaded : Ts... { using Ts::operator()...; };
 
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 #endif // COMMON_H

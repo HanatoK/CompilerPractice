@@ -58,32 +58,48 @@ SelectExecutorOpt::SelectExecutorOpt(const std::shared_ptr<Executor>& executor):
 
 std::shared_ptr<SubExecutorBase> SelectExecutorOpt::execute(const std::shared_ptr<ICodeNodeImplBase>& node)
 {
-  const auto it_select_child = node->childrenBegin();
-  if (mJumpCache.find(node) == mJumpCache.end()) {
-    ExpressionExecutor constant_expression_executor(currentExecutor());
-    for (auto it = it_select_child + 1; it != node->childrenEnd(); ++it) {
-      const auto branch_node = *it;
-      const auto constant_node = *(branch_node->childrenBegin());
-      const auto statement_node = *(branch_node->childrenBegin() + 1);
-      for (auto it_constant_node = constant_node->childrenBegin();
-           it_constant_node != constant_node->childrenEnd();
-           ++it_constant_node) {
-        constant_expression_executor.execute(*it_constant_node);
-        auto value = constant_expression_executor.value();
-        mJumpCache[node][value] = statement_node;
-      }
-    }
+  // is there already an entry for this SELECT node in the jump table cache?
+  auto search = mJumpCache.find(node);
+  if (search == mJumpCache.end()) {
+    // if not, create a new one
+    mJumpCache[node] = createJumpTable(node);
   }
-//  auto it_select_child = node->childrenBegin();
-  auto expr_node = *it_select_child;
+  // get the SELECT node's children
+  const auto it_select_child = node->childrenBegin();
+  auto it_expr_node = (*it_select_child)->childrenBegin();
+  // evaluate the SELECT expression
   ExpressionExecutor expression_executor(currentExecutor());
-  expression_executor.execute(expr_node);
+  expression_executor.execute(*it_expr_node);
   auto select_value = expression_executor.value();
   auto jump_entry = mJumpCache.at(node);
-  if (jump_entry.find(select_value) != jump_entry.end()) {
+  auto search_branch = jump_entry.find(select_value);
+  if (search_branch != jump_entry.end()) {
     StatementExecutor statement_executor(currentExecutor());
-    statement_executor.execute(jump_entry.at(select_value));
+    statement_executor.execute(search_branch->second);
   }
   ++executionCount();
   return nullptr;
+}
+
+SelectExecutorOpt::JumpTableT SelectExecutorOpt::createJumpTable(SelectExecutorOpt::NodeT node) const {
+  JumpTableT jump_table;
+  // loop over children that are SELECT_BRANCH nodes
+  for (auto children_it = node->childrenBegin();
+       children_it != node->childrenEnd(); ++children_it) {
+    auto branch_node = *children_it;
+    auto constant_node = *(branch_node->childrenBegin());
+    auto statement_node = *(std::next(branch_node->childrenBegin()));
+    // loop over the constants children of the branch's CONSTANTS_NODE
+    for (auto constants_list_it = constant_node->childrenBegin();
+         constants_list_it != constant_node->childrenEnd();
+         ++constants_list_it) {
+      // create a jump table entry
+      auto value = (*constants_list_it)->getAttribute<ICodeKeyTypeImpl::VALUE>();
+      if ((*constants_list_it)->type() == ICodeNodeTypeImpl::STRING_CONSTANT) {
+        value = (std::any_cast<std::string>(value))[0];
+      }
+      jump_table.insert({value, statement_node});
+    }
+  }
+  return jump_table;
 }

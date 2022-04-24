@@ -1,6 +1,7 @@
 #include "IfStatementParser.h"
 #include "ExpressionParser.h"
 #include "StatementParser.h"
+#include "TypeChecker.h"
 
 IfStatementParser::IfStatementParser(const std::shared_ptr<PascalParserTopDown> &parent): PascalSubparserTopDownBase(parent)
 {
@@ -12,10 +13,15 @@ std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
   // consume the IF
   token = nextToken();
   // create the IF node
-  std::shared_ptr<ICodeNodeImplBase> if_node = createICodeNode(ICodeNodeTypeImpl::IF);
+  auto if_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::IF));
   // parse the expression and adopt it as the child node of the IF node
   ExpressionParser expression_parser(currentParser());
-  if_node->addChild(expression_parser.parse(token));
+  auto expr_node = expression_parser.parse(token);
+  const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
+  if (!TypeChecker::TypeChecking::isBoolean(expr_type)) {
+    errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+  }
+  if_node->addChild(std::move(expr_node));
   // synchronize to the THEN set
   token = synchronize(IfStatementParser::thenSet());
   if (token->type() == PascalTokenTypeImpl::THEN) {

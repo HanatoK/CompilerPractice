@@ -27,8 +27,8 @@ class PascalScanner: public Scanner<PascalTokenTypeImpl> {
 public:
   PascalScanner();
   explicit PascalScanner(std::shared_ptr<Source> source);
-  virtual ~PascalScanner();
-  virtual std::shared_ptr<PascalToken> extractToken() override;
+  ~PascalScanner() override;
+  std::shared_ptr<PascalToken> extractToken() override;
 private:
   void skipWhiteSpace();
 };
@@ -41,9 +41,9 @@ class PascalParserTopDown:
 public:
   explicit PascalParserTopDown(std::shared_ptr<PascalScanner> scanner);
   PascalParserTopDown(const PascalParserTopDown&) = delete;
-  virtual ~PascalParserTopDown();
-  virtual void parse() override;
-  virtual int errorCount() const override;
+  ~PascalParserTopDown() override;
+  void parse() override;
+  int errorCount() const override;
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   boost::signals2::signal<void(const int, const int, const PascalTokenTypeImpl, const std::string&, std::any)> pascalTokenMessage;
   boost::signals2::signal<void(const int, const int, const float)> parserSummary;
@@ -57,18 +57,17 @@ protected:
 
 class PascalSubparserTopDownBase {
 public:
-  typedef std::set<PascalTokenTypeImpl> TokenTypeSet;
+  using TokenTypeSet = std::set<PascalTokenTypeImpl>;
   explicit PascalSubparserTopDownBase(const std::shared_ptr<PascalParserTopDown>& pascal_parser);
   virtual ~PascalSubparserTopDownBase();
-  std::shared_ptr<PascalToken> currentToken() const;
+  [[nodiscard]] std::shared_ptr<PascalToken> currentToken() const;
   std::shared_ptr<PascalToken> nextToken();
   std::shared_ptr<PascalToken> synchronize(const std::set<PascalTokenTypeImpl>& sync_set);
   std::shared_ptr<SymbolTableStackImplBase> getSymbolTableStack();
-  std::shared_ptr<PascalScanner> scanner() const;
-  int errorCount();
+  [[nodiscard]] std::shared_ptr<PascalScanner> scanner() const;
+  [[nodiscard]] int errorCount();
   std::shared_ptr<PascalErrorHandler> errorHandler();
   std::shared_ptr<PascalParserTopDown> currentParser();
-  // TODO: what exactly does this function return??
   virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
   static void setLineNumber(std::shared_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
@@ -83,10 +82,10 @@ class PascalErrorHandler {
 public:
   PascalErrorHandler();
   virtual ~PascalErrorHandler();
-  void flag(const std::shared_ptr<PascalToken> &token, const PascalErrorCode errorCode,
+  void flag(const std::shared_ptr<PascalToken> &token, PascalErrorCode errorCode,
             const std::shared_ptr<PascalParserTopDown>& parser);
-  static void abortTranslation(const PascalErrorCode errorCode, const std::shared_ptr<PascalParserTopDown>& parser);
-  int errorCount() const;
+  static void abortTranslation(PascalErrorCode errorCode, const std::shared_ptr<PascalParserTopDown>& parser);
+  [[nodiscard]] int errorCount() const;
 private:
   static const int maxError = 25;
   static std::map<PascalErrorCode, std::string> errorMessageMap;
@@ -96,39 +95,39 @@ private:
 class PascalErrorToken: public PascalToken {
 public:
   PascalErrorToken();
-  PascalErrorToken(std::shared_ptr<Source> source, const PascalErrorCode errorCode,
+  PascalErrorToken(std::shared_ptr<Source> source, PascalErrorCode errorCode,
                    const std::string& tokenText);
-  virtual unique_ptr<PascalToken> clone() const override;
-  virtual void extract() override;
+  [[nodiscard]] unique_ptr<PascalToken> clone() const override;
+  void extract() override;
 };
 
 class PascalWordToken: public PascalToken {
 public:
   explicit PascalWordToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const override;
-  virtual void extract() override;
+  [[nodiscard]] unique_ptr<PascalToken> clone() const override;
+  void extract() override;
 };
 
 class PascalStringToken: public PascalToken {
 public:
   explicit PascalStringToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const override;
-  virtual void extract() override;
+  [[nodiscard]] unique_ptr<PascalToken> clone() const override;
+  void extract() override;
 };
 
 class PascalSpecialSymbolToken: public PascalToken {
 public:
   explicit PascalSpecialSymbolToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const override;
-  virtual void extract() override;
+  [[nodiscard]] unique_ptr<PascalToken> clone() const override;
+  void extract() override;
 };
 
 class PascalNumberToken: public PascalToken {
 public:
   explicit PascalNumberToken(std::shared_ptr<Source> source);
-  virtual unique_ptr<PascalToken> clone() const override;
-  virtual void extract() override;
-  virtual void extractNumber(std::string& text);
+  [[nodiscard]] unique_ptr<PascalToken> clone() const override;
+  void extract() override;
+  void extractNumber(std::string& text);
 private:
   std::string unsignedIntegerDigits(std::string& text);
   PascalInteger computeIntegerValue(const std::string& digits);

@@ -18,8 +18,7 @@ StatementParser::~StatementParser()
 }
 
 std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
-  std::shared_ptr<ICodeNodeImplBase>
-      statement_node = nullptr;
+  std::shared_ptr<ICodeNodeImplBase> statement_node = nullptr;
   switch (token->type()) {
     case PascalTokenTypeImpl::BEGIN: {
       CompoundStatementParser compound_parser(currentParser());

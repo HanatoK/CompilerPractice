@@ -44,7 +44,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std
   return result;
 }
 
-void SymbolTableStackImpl::setProgramId(const std::shared_ptr<SymbolTableEntryImplBase>& entry)
+void SymbolTableStackImpl::setProgramId(const std::weak_ptr<SymbolTableEntryImplBase>& entry)
 {
   mProgramId = entry;
 }
@@ -101,7 +101,7 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableImpl::lookup(const std::str
 
 std::shared_ptr<SymbolTableEntryImplBase>
 SymbolTableImpl::enter(const std::string &name) {
-  mSymbolMap[name] = createSymbolTableEntry(name, shared_from_this());
+  mSymbolMap[name] = std::shared_ptr(createSymbolTableEntry(name, weak_from_this()));
   return mSymbolMap[name];
 }
 
@@ -114,8 +114,7 @@ std::vector<std::shared_ptr<SymbolTableEntryImplBase> > SymbolTableImpl::sortedE
   return result;
 }
 
-SymbolTableEntryImpl::SymbolTableEntryImpl(
-    const std::string &name, const std::shared_ptr<SymbolTableImplBase>& symbol_table)
+SymbolTableEntryImpl::SymbolTableEntryImpl(const std::string &name, const std::weak_ptr<SymbolTableImplBase>& symbol_table)
     : SymbolTableEntry(name, symbol_table), mSymbolTable(symbol_table), mName(name),
       mDefinition(DefinitionImpl::UNDEFINED), mTypeSpec(nullptr) {
 }
@@ -149,20 +148,13 @@ void SymbolTableEntryImpl::setAttribute(const SymbolTableKeyTypeImpl &key,
   mEntryMap[key] = value;
 }
 
-std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key,
-                                            bool *ok) const {
+std::any SymbolTableEntryImpl::getAttribute(const SymbolTableKeyTypeImpl &key) const {
   //  const SymbolTableKeyImpl* key_impl = static_cast<const
   //  SymbolTableKeyImpl*>(key);
   auto search = mEntryMap.find(key);
   if (search != mEntryMap.end()) {
-    if (ok) {
-      *ok = true;
-    }
     return search->second;
   } else {
-    if (ok) {
-      *ok = false;
-    }
     return std::any{};
   }
 }
@@ -195,9 +187,8 @@ ICodeImpl::~ICodeImpl() {
 #endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> ICodeImpl::setRoot(std::shared_ptr<ICodeNodeImplBase> node) {
+void ICodeImpl::setRoot(const std::shared_ptr<ICodeNodeImplBase>& node) {
   mRoot = node;
-  return getRoot();
 }
 
 std::shared_ptr<ICodeNodeImplBase> ICodeImpl::getRoot() const {
@@ -206,7 +197,7 @@ std::shared_ptr<ICodeNodeImplBase> ICodeImpl::getRoot() const {
 
 ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType)
     : ICodeNodeImplBase(pType), mType(pType),
-      mParent(std::weak_ptr<ICodeNodeImplBase>()) {}
+      mParent(std::weak_ptr<ICodeNodeImplBase>()), mTypeSpec(nullptr) {}
 
 ICodeNodeImpl::~ICodeNodeImpl() {
 #ifdef DEBUG_DESTRUCTOR
@@ -218,16 +209,15 @@ ICodeNodeTypeImpl ICodeNodeImpl::type() const { return mType; }
 
 const std::shared_ptr<const ICodeNodeImplBase> ICodeNodeImpl::parent() const { return mParent.lock(); }
 
-const std::shared_ptr<const ICodeNodeImplBase> ICodeNodeImpl::setParent(const std::shared_ptr<const ICodeNodeImplBase>& new_parent) {
+void ICodeNodeImpl::setParent(const std::weak_ptr<const ICodeNodeImplBase>& new_parent) {
   mParent = new_parent;
-  return mParent.lock();
 }
 
 std::shared_ptr<ICodeNodeImplBase>
 ICodeNodeImpl::addChild(std::shared_ptr<ICodeNodeImplBase> node) {
   if (node != nullptr) {
     mChildren.push_back(node);
-    mChildren.back()->setParent(shared_from_this());
+    mChildren.back()->setParent(weak_from_this());
   }
   return node;
 }
@@ -337,19 +327,29 @@ std::string ICodeNodeImpl::toString() const {
   }
 }
 
-ICodeNodeImpl::AttributeMapTImpl &ICodeNodeImpl::attributeMap() {
+void ICodeNodeImpl::setTypeSpec(const std::shared_ptr<TypeSpecImplBase>& type_spec)
+{
+  mTypeSpec = type_spec;
+}
+
+std::shared_ptr<TypeSpecImplBase> ICodeNodeImpl::getTypeSpec() const
+{
+  return mTypeSpec;
+}
+
+ICodeNodeImpl::AttributeMapImpl &ICodeNodeImpl::attributeMap() {
   return mHashTable;
 }
 
-const ICodeNodeImpl::AttributeMapTImpl &ICodeNodeImpl::attributeMap() const {
+const ICodeNodeImpl::AttributeMapImpl &ICodeNodeImpl::attributeMap() const {
   return mHashTable;
 }
 
-ICodeNodeImpl::ChildrenContainerTImpl &ICodeNodeImpl::children() {
+ICodeNodeImpl::ChildrenContainerImpl &ICodeNodeImpl::children() {
   return mChildren;
 }
 
-const ICodeNodeImpl::ChildrenContainerTImpl &ICodeNodeImpl::children() const {
+const ICodeNodeImpl::ChildrenContainerImpl &ICodeNodeImpl::children() const {
   return mChildren;
 }
 
@@ -359,7 +359,7 @@ std::unique_ptr<ICodeImplBase> createICode() {
 }
 
 std::unique_ptr<ICodeImplBase> createICode() {
-  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE>();
+  return createICode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl, TypeSpecImplBase>();
 }
 
 template <>
@@ -368,18 +368,18 @@ std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type
 }
 
 std::unique_ptr<ICodeNodeImplBase> createICodeNode(const ICodeNodeTypeImpl &type) {
-  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, ATTRIBUTE_MAP_TYPE, CHILDREN_CONTAINTER_TYPE>(type);
+  return createICodeNode<ICodeNodeTypeImpl, ICodeKeyTypeImpl, AttributeMapTImpl, ChildrenContainerTImpl, TypeSpecImplBase>(type);
 }
 
 template <>
 std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string &name,
-                       std::shared_ptr<SymbolTableImplBase> symbolTable) {
+                       const std::weak_ptr<SymbolTableImplBase>& symbolTable) {
   return std::make_unique<SymbolTableEntryImpl>(name, symbolTable);
 }
 
 std::unique_ptr<SymbolTableEntryImplBase> createSymbolTableEntry(const std::string &name,
-                       std::shared_ptr<SymbolTableImplBase> symbolTable) {
-  return createSymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(name, symbolTable);
+                       const std::weak_ptr<SymbolTableImplBase>& symbolTable) {
+  return createSymbolTableEntry<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl>(name, symbolTable);
 }
 
 template <>
@@ -390,7 +390,7 @@ createSymbolTable(int nestingLevel) {
 
 std::unique_ptr<SymbolTableImplBase>
 createSymbolTable(int nestingLevel) {
-  return createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(nestingLevel);
+  return createSymbolTable<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl>(nestingLevel);
 }
 
 template <>
@@ -399,7 +399,7 @@ std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
 }
 
 std::unique_ptr<SymbolTableStackImplBase> createSymbolTableStack() {
-  return createSymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE, SYMBOL_STACK_CONTAINER_TYPE>();
+  return createSymbolTableStack<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl, SymbolStackContainerTImpl>();
 }
 
 TypeSpecImpl::TypeSpecImpl(TypeFormImpl form)
@@ -411,8 +411,8 @@ TypeSpecImpl::TypeSpecImpl(const std::string& value)
   mForm = TypeFormImpl::ARRAY;
   std::shared_ptr<TypeSpecImplBase> index_type = createType(TypeFormImpl::SUBRANGE);
   index_type->setAttribute(TypeKeyImpl::SUBRANGE_BASE_TYPE, Predefined::instance().integerType);
-  index_type->setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, 1ll);
-  index_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, static_cast<PascalInteger>(value.size()));
+  index_type->setAttribute(TypeKeyImpl::SUBRANGE_MIN_VALUE, VariableValueT{1ll});
+  index_type->setAttribute(TypeKeyImpl::SUBRANGE_MAX_VALUE, VariableValueT{static_cast<PascalInteger>(value.size())});
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, Predefined::instance().charType);
   TypeSpecImpl::setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, static_cast<PascalInteger>(value.size()));
@@ -427,7 +427,7 @@ TypeFormImpl TypeSpecImpl::form() const
   return mForm;
 }
 
-void TypeSpecImpl::setIdentifier(const std::shared_ptr<SymbolTableEntryT>& identifier)
+void TypeSpecImpl::setIdentifier(const std::weak_ptr<SymbolTableEntryT>& identifier)
 {
   mIdentifier = identifier;
 }
@@ -477,6 +477,60 @@ std::shared_ptr<TypeSpecImplBase> TypeSpecImpl::baseType()
   }
 }
 
+std::string TypeSpecImpl::anonymousName() const {
+  std::string type_form_name;
+  switch (form()) {
+    case TypeFormImpl::SCALAR: type_form_name += "scalar"; break;
+    case TypeFormImpl::ENUMERATION: type_form_name += "enum"; break;
+    case TypeFormImpl::SUBRANGE: type_form_name += "subrange"; break;
+    case TypeFormImpl::ARRAY: type_form_name += "array"; break;
+    case TypeFormImpl::RECORD: type_form_name += "record"; break;
+  }
+  auto mangled_name = std::to_string(type_form_name.size()) + type_form_name;
+  switch (form()) {
+    case TypeFormImpl::SCALAR: {
+      // nothing special for scalar type
+      break;
+    }
+    case TypeFormImpl::ENUMERATION: {
+      mangled_name += "N";
+      const auto enum_constant = TypeSpecImplBase::getAttribute<TypeKeyImpl::ENUMERATION_CONSTANTS>();
+      for (const auto& it_enum_item : enum_constant) {
+        mangled_name += it_enum_item.lock()->getTypeSpec()->anonymousName();
+      }
+      mangled_name += "E";
+      break;
+    }
+    case TypeFormImpl::SUBRANGE: {
+      mangled_name += "N";
+      const auto subrange_base_type = TypeSpecImplBase::getAttribute<TypeKeyImpl::SUBRANGE_BASE_TYPE>();
+      mangled_name += subrange_base_type->anonymousName();
+      mangled_name += "E";
+      break;
+    }
+    case TypeFormImpl::ARRAY: {
+      mangled_name += "N";
+      const auto array_index_type = TypeSpecImplBase::getAttribute<TypeKeyImpl::ARRAY_INDEX_TYPE>();
+      mangled_name += "N";
+      mangled_name += array_index_type->anonymousName();
+      mangled_name += "E";
+      mangled_name += "N";
+      const auto array_element_count = TypeSpecImplBase::getAttribute<TypeKeyImpl::ARRAY_ELEMENT_COUNT>();
+      mangled_name += std::to_string(array_element_count);
+      const auto array_element_type = TypeSpecImplBase::getAttribute<TypeKeyImpl::ARRAY_ELEMENT_TYPE>();
+      mangled_name += array_element_type->anonymousName();
+      mangled_name += "E";
+      mangled_name += "E";
+      break;
+    }
+    case TypeFormImpl::RECORD: {
+      // nothing special for record type
+      break;
+    }
+  }
+  return mangled_name;
+}
+
 template <>
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
 {
@@ -484,7 +538,7 @@ std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form)
 }
 
 std::unique_ptr<TypeSpecImplBase> createType(const TypeFormImpl& form) {
-  return createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, ATTRIBUTE_MAP_TYPE>(form);
+  return createType<SymbolTableKeyTypeImpl, DefinitionImpl, TypeFormImpl, TypeKeyImpl, AttributeMapTImpl>(form);
 }
 
 std::unique_ptr<TypeSpecImplBase> createStringType(const std::string& value) {

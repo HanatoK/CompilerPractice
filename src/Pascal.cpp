@@ -10,13 +10,13 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
                const std::string &flags)
     : mParser(nullptr),
       mSource(nullptr), mICode(nullptr), mSymbolTableStack(nullptr),
-      mBackend(nullptr), mTextStream(nullptr) {
+      mBackend(nullptr), mTextStream(std::make_shared<std::ifstream>()) {
   auto search_xref = flags.find('x');
   auto search_intermediate = flags.find('i');
   const bool xref = (search_xref == std::string::npos) ? false : true;
   const bool intermediate = (search_intermediate == std::string::npos) ? false : true;
-  mTextStream.open(filePath.c_str());
-  if (!mTextStream.is_open()) {
+  mTextStream->open(filePath.c_str());
+  if (!mTextStream->is_open()) {
     std::cerr << "Cannot open " << filePath << std::endl;
     throw std::invalid_argument("Invalid filename, please see the error above.");
   }
@@ -28,9 +28,6 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   mParser->parserSummary.connect(
       std::bind(&Pascal::parserSummary, this, std::placeholders::_1,
                 std::placeholders::_2, std::placeholders::_3));
-  mParser->pascalTokenMessage.connect(std::bind(
-      &Pascal::tokenMessage, this, std::placeholders::_1, std::placeholders::_2,
-      std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
   mParser->syntaxErrorMessage.connect(std::bind(
       &Pascal::syntaxErrorMessage, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
@@ -58,7 +55,7 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   if (mParser->errorCount() == 0) {
     mSymbolTableStack = mParser->getSymbolTableStack();
     const auto program_id = mSymbolTableStack->programId();
-    mICode = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(program_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE));
+    mICode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
     if (xref) {
       CrossReferencer cross_referencer;
       cross_referencer.print(mSymbolTableStack);
@@ -70,27 +67,17 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
       ParseTreePrinterDot printer(ofs_dot);
       printer.print(mSymbolTableStack);
     }
+    mBackend->process(mICode, mSymbolTableStack);
+  } else {
+    std::cout << "Number of error(s): " << mParser->errorCount() << "\n";
+    std::cout << "Error(s) encountered, will not call backend\n";
   }
-  mBackend->process(mICode, mSymbolTableStack);
 }
 
 Pascal::~Pascal() {
 #ifdef DEBUG_DESTRUCTOR
   std::cerr << "Destructor: " << BOOST_CURRENT_FUNCTION << std::endl;
 #endif
-//  if (mTextStream != nullptr) {
-//    delete mTextStream;
-//    mTextStream = nullptr;
-//  }
-//  if (mSource != nullptr) {
-//    //    delete mSource;
-//    //    mSource = nullptr;
-//    qDebug() << "Shared pointer mSource use count: " << mSource.use_count();
-//  }
-  //  if (mParser != nullptr) {
-  //    delete mParser;
-  //    mParser = nullptr;
-  //  }
 }
 
 void Pascal::sourceMessage(const int lineNumber, const std::string &line) const {
@@ -113,18 +100,6 @@ void Pascal::interpreterSummary(const int executionCount, const int runtimeError
   fmt::print("\n{:10d} statements executed.", executionCount);
   fmt::print("\n{:10d} runtime errors.", runtimeErrors);
   fmt::print("\n{:10.5f} seconds total execution time.\n\n", elapsedTime);
-}
-
-void Pascal::tokenMessage(const int lineNumber, const int position,
-                          const PascalTokenTypeImpl tokenType, const std::string& text,
-                          const std::any& value) const {
-  const auto type_str = typeToStr(tokenType);
-  fmt::print(">>> {:->15s} line = {:05d}, pos = {:3d}, text = {}",
-             type_str, lineNumber, position, text);
-  if (value.has_value()) {
-    fmt::print(", value = {}", any_to_string(value));
-  }
-  fmt::print("\n");
 }
 
 void Pascal::syntaxErrorMessage(const int lineNumber, const int position, const std::string& text,

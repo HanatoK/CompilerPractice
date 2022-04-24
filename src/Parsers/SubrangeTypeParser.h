@@ -17,9 +17,11 @@ class SubrangeTypeParser : public PascalSubparserTopDownBase
 {
 public:
   explicit SubrangeTypeParser(const std::shared_ptr<PascalParserTopDown>& parent);
-  virtual ~SubrangeTypeParser();
+  ~SubrangeTypeParser() override;
   std::unique_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
-  std::any checkValueType(const std::shared_ptr<PascalToken>& token, const std::any& value, const std::shared_ptr<TypeSpecImplBase>& type);
+  VariableValueT checkValueType(const std::shared_ptr<PascalToken>& token,
+                                const VariableValueT& value,
+                                const std::shared_ptr<TypeSpecImplBase>& type);
 };
 
 #endif // SUBRANGETYPEPARSER_H

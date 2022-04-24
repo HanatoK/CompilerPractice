@@ -15,23 +15,21 @@ public:
   Pascal(const std::string& operation, const std::string& filePath,
          const std::string& flags);
   ~Pascal();
-  void sourceMessage(const int lineNumber, const std::string& line) const;
-  void parserSummary(const int lineNumber, const int errorCount, const float elapsedTime) const;
-  void compilerSummary(const int instructionCount, const float elapsedTime) const;
-  void interpreterSummary(const int executionCount, const int runtimeErrors, const float elapsedTime) const;
-  void tokenMessage(const int lineNumber, const int position, const PascalTokenTypeImpl tokenType,
-                    const std::string& text, const std::any& value) const;
-  void syntaxErrorMessage(const int lineNumber, const int position, const std::string& text,
+  void sourceMessage(int lineNumber, const std::string& line) const;
+  void parserSummary(int lineNumber, int errorCount, float elapsedTime) const;
+  void compilerSummary(int instructionCount, float elapsedTime) const;
+  void interpreterSummary(int executionCount, int runtimeErrors, float elapsedTime) const;
+  void syntaxErrorMessage(int lineNumber, int position, const std::string& text,
                           const std::string& error) const;
-  void assignmentMessage(const int line_number, const std::string& variable_name, const VariableValueT& value) const;
-  void runtimeErrorMessage(const int line_number, const std::string& error_message) const;
+  void assignmentMessage(int line_number, const std::string& variable_name, const VariableValueT& value) const;
+  void runtimeErrorMessage(int line_number, const std::string& error_message) const;
 private:
   std::shared_ptr<PascalParserTopDown> mParser;
   std::shared_ptr<Source> mSource;
   std::shared_ptr<ICodeImplBase> mICode;
   std::shared_ptr<SymbolTableStackImplBase> mSymbolTableStack;
   std::shared_ptr<Backend> mBackend;
-  std::ifstream mTextStream;
+  std::shared_ptr<std::ifstream> mTextStream;
 };
 
 #endif // PASCAL_H

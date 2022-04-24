@@ -16,9 +16,9 @@ public:
   static TokenTypeSet enumConstantStartSet();
   static TokenTypeSet enumDefinitionFollowSet();
   explicit EnumerationTypeParser(const std::shared_ptr<PascalParserTopDown>& parent);
-  virtual ~EnumerationTypeParser();
+  ~EnumerationTypeParser() override;
   std::shared_ptr<TypeSpecImplBase> parseSpec(std::shared_ptr<PascalToken> token);
-  void parseEnumerationIdentifier(std::shared_ptr<PascalToken>& token, PascalInteger value,
+  void parseEnumerationIdentifier(std::shared_ptr<PascalToken>& token, VariableValueT value,
     std::shared_ptr<TypeSpecImplBase> enumeration_type,
     std::vector<std::weak_ptr<SymbolTableEntryImplBase> >& constants);
 };

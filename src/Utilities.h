@@ -37,7 +37,9 @@ public:
   void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
   void printNode(const std::shared_ptr<const ICodeNodeImplBase> &node);
   void printAttributes(const std::shared_ptr<const ICodeNodeImplBase>& node);
-  void printAttributes(const std::string& key, const std::any& value);
+  void printAttributes(const std::string& key, const std::shared_ptr<SymbolTableEntryImplBase>& value);
+  void printAttributes(const std::string& key, const VariableValueT& value);
+  void printAttributes(const std::string& key, const int& value);
   void printChildNodes(const std::shared_ptr<const ICodeNodeImplBase> &parent_node);
   void printTypeSpec(const std::shared_ptr<const ICodeNodeImplBase>& node);
   void appendOutputLine(const std::string& text);

@@ -11,60 +11,63 @@
 class ICodeNodeImpl : public ICodeNodeImplBase {
 public:
   explicit ICodeNodeImpl(const ICodeNodeTypeImpl &pType);
-  virtual ~ICodeNodeImpl();
-  virtual ICodeNodeTypeImpl type() const override;
-  virtual const std::shared_ptr<const ICodeNodeImplBase> parent() const override;
-  virtual const std::shared_ptr<const ICodeNodeImplBase> setParent(const std::shared_ptr<const ICodeNodeImplBase>& new_parent) override;
-  virtual std::shared_ptr<ICodeNodeImplBase> addChild(std::shared_ptr<ICodeNodeImplBase> node) override;
-  virtual void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value) override;
-  virtual std::any getAttribute(const ICodeKeyTypeImpl& key) const override;
-  virtual std::unique_ptr<ICodeNodeImplBase> copy() const override;
-  virtual std::string toString() const override;
-  virtual attribute_map_iterator attributeMapBegin() override {
+  ~ICodeNodeImpl() override;
+  ICodeNodeTypeImpl type() const override;
+  [[nodiscard]] const std::shared_ptr<const ICodeNodeImplBase> parent() const override;
+  void setParent(const std::weak_ptr<const ICodeNodeImplBase>& new_parent) override;
+  std::shared_ptr<ICodeNodeImplBase> addChild(std::shared_ptr<ICodeNodeImplBase> node) override;
+  void setAttribute(const ICodeKeyTypeImpl& key, const std::any& value) override;
+  [[nodiscard]] std::any getAttribute(const ICodeKeyTypeImpl& key) const override;
+  [[nodiscard]] std::unique_ptr<ICodeNodeImplBase> copy() const override;
+  [[nodiscard]] std::string toString() const override;
+  attribute_map_iterator attributeMapBegin() override {
     return attributeMap().begin();
   }
-  virtual attribute_map_iterator attributeMapEnd() override {
+  attribute_map_iterator attributeMapEnd() override {
     return attributeMap().end();
   }
-  virtual const_attribute_map_iterator attributeMapBegin() const override {
+  const_attribute_map_iterator attributeMapBegin() const override {
     return attributeMap().cbegin();
   }
-  virtual const_attribute_map_iterator attributeMapEnd() const override {
+  const_attribute_map_iterator attributeMapEnd() const override {
     return attributeMap().cend();
   }
-  virtual children_iterator childrenBegin() override {
+  children_iterator childrenBegin() override {
     return children().begin();
   }
-  virtual children_iterator childrenEnd() override {
+  children_iterator childrenEnd() override {
     return children().end();
   }
-  virtual const_children_iterator childrenBegin() const override {
+  const_children_iterator childrenBegin() const override {
     return children().cbegin();
   }
-  virtual const_children_iterator childrenEnd() const override {
+  const_children_iterator childrenEnd() const override {
     return children().cend();
   }
-  virtual size_t numChildren() const override {
+  size_t numChildren() const override {
     return children().size();
   }
+  void setTypeSpec(const std::shared_ptr<TypeSpecImplBase>& type_spec) override;
+  [[nodiscard]] std::shared_ptr<TypeSpecImplBase> getTypeSpec() const override;
 protected:
-  virtual AttributeMapTImpl& attributeMap();
-  virtual const AttributeMapTImpl& attributeMap() const;
-  virtual ChildrenContainerTImpl& children();
-  virtual const ChildrenContainerTImpl& children() const;
+  virtual AttributeMapImpl& attributeMap();
+  virtual const AttributeMapImpl& attributeMap() const;
+  virtual ChildrenContainerImpl& children();
+  virtual const ChildrenContainerImpl& children() const;
 private:
   ICodeNodeTypeImpl mType;
   std::weak_ptr<const ICodeNodeImplBase> mParent;
-  AttributeMapTImpl mHashTable;
-  ChildrenContainerTImpl mChildren;
+  AttributeMapImpl mHashTable;
+  ChildrenContainerImpl mChildren;
+  std::shared_ptr<TypeSpecImplBase> mTypeSpec;
 };
 
 class ICodeImpl : public ICodeImplBase {
 public:
   ICodeImpl();
-  virtual ~ICodeImpl();
-  virtual std::shared_ptr<ICodeNodeImplBase> setRoot(std::shared_ptr<ICodeNodeImplBase> node) override;
-  virtual std::shared_ptr<ICodeNodeImplBase> getRoot() const override;
+  ~ICodeImpl() override;
+  void setRoot(const std::shared_ptr<ICodeNodeImplBase>& node) override;
+  [[nodiscard]] std::shared_ptr<ICodeNodeImplBase> getRoot() const override;
 
 private:
   std::shared_ptr<ICodeNodeImplBase> mRoot;
@@ -72,24 +75,23 @@ private:
 
 class SymbolTableEntryImpl : public SymbolTableEntryImplBase {
 public:
-  SymbolTableEntryImpl(const std::string &name, const std::shared_ptr<SymbolTableImplBase>& symbol_table);
-  virtual ~SymbolTableEntryImpl();
-  virtual std::string name() const override;
-  virtual std::shared_ptr<SymbolTableImplBase> symbolTable() const override;
-  virtual void appendLineNumber(int line_number) override;
-  virtual std::vector<int> lineNumbers() const override;
-  virtual void setAttribute(const SymbolTableKeyTypeImpl &key, const std::any &value) override;
-  virtual std::any getAttribute(const SymbolTableKeyTypeImpl &key, bool *ok = nullptr) const override;
-  virtual void setDefinition(const DefinitionImpl& definition) override;
-  virtual DefinitionImpl getDefinition() const override;
-  virtual void setTypeSpec(std::shared_ptr<TypeSpecImplBase> type_spec) override;
-  virtual std::shared_ptr<TypeSpecImplBase> getTypeSpec() const override;
+  SymbolTableEntryImpl(const std::string &name, const std::weak_ptr<SymbolTableImplBase>& symbol_table);
+  ~SymbolTableEntryImpl() override;
+  [[nodiscard]] std::string name() const override;
+  [[nodiscard]] std::shared_ptr<SymbolTableImplBase> symbolTable() const override;
+  void appendLineNumber(int line_number) override;
+  [[nodiscard]] std::vector<int> lineNumbers() const override;
+  void setAttribute(const SymbolTableKeyTypeImpl &key, const std::any &value) override;
+  [[nodiscard]] std::any getAttribute(const SymbolTableKeyTypeImpl &key) const override;
+  void setDefinition(const DefinitionImpl& definition) override;
+  [[nodiscard]] DefinitionImpl getDefinition() const override;
+  void setTypeSpec(std::shared_ptr<TypeSpecImplBase> type_spec) override;
+  [[nodiscard]] std::shared_ptr<TypeSpecImplBase> getTypeSpec() const override;
 private:
-  // TODO: do I need to use weak pointer here?
   std::weak_ptr<SymbolTableImplBase> mSymbolTable;
   std::vector<int> mLineNumbers;
   std::string mName;
-  AttributeMapTImpl mEntryMap;
+  AttributeMapImpl mEntryMap;
   DefinitionImpl mDefinition;
   std::shared_ptr<TypeSpecImplBase> mTypeSpec;
 };
@@ -97,11 +99,11 @@ private:
 class SymbolTableImpl : public SymbolTableImplBase {
 public:
   explicit SymbolTableImpl(int nestingLevel);
-  virtual ~SymbolTableImpl();
-  virtual int nestingLevel() const override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> enter(const std::string &name) override;
-  virtual std::vector<std::shared_ptr<SymbolTableEntryImplBase>> sortedEntries() const override;
+  ~SymbolTableImpl() override;
+  [[nodiscard]] int nestingLevel() const override;
+  [[nodiscard]] std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const override;
+  std::shared_ptr<SymbolTableEntryImplBase> enter(const std::string &name) override;
+  [[nodiscard]] std::vector<std::shared_ptr<SymbolTableEntryImplBase>> sortedEntries() const override;
 private:
   int mNestingLevel;
   SymbolTableMapT mSymbolMap;
@@ -110,17 +112,17 @@ private:
 class SymbolTableStackImpl : public SymbolTableStackImplBase {
 public:
   SymbolTableStackImpl();
-  virtual ~SymbolTableStackImpl();
-  virtual int currentNestingLevel() const override;
-  virtual std::shared_ptr<SymbolTableImplBase> localSymbolTable() const override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> enterLocal(const std::string &name) override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> lookupLocal(const std::string &name) const override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const override;
-  virtual void setProgramId(const std::shared_ptr<SymbolTableEntryImplBase>& entry) override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> programId() const override;
-  virtual std::shared_ptr<SymbolTableImplBase> push() override;
-  virtual std::shared_ptr<SymbolTableImplBase> push(std::shared_ptr<SymbolTableImplBase> symbol_table) override;
-  virtual std::shared_ptr<SymbolTableImplBase> pop() override;
+  ~SymbolTableStackImpl() override;
+  [[nodiscard]] int currentNestingLevel() const override;
+  [[nodiscard]] std::shared_ptr<SymbolTableImplBase> localSymbolTable() const override;
+  [[nodiscard]] std::shared_ptr<SymbolTableEntryImplBase> enterLocal(const std::string &name) override;
+  [[nodiscard]] std::shared_ptr<SymbolTableEntryImplBase> lookupLocal(const std::string &name) const override;
+  [[nodiscard]] std::shared_ptr<SymbolTableEntryImplBase> lookup(const std::string &name) const override;
+  void setProgramId(const std::weak_ptr<SymbolTableEntryImplBase>& entry) override;
+  [[nodiscard]] std::shared_ptr<SymbolTableEntryImplBase> programId() const override;
+  std::shared_ptr<SymbolTableImplBase> push() override;
+  std::shared_ptr<SymbolTableImplBase> push(std::shared_ptr<SymbolTableImplBase> symbol_table) override;
+  std::shared_ptr<SymbolTableImplBase> pop() override;
 private:
   // why is it necessary to maintain a standalone variable for recording the nesting level?
   // Isn't mStack.size() enough?
@@ -134,24 +136,25 @@ class TypeSpecImpl : public TypeSpecImplBase {
 public:
   explicit TypeSpecImpl(TypeFormImpl form);
   explicit TypeSpecImpl(const std::string& value);
-  virtual ~TypeSpecImpl();
-  virtual TypeFormImpl form() const override;
-  virtual void setIdentifier(const std::shared_ptr<SymbolTableEntryImplBase>& identifier) override;
-  virtual std::shared_ptr<SymbolTableEntryImplBase> getIdentifier() const override;
-  virtual void setAttribute(TypeKeyImpl key, const std::any& value) override;
-  virtual std::any getAttribute(TypeKeyImpl key) const override;
-  virtual bool isPascalString() const override;
-  virtual std::shared_ptr<TypeSpecImplBase> baseType() override;
+  ~TypeSpecImpl() override;
+  [[nodiscard]] TypeFormImpl form() const override;
+  void setIdentifier(const std::weak_ptr<SymbolTableEntryImplBase>& identifier) override;
+  [[nodiscard]] std::shared_ptr<SymbolTableEntryImplBase> getIdentifier() const override;
+  void setAttribute(TypeKeyImpl key, const std::any& value) override;
+  [[nodiscard]] std::any getAttribute(TypeKeyImpl key) const override;
+  [[nodiscard]] bool isPascalString() const override;
+  [[nodiscard]] std::shared_ptr<TypeSpecImplBase> baseType() override;
+  std::string anonymousName() const override;
 private:
   TypeFormImpl mForm;
   std::weak_ptr<SymbolTableEntryImplBase> mIdentifier;
-  TypeSpecMapT mTypeSpecMap;
+  typespec_map_impl mTypeSpecMap;
 };
 
 template <>
 std::unique_ptr<SymbolTableEntryImplBase>
 createSymbolTableEntry(const std::string &name,
-                       std::shared_ptr<SymbolTableImplBase> symbolTable);
+                       const std::weak_ptr<SymbolTableImplBase>& symbolTable);
 
 template <>
 std::unique_ptr<SymbolTableImplBase> createSymbolTable(int nestingLevel);
