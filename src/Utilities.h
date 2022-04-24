@@ -52,6 +52,8 @@ private:
   int mIndex;
   std::vector<std::string> mNodeStyleLines;
   std::vector<std::string> mNodeConnectionLines;
+private:
+  static std::string foldString(const std::string& s, int fold_size = 16, const std::string& sep = "\\n");
 public:
   explicit ParseTreePrinterDot(std::ostream& os);
   void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
