@@ -67,7 +67,7 @@ std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseIndexTypeList(
       }
     } else if (token_type == PascalTokenTypeImpl::COMMA) {
       auto new_element_type = std::shared_ptr(createType(TypeFormImpl::ARRAY));
-      element_type->setAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE, new_element_type);
+      element_type->setAttribute<TypeKeyImpl::ARRAY_ELEMENT_TYPE>(new_element_type);
       // is this work?
       element_type = std::move(new_element_type);
       token = nextToken();
@@ -82,7 +82,7 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
 {
   SimpleTypeParser simple_type_parser(currentParser());
   const auto index_type = simple_type_parser.parseSpec(token);
-  array_type->setAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE, index_type);
+  array_type->setAttribute<TypeKeyImpl::ARRAY_INDEX_TYPE>(index_type);
   if (index_type == nullptr) {
     return;
   }
@@ -104,7 +104,7 @@ void ArrayTypeParser::parseIndexType(std::shared_ptr<PascalToken>& token,
   } else {
     errorHandler()->flag(token, PascalErrorCode::INVALID_INDEX_TYPE, currentParser());
   }
-  array_type->setAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT, count);
+  array_type->setAttribute<TypeKeyImpl::ARRAY_ELEMENT_COUNT>(count);
 }
 
 std::shared_ptr<TypeSpecImplBase> ArrayTypeParser::parseElementType(std::shared_ptr<PascalToken> token)

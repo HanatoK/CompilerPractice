@@ -128,8 +128,8 @@ void PascalParserTopDown::parse() {
   mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
   mSymbolTableStack->setProgramId(mRoutineId);
   // push a new symbol table into the stack and set the routine's symbol table and iCode
-  mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_SYMTAB, mSymbolTableStack->push());
-  mRoutineId->setAttribute(SymbolTableKeyTypeImpl::ROUTINE_ICODE, intermediate_code);
+  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(mSymbolTableStack->push());
+  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
   BlockParser block_parser(shared_from_this());
   auto token = nextToken();
   // parse a block
@@ -806,7 +806,7 @@ void PascalSubparserTopDownBase::setLineNumber(
     std::shared_ptr<ICodeNodeImplBase> &node,
     const std::shared_ptr<PascalToken> &token) {
   if (node != nullptr) {
-    node->setAttribute(ICodeKeyTypeImpl::LINE, token->lineNum());
+    node->setAttribute<ICodeKeyTypeImpl::LINE>(token->lineNum());
   }
 }
 

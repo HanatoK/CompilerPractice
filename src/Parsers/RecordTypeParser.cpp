@@ -17,7 +17,7 @@ std::shared_ptr<TypeSpecImplBase> RecordTypeParser::parseSpec(std::shared_ptr<Pa
   auto record_type = createType(TypeFormImpl::RECORD);
   token = nextToken();
   // push a new symbol table for the record type specification
-  record_type->setAttribute(TypeKeyImpl::RECORD_SYMTAB, getSymbolTableStack()->push());
+  record_type->setAttribute<TypeKeyImpl::RECORD_SYMTAB>(getSymbolTableStack()->push());
   // parse the field declarations
   VariableDeclarationsParser parser(currentParser());
   parser.setDefinition(DefinitionImpl::FIELD);

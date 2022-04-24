@@ -45,7 +45,7 @@ std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(std::shared_
     // set identifier as a constant and set its value
     if (constant_id != nullptr) {
       constant_id->setDefinition(DefinitionImpl::CONSTANT);
-      constant_id->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, constant_value);
+      constant_id->setAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>(constant_value);
       // set the constant's type
       auto constant_type = (current_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
                            getConstantType(current_token) : getConstantType(constant_value);

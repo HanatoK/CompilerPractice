@@ -55,11 +55,9 @@ void Predefined::initialize(std::shared_ptr<SymbolTableStackImplBase> &symbol_ta
   charType->setIdentifier(charId);
   // initialize predefined constants
   falseId->setTypeSpec(booleanType);
-  falseId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, VariableValueT(0ll));
-//  falseId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_INTERNAL_TYPE, PascalTokenTypeImpl::INTEGER);
+  falseId->setAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>(VariableValueT(0ll));
   trueId->setTypeSpec(booleanType);
-  trueId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, VariableValueT(1ll));
-//  trueId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_INTERNAL_TYPE, PascalTokenTypeImpl::INTEGER);
+  trueId->setAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>(VariableValueT(1ll));
   std::vector<std::weak_ptr<SymbolTableEntryImplBase>> constants;
   constants.push_back(falseId);
   constants.push_back(trueId);
