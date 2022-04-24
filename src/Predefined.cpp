@@ -60,8 +60,8 @@ void Predefined::initialize(std::shared_ptr<SymbolTableStackImplBase> &symbol_ta
   trueId->setTypeSpec(booleanType);
   trueId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_VALUE, VariableValueT(1ll));
 //  trueId->setAttribute(SymbolTableKeyTypeImpl::CONSTANT_INTERNAL_TYPE, PascalTokenTypeImpl::INTEGER);
-  std::vector<decltype (falseId)> constants;
+  std::vector<std::weak_ptr<SymbolTableEntryImplBase>> constants;
   constants.push_back(falseId);
   constants.push_back(trueId);
-  booleanType->setAttribute(TypeKeyImpl::ENUMERATION_CONSTANTS, constants);
+  booleanType->setAttribute<TypeKeyImpl::ENUMERATION_CONSTANTS>(constants);
 }

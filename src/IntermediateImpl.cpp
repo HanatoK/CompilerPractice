@@ -496,7 +496,8 @@ std::string TypeSpecImpl::anonymousName() const {
       mangled_name += "N";
       const auto enum_constant = TypeSpecImplBase::getAttribute<TypeKeyImpl::ENUMERATION_CONSTANTS>();
       for (const auto& it_enum_item : enum_constant) {
-        mangled_name += it_enum_item.lock()->getTypeSpec()->anonymousName();
+        const auto item_name = it_enum_item.lock()->name();
+        mangled_name += std::to_string(item_name.size()) + item_name;
       }
       mangled_name += "E";
       break;

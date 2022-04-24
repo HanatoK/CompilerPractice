@@ -316,13 +316,14 @@ void ParseTreePrinter::printTypeSpec(const std::shared_ptr<const ICodeNodeImplBa
       type_name = type_id->name();
     } else {
       // unnamed type: print an artificial type identifier name
-      type_name = type_spec->anonymousName();
+      type_name = "$_anon_" + type_spec->anonymousName() + "$";
     }
     printAttributes("TYPE_ID", type_name);
   }
 }
 
 void ParseTreePrinter::appendOutputLine(const std::string &text) {
+  // TODO: line wrapping is buggy!
   const auto text_length = text.size();
   bool line_break = false;
   if (mLength + text_length > LINE_WIDTH) {
@@ -395,20 +396,21 @@ std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode
     std::string key_string;
     switch (it->first) {
       case ICodeKeyTypeImpl::LINE: {
-        key_string += "LINE";
-        node_label += "\\n" + key_string + ": " + std::to_string(cast_by_enum<ICodeKeyTypeImpl::LINE>(it->second));
+        node_label += std::string{"\\n"} + "LINE: " + std::to_string(cast_by_enum<ICodeKeyTypeImpl::LINE>(it->second));
         break;
       }
       case ICodeKeyTypeImpl::ID: {
-        key_string += "ID";
-        node_label += "\\n" + key_string + ": " + cast_by_enum<ICodeKeyTypeImpl::ID>(it->second)->name();
+        node_label += std::string{"\\n"} + "ID: " + cast_by_enum<ICodeKeyTypeImpl::ID>(it->second)->name();
         break;
       }
       case ICodeKeyTypeImpl::VALUE: {
-        key_string += "VALUE";
-        node_label += "\\n" + key_string + ": " + variable_value_to_string(cast_by_enum<ICodeKeyTypeImpl::VALUE>(it->second));
+        node_label += std::string{"\\n"} + "VALUE" + ": " + variable_value_to_string(cast_by_enum<ICodeKeyTypeImpl::VALUE>(it->second));
         break;
       }
+    }
+    const auto type_spec = node->getTypeSpec();
+    if (type_spec != nullptr) {
+      node_label += std::string{"\\n"} + "TYPE: " + foldString(type_spec->anonymousName());
     }
   }
   std::string node_name = "node" + std::to_string(mIndex++) + " ";
@@ -423,4 +425,24 @@ std::string ParseTreePrinterDot::printNode(const std::shared_ptr<const ICodeNode
     mNodeConnectionLines.push_back(node_connection_line);
   }
   return node_name;
+}
+
+std::string ParseTreePrinterDot::foldString(const std::string& s, int fold_size, const std::string& sep) {
+  if (fold_size <= 0) return s;
+  std::string result;
+  size_t num_folds = (size_t)(s.size() / (size_t)fold_size);
+  size_t num_remaining_chars = s.size() % (size_t)fold_size;
+  for (size_t i = 0; i < num_folds; ++i) {
+    result += s.substr(i * fold_size, fold_size);
+    result += sep;
+  }
+  if (num_remaining_chars > 0) {
+    result += s.substr(num_folds * fold_size, num_remaining_chars);
+    result += sep;
+  }
+  // remove the last "\n"
+  if (num_folds > 0 || num_remaining_chars > 0) {
+    result.erase(result.size() - sep.size(), sep.size());
+  }
+  return result;
 }
