@@ -17,42 +17,44 @@ StatementParser::~StatementParser()
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(
+    std::shared_ptr<PascalToken> token,
+    std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   std::shared_ptr<ICodeNodeImplBase> statement_node = nullptr;
   switch (token->type()) {
     case PascalTokenTypeImpl::BEGIN: {
       CompoundStatementParser compound_parser(currentParser());
-      statement_node = compound_parser.parse(token);
+      statement_node = compound_parser.parse(token, parent_id);
       break;
     }
     case PascalTokenTypeImpl::IDENTIFIER: {
       AssignmentStatementParser assignment_parser(currentParser());
-      statement_node = assignment_parser.parse(token);
+      statement_node = assignment_parser.parse(token, parent_id);
       break;
     }
     case PascalTokenTypeImpl::REPEAT: {
       RepeatStatementParser repeat_parser(currentParser());
-      statement_node = repeat_parser.parse(token);
+      statement_node = repeat_parser.parse(token, parent_id);
       break;
     }
     case PascalTokenTypeImpl::WHILE: {
       WhileStatementParser while_parser(currentParser());
-      statement_node = while_parser.parse(token);
+      statement_node = while_parser.parse(token, parent_id);
       break;
     }
     case PascalTokenTypeImpl::FOR: {
       ForStatementParser for_parser(currentParser());
-      statement_node = for_parser.parse(token);
+      statement_node = for_parser.parse(token, parent_id);
       break;
     }
     case PascalTokenTypeImpl::IF: {
       IfStatementParser if_parser(currentParser());
-      statement_node = if_parser.parse(token);
+      statement_node = if_parser.parse(token, parent_id);
       break;
     }
     case PascalTokenTypeImpl::CASE: {
       CaseStatementParser case_parser(currentParser());
-      statement_node = case_parser.parse(token);
+      statement_node = case_parser.parse(token, parent_id);
       break;
     }
     default: {
@@ -72,7 +74,7 @@ void StatementParser::parseList(std::shared_ptr<PascalToken> token,
   auto terminator_set = stmt_start_set;
   terminator_set.insert(terminator);
   while (!token->isEof() && token->type() != terminator) {
-    auto statement_node = parse(token);
+    auto statement_node = parse(token, nullptr);
     parent_node->addChild(std::move(statement_node));
     token = currentToken();
     const auto token_type = token->type();

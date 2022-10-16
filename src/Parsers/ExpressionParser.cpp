@@ -15,7 +15,8 @@ ExpressionParser::~ExpressionParser()
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   using namespace TypeChecker::TypeCompatibility;
   // parse a simple expression and make the root of its tree the root node

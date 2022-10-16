@@ -243,6 +243,7 @@ template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB> 
 template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ICODE> { using type = std::shared_ptr<ICodeImplBase>; };
 template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES> { using type = std::vector<std::shared_ptr<SymbolTableEntryImplBase>>; };
 template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::DATA_VALUE> { using type = VariableValueT; };
+template <> struct SymbolTableKeyToEnum<SymbolTableKeyTypeImpl::ROUTINE_CODE> { using type = RoutineCodeImpl; };
 
 template <ICodeKeyTypeImpl> struct ICodeKeyTypeImplToEnum;
 template <> struct ICodeKeyTypeImplToEnum<ICodeKeyTypeImpl::ID> { using type = std::shared_ptr<SymbolTableEntryImplBase>; };

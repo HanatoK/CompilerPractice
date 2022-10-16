@@ -7,7 +7,9 @@
 CaseStatementParser::CaseStatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(
+    std::shared_ptr<PascalToken> token,
+    std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   // consume the CASE
   token = nextToken();
   // create a SELECT node

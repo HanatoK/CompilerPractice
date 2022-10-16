@@ -48,6 +48,7 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/ProgramParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/RecordTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/SimpleTypeParser.h
@@ -64,7 +65,8 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.h
-            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.h)
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.h)
 
 set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Backend.cpp
@@ -90,6 +92,7 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/ProgramParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/RecordTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/SimpleTypeParser.cpp
@@ -106,7 +109,8 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.cpp
-            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.cpp)
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 #find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

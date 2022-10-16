@@ -21,7 +21,8 @@ VariableParser::~VariableParser() {
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
 //  std::cerr << "parseVariable should be called instead of parse for VariableParser."
 //  return PascalSubparserTopDownBase::parse(token);
   // lookup the identifier in the symbol table stack
@@ -77,7 +78,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseSubscripts(std::shared_p
     token = nextToken();
     // the current variable is an array
     if (variable_type->form() == TypeFormImpl::ARRAY) {
-      auto expression_node = expression_parser.parse(token);
+      auto expression_node = expression_parser.parse(token, nullptr);
       const auto expression_type = (expression_node != nullptr) ?
                                                     expression_node->getTypeSpec() :
                                                     Predefined::instance().undefinedType;
@@ -94,7 +95,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseSubscripts(std::shared_p
     } else {
       // not an array type, so too many subscripts
       errorHandler()->flag(token, PascalErrorCode::TOO_MANY_SUBSCRIPTS, currentParser());
-      expression_parser.parse(token);
+      expression_parser.parse(token, nullptr);
     }
     token = currentToken();
   } while (token->type() == PascalTokenTypeImpl::COMMA);

@@ -12,7 +12,8 @@ ConstantDefinitionsParser::~ConstantDefinitionsParser()
   //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   token = synchronize(ConstantDefinitionsParser::identifierSet());
   const auto next_start_set = ConstantDefinitionsParser::nextStartSet();

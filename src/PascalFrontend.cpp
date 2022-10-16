@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "Intermediate.h"
 #include "Parsers/StatementParser.h"
+#include "Parsers/ProgramParser.h"
 #include "Parsers/BlockParser.h"
 
 //#include <QCoreApplication>
@@ -122,62 +123,29 @@ PascalParserTopDown::~PascalParserTopDown() {
 
 void PascalParserTopDown::parse() {
   const auto start_time = std::chrono::high_resolution_clock::now();
-  std::shared_ptr<ICodeImplBase> intermediate_code = createICode();
-  // create a dummy program identifier symbol table entry
-  mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
-  mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
-  mSymbolTableStack->setProgramId(mRoutineId);
-  // push a new symbol table into the stack and set the routine's symbol table and iCode
-  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(mSymbolTableStack->push());
-  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
-  BlockParser block_parser(shared_from_this());
   auto token = nextToken();
-  // parse a block
-  std::shared_ptr<ICodeNodeImplBase> root_node = block_parser.parse(token, mRoutineId);
-  intermediate_code->setRoot(root_node);
-  mSymbolTableStack->pop();
-  // look for the final .
-  token = currentToken();
-  if (token->type() != PascalTokenTypeImpl::DOT) {
-    mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, shared_from_this());
-  }
-  token = currentToken();
-//  while (!token->isEof()) {
-//    if (token->type() != PascalTokenTypeImpl::ERROR) {
-//      if (token->type() == PascalTokenTypeImpl::BEGIN) {
-//        StatementParser statement_parser(*this);
-//        root_node = statement_parser.parse(token);
-//        token = currentToken();
-//      } else {
-//        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, this);
-//      }
-//      if (token->type() != PascalTokenTypeImpl::DOT) {
-//        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, this);
-//      }
-//      token = currentToken();
-//      if (root_node != nullptr) {
-//        mICode->setRoot(std::move(root_node));
-//      }
-//      //      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
-//      //        const std::string name =
-//      //        boost::algorithm::to_lower_copy(token->text()); auto
-//      //        symbol_table_stack =
-//      //            dynamic_cast<SymbolTableStackImpl
-//      //            *>(mSymbolTableStack.get());
-//      //        auto entry = symbol_table_stack->lookup(name);
-//      //        if (entry == nullptr) {
-//      //          entry = symbol_table_stack->enterLocal(name);
-//      //        }
-//      //        entry->appendLineNumber(token->lineNum());
-//      //      }
-//      pascalTokenMessage(token->lineNum(), token->position(), token->type(),
-//                         token->text(), token->value());
-//    } else {
-//      mErrorHandler->flag(token, std::any_cast<PascalErrorCode>(token->value()),
-//                          this);
-//    }
-//    token = nextToken();
+  ProgramParser program_parser(shared_from_this());
+  program_parser.parse(token, nullptr);
+//  std::shared_ptr<ICodeImplBase> intermediate_code = createICode();
+//  // create a dummy program identifier symbol table entry
+//  mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
+//  mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
+//  mSymbolTableStack->setProgramId(mRoutineId);
+//  // push a new symbol table into the stack and set the routine's symbol table and iCode
+//  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(mSymbolTableStack->push());
+//  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
+//  BlockParser block_parser(shared_from_this());
+//  auto token = nextToken();
+//  // parse a block
+//  std::shared_ptr<ICodeNodeImplBase> root_node = block_parser.parse(token, mRoutineId);
+//  intermediate_code->setRoot(root_node);
+//  mSymbolTableStack->pop();
+//  // look for the final .
+//  token = currentToken();
+//  if (token->type() != PascalTokenTypeImpl::DOT) {
+//    mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, shared_from_this());
 //  }
+//  token = currentToken();
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time_sec = end_time - start_time;
   parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());
@@ -792,7 +760,8 @@ std::shared_ptr<PascalParserTopDown> PascalSubparserTopDownBase::currentParser()
   return mPascalParser;
 }
 
-std::shared_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(
+  std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // should not enter this function
   // the parser does not implement parse(std::shared_ptr<PascalToken>)!

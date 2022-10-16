@@ -8,7 +8,8 @@ WhileStatementParser::WhileStatementParser(const std::shared_ptr<PascalParserTop
 
 }
 
-std::shared_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> WhileStatementParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // consume the WHILE
   token = nextToken();
@@ -20,7 +21,7 @@ std::shared_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<P
   auto not_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::NOT));
   // parse the expression as a child of the NOT node
   ExpressionParser expression_parser(currentParser());
-  auto expr_node = expression_parser.parse(token);
+  auto expr_node = expression_parser.parse(token, parent_id);
   // type check: the test expression must be boolean
   const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
   if (!TypeChecker::TypeChecking::isBoolean(expr_type)) {
@@ -39,7 +40,7 @@ std::shared_ptr<ICodeNodeImplBase> WhileStatementParser::parse(std::shared_ptr<P
   }
   // parse the statements
   StatementParser statement_parser(currentParser());
-  loop_node->addChild(statement_parser.parse(token));
+  loop_node->addChild(statement_parser.parse(token, parent_id));
   return loop_node;
 }
 

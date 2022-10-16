@@ -11,7 +11,9 @@ public:
   static TokenTypeSet expressionStartSet();
   explicit ExpressionParser(const std::shared_ptr<PascalParserTopDown>& parent);
   ~ExpressionParser() override;
-  std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
+  std::shared_ptr<ICodeNodeImplBase> parse(
+      std::shared_ptr<PascalToken> token,
+      std::shared_ptr<SymbolTableEntryImplBase> parent_id) override;
 private:
   std::shared_ptr<ICodeNodeImplBase> parseFactor(std::shared_ptr<PascalToken> token);
   std::shared_ptr<ICodeNodeImplBase> parseTerm(std::shared_ptr<PascalToken> token);

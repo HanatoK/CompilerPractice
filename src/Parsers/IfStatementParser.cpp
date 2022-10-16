@@ -8,7 +8,8 @@ IfStatementParser::IfStatementParser(const std::shared_ptr<PascalParserTopDown> 
 
 }
 
-std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // consume the IF
   token = nextToken();
@@ -16,7 +17,7 @@ std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
   auto if_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::IF));
   // parse the expression and adopt it as the child node of the IF node
   ExpressionParser expression_parser(currentParser());
-  auto expr_node = expression_parser.parse(token);
+  auto expr_node = expression_parser.parse(token, parent_id);
   const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
   if (!TypeChecker::TypeChecking::isBoolean(expr_type)) {
     errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
@@ -32,14 +33,14 @@ std::shared_ptr<ICodeNodeImplBase> IfStatementParser::parse(std::shared_ptr<Pasc
   }
   // parse the then statement
   StatementParser statement_parser(currentParser());
-  if_node->addChild(statement_parser.parse(token));
+  if_node->addChild(statement_parser.parse(token, parent_id));
   token = currentToken();
   // look for an ELSE
   if (token->type() == PascalTokenTypeImpl::ELSE) {
     // consume ELSE
     token = nextToken();
     // parse the ELSE statement
-    if_node->addChild(statement_parser.parse(token));
+    if_node->addChild(statement_parser.parse(token, parent_id));
   }
   return if_node;
 }

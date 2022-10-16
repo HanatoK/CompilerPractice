@@ -25,7 +25,8 @@ public:
   static TokenTypeSet colonSet();
   explicit VariableDeclarationsParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~VariableDeclarationsParser();
-  virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token) override;
+  virtual std::shared_ptr<ICodeNodeImplBase> parse(
+      std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) override;
   virtual std::vector<std::shared_ptr<SymbolTableEntryImplBase>> parseIdentifierSublist(std::shared_ptr<PascalToken> token);
   virtual void setDefinition(const DefinitionImpl& definition);
   virtual std::shared_ptr<SymbolTableEntryImplBase> parseIdentifier(std::shared_ptr<PascalToken> token);

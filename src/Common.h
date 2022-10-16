@@ -147,6 +147,23 @@ enum class DefinitionImpl {
   PROCEDURE, FUNCTION, UNDEFINED
 };
 
+#ifdef EOF
+#define EOF_SAVED EOF
+#endif
+enum class RoutineCodeImpl {
+#ifdef EOF
+#undef EOF
+#endif
+  DECLARED, FORWARD,
+  READ, READLN, WRITE, WRITELN,
+  ABS, ARCTAN, CHR, COS, EOF, EOLN, EXP, LN, ODD, ORD,
+  PRED, ROUND, SIN, SQR, SQRT, SUCC, TRUNC,
+};
+#ifndef EOF
+#define EOF EOF_SAVED
+#endif
+
+
 extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
 extern std::map<std::string, PascalTokenTypeImpl> reservedWordsMapRev;
 extern std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap;

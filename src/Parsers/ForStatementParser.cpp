@@ -7,7 +7,8 @@
 ForStatementParser::ForStatementParser(const std::shared_ptr<PascalParserTopDown> &parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> ForStatementParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   // consume the FOR
   token = nextToken();
   const auto target_token = token;

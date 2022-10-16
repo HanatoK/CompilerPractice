@@ -2,6 +2,7 @@
 #include "ConstantDefinitionsParser.h"
 #include "TypeDefinitionsParser.h"
 #include "VariableDeclarationsParser.h"
+#include "DeclaredRoutineParser.h"
 
 DeclarationsParser::DeclarationsParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent) {}
@@ -13,28 +14,43 @@ DeclarationsParser::~DeclarationsParser()
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> DeclarationsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> DeclarationsParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   token = synchronize(declarationStartSet());
   if (token->type() == PascalTokenTypeImpl::CONST) {
     token = nextToken();
     ConstantDefinitionsParser constant_definition_parser(currentParser());
-    constant_definition_parser.parse(token);
+    constant_definition_parser.parse(token, parent_id);
   }
   token = synchronize(typeStartSet());
   if (token->type() == PascalTokenTypeImpl::TYPE) {
     token = nextToken();
     TypeDefinitionsParser type_definitions_parser(currentParser());
-    type_definitions_parser.parse(token);
+    type_definitions_parser.parse(token, parent_id);
   }
   token = synchronize(varStartSet());
   if (token->type() == PascalTokenTypeImpl::VAR) {
     token = nextToken();
     VariableDeclarationsParser vairable_declarations_parser(currentParser());
     vairable_declarations_parser.setDefinition(DefinitionImpl::VARIABLE); // TODO
-    vairable_declarations_parser.parse(token);
+    vairable_declarations_parser.parse(token, parent_id);
   }
   token = synchronize(routineStartSet());
+  auto token_type = token->type();
+  while ((token_type == PascalTokenTypeImpl::PROCEDURE) ||
+         (token_type == PascalTokenTypeImpl::FUNCTION)) {
+    DeclaredRoutineParser routine_parser(currentParser());
+    routine_parser.parse(token, parent_id);
+    // look for one or more semicolons after a definition
+    if (token->type() == PascalTokenTypeImpl::SEMICOLON) {
+      while (token->type() == PascalTokenTypeImpl::SEMICOLON) {
+        token = nextToken(); // consume the ;
+      }
+    }
+    token = synchronize(routineStartSet());
+    token_type = token->type();
+  }
   return nullptr;
 }
 

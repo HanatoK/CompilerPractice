@@ -25,7 +25,7 @@ end;
 =============================================
  */
 std::shared_ptr<ICodeNodeImplBase> BlockParser::parse(std::shared_ptr<PascalToken> token,
-                   std::shared_ptr<SymbolTableEntryImplBase> routine_id) {
+                   std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   DeclarationsParser declarations_parser(currentParser());
   StatementParser statement_parser(currentParser());
   // parse any declarations
