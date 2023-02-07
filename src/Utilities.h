@@ -6,7 +6,7 @@
 
 class CrossReferencer {
 private:
-  int NAME_WIDTH;
+  static constexpr int NAME_WIDTH = 16;
   std::string INDENT;
 public:
   CrossReferencer();
@@ -31,8 +31,8 @@ private:
   std::string mLineIndentation;
   std::string mLine;
 public:
-  static const int INDENT_WIDTH = 4;
-  static const int LINE_WIDTH = 80;
+  static constexpr int INDENT_WIDTH = 4;
+  static constexpr int LINE_WIDTH = 80;
   explicit ParseTreePrinter(std::ostream& os);
   void print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack);
   void printNode(const std::shared_ptr<const ICodeNodeImplBase> &node);

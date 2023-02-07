@@ -4,8 +4,7 @@
 #include <fmt/format.h>
 #include <string>
 
-CrossReferencer::CrossReferencer():
-  NAME_WIDTH(16), INDENT(NAME_WIDTH * 4, ' ')
+CrossReferencer::CrossReferencer(): INDENT(NAME_WIDTH * 4, ' ')
 {
 
 }
@@ -218,14 +217,13 @@ ParseTreePrinter::ParseTreePrinter(std::ostream &os)
 }
 
 void ParseTreePrinter::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) {
-  const auto tmp_line_width = LINE_WIDTH;
-  mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", tmp_line_width);
+  mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", LINE_WIDTH);
   const auto& program_id = symbol_table_stack->programId();
   const auto& iCode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
   const auto root_node = iCode->getRoot();
   printNode(root_node);
   printLine();
-  mOutputStream << fmt::format("{:=^{}}\n", "", tmp_line_width);
+  mOutputStream << fmt::format("{:=^{}}\n", "", LINE_WIDTH);
 }
 
 void ParseTreePrinter::printNode(const std::shared_ptr<const ICodeNodeImplBase>& node)
