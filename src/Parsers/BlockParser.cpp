@@ -29,12 +29,13 @@ std::shared_ptr<ICodeNodeImplBase> BlockParser::parse(std::shared_ptr<PascalToke
   DeclarationsParser declarations_parser(currentParser());
   StatementParser statement_parser(currentParser());
   // parse any declarations
-  declarations_parser.parse(token);
+  declarations_parser.parse(token, parent_id);
   token = synchronize(StatementParser::statementStartSet());
   const auto token_type = token->type();
   std::shared_ptr<ICodeNodeImplBase> root_node = nullptr;
   if (token_type == PascalTokenTypeImpl::BEGIN) {
-    root_node = statement_parser.parse(token);
+    // TODO: in listing 11-9 parent_id is missing, check it.
+    root_node = statement_parser.parse(token, parent_id);
   } else {
     // missing BEGIN: attempt to parse anyway if possible
     errorHandler()->flag(token, PascalErrorCode::MISSING_BEGIN, currentParser());

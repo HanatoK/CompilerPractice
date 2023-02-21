@@ -19,7 +19,9 @@ std::shared_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(
   // loop to parse a sequence of variable declarations separated by semicolons
   while (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
     // parse the identifier sublist and its type specification
-    parseIdentifierSublist(token);
+    parseIdentifierSublist(
+        token, VariableDeclarationsParser::identiferFollowSet(),
+        VariableDeclarationsParser::commaSet());
     token = currentToken();
     const auto token_type = token->type();
     // look for one or more semicolons after a definition
@@ -37,8 +39,11 @@ std::shared_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(
   return nullptr;
 }
 
+// TODO: update this
 std::vector<std::shared_ptr<SymbolTableEntryImplBase>>
-VariableDeclarationsParser::parseIdentifierSublist(std::shared_ptr<PascalToken> token) {
+VariableDeclarationsParser::parseIdentifierSublist(
+    std::shared_ptr<PascalToken> token,
+    const TokenTypeSet& follow_set, const TokenTypeSet& comma_set) {
   std::vector<std::shared_ptr<SymbolTableEntryImplBase>> sub_list;
   do {
     token = synchronize(VariableDeclarationsParser::identiferStartSet());
@@ -46,18 +51,18 @@ VariableDeclarationsParser::parseIdentifierSublist(std::shared_ptr<PascalToken> 
     if (id != nullptr) {
       sub_list.push_back(id);
     }
-    token = synchronize(VariableDeclarationsParser::commaSet());
+    token = synchronize(comma_set);
     // look for ,
     auto token_type = token->type();
     if (token_type == PascalTokenTypeImpl::COMMA) {
       token = nextToken();
-      if (VariableDeclarationsParser::identiferFollowSet().contains(token->type())) {
+      if (follow_set.contains(token->type())) {
         errorHandler()->flag(token, PascalErrorCode::MISSING_IDENTIFIER, currentParser());
       }
     } else if (VariableDeclarationsParser::identiferStartSet().contains(token_type)) {
       errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA, currentParser());
     }
-  } while (!VariableDeclarationsParser::identiferFollowSet().contains(token->type()));
+  } while (!follow_set.contains(token->type()));
   // parse the type specification
   auto type_spec = parseTypeSpec(token);
   for (auto& elem : sub_list) {
