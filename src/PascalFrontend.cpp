@@ -195,7 +195,7 @@ std::shared_ptr<PascalToken> PascalScanner::extractToken() {
   auto current_char = currentChar();
   // Construct the next token
   // The current character determines the token type.
-  if (current_char == EOF) {
+  if (current_char == std::char_traits<decltype(current_char)>::eof()) { // use char_traits
     token = std::make_unique<PascalEofToken>(mSource);
     std::cerr << "Reach EOF\n";
   } else if (std::isalpha(current_char)) {
@@ -223,7 +223,7 @@ void PascalScanner::skipWhiteSpace() {
     if (current_char == '{') {
       do {
         current_char = nextChar();
-      } while ((current_char != '}') && (current_char != EOF));
+      } while ((current_char != '}') && (current_char != std::char_traits<decltype(current_char)>::eof()));
       if (current_char == '}') {
         current_char = nextChar();
       }
@@ -453,7 +453,7 @@ void PascalStringToken::extract() {
     if (std::isspace(current_char)) {
       current_char = ' ';
     }
-    if (current_char != '\'' && current_char != EOF) {
+    if (current_char != '\'' && current_char != std::char_traits<decltype(current_char)>::eof()) {
       text += current_char;
       value += current_char;
       current_char = nextChar();
@@ -467,7 +467,7 @@ void PascalStringToken::extract() {
         current_char = nextChar();
       }
     }
-  } while ((current_char != '\'') && (current_char != EOF));
+  } while ((current_char != '\'') && (current_char != std::char_traits<decltype(current_char)>::eof()));
   if (current_char == '\'') {
     nextChar(); // consume the final quote
     text += '\'';

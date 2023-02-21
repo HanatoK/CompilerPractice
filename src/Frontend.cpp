@@ -17,7 +17,7 @@ char Source::currentChar()
     return nextChar();
   } else if (!mReadOk) {
     // at the end of file?
-    return EOF;
+    return std::char_traits<char>::eof();
   } else if ((mCurrentPos == -1) || (mCurrentPos == mLine.size())) {
     // at the end of line?
     return EOL;
@@ -36,7 +36,7 @@ char Source::peekChar()
 {
   currentChar();
   if (!mReadOk) {
-    return EOF;
+    return std::char_traits<char>::eof();
   }
   const int nextPos = mCurrentPos + 1;
   if (nextPos < mLine.size()) {
