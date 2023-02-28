@@ -54,7 +54,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
   routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(
       std::vector<std::shared_ptr<SymbolTableEntryImplBase>>{});
   // push the routine's new symbol table onto the stack
-  if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() == RoutineCodeImpl::FORWARD) {
+  if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() == RoutineCodeImpl::forward) {
     auto symbol_table = routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>();
     getSymbolTableStack()->push(symbol_table);
   } else {
@@ -63,7 +63,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
   // program: set the program identifier in the symbol table stack
   if (routine_defn == DefinitionImpl::PROGRAM) {
     getSymbolTableStack()->setProgramId(routine_id);
-  } else if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() != RoutineCodeImpl::FORWARD) {
+  } else if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() != RoutineCodeImpl::forward) {
     // non-forwarded procedure of function: append to the parent's list of routines
     auto subroutines = parent_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>();
     subroutines.push_back(routine_id);
@@ -72,7 +72,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
   }
   // if the routine was forwarded, there should not be any formal parameters or a function return type.
   // but parse them anyway if they are there
-  if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() == RoutineCodeImpl::FORWARD) {
+  if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() == RoutineCodeImpl::forward) {
     if (token->type() != PascalTokenTypeImpl::SEMICOLON) {
       errorHandler()->flag(token, PascalErrorCode::ALREADY_FORWARDED, currentParser());
       parseHeader(token, routine_id);
@@ -97,9 +97,9 @@ std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
       (boost::algorithm::to_lower_copy(token->text()) == "forward")) {
     // consume "forward"
     token = nextToken();
-    routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>(RoutineCodeImpl::FORWARD);
+    routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>(RoutineCodeImpl::forward);
   } else {
-    routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>(RoutineCodeImpl::DECLARED);
+    routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>(RoutineCodeImpl::declared);
     BlockParser block_parser(currentParser());
     auto root_node = block_parser.parse(token, routine_id);
     intermediate_code->setRoot(root_node);
@@ -121,7 +121,7 @@ DeclaredRoutineParser::parseRoutineName(std::shared_ptr<PascalToken> token, cons
     // not already defined locally: enter into the local symbol table
     if (routine_id == nullptr) {
       routine_id = getSymbolTableStack()->enterLocal(routine_name);
-    } else if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() != RoutineCodeImpl::FORWARD) {
+    } else if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() != RoutineCodeImpl::forward) {
       // if already defined, it should be a forward definition.
       // Otherwise, this is a redefined identifier.
       routine_id = nullptr;

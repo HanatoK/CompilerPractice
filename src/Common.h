@@ -148,10 +148,10 @@ enum class DefinitionImpl {
 };
 
 enum class RoutineCodeImpl {
-  DECLARED, FORWARD,
-  READ, READLN, WRITE, WRITELN,
-  ABS, ARCTAN, CHR, COS, R_EOF, EOLN, EXP, LN, ODD, ORD,
-  PRED, ROUND, SIN, SQR, SQRT, SUCC, TRUNC,
+  declared, forward,
+  read, readln, write, writeln,
+  abs, arctan, chr, cos, eof, eoln, exp, ln, odd, ord,
+  pred, round, sin, sqr, sqrt, succ, trunc,
 };
 
 extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;

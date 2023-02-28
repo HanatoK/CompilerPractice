@@ -33,7 +33,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclarationsParser::parse(
   if (token->type() == PascalTokenTypeImpl::VAR) {
     token = nextToken();
     VariableDeclarationsParser vairable_declarations_parser(currentParser());
-    vairable_declarations_parser.setDefinition(DefinitionImpl::VARIABLE); // TODO
+    vairable_declarations_parser.setDefinition(DefinitionImpl::VARIABLE);
     vairable_declarations_parser.parse(token, parent_id);
   }
   token = synchronize(routineStartSet());

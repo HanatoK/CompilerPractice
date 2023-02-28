@@ -281,7 +281,7 @@ int PascalErrorHandler::errorCount() const { return mErrorCount; }
 std::map<PascalErrorCode, std::string> initErrorMessageMap() {
   std::map<PascalErrorCode, std::string> errorMessageMap;
   errorMessageMap[PascalErrorCode::ALREADY_FORWARDED] =
-      "Already specified in FORWARD";
+      "Already specified in forward";
   errorMessageMap[PascalErrorCode::IDENTIFIER_REDEFINED] =
       "Redefined identifier";
   errorMessageMap[PascalErrorCode::IDENTIFIER_UNDEFINED] =

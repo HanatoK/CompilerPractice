@@ -39,7 +39,6 @@ std::shared_ptr<ICodeNodeImplBase> VariableDeclarationsParser::parse(
   return nullptr;
 }
 
-// TODO: update this
 std::vector<std::shared_ptr<SymbolTableEntryImplBase>>
 VariableDeclarationsParser::parseIdentifierSublist(
     std::shared_ptr<PascalToken> token,
