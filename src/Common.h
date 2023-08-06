@@ -194,4 +194,10 @@ struct overloaded : Ts... { using Ts::operator()...; };
 
 template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
+// helper function for creating an object from unique_ptr from factory functions
+template <typename T>
+std::shared_ptr<T> to_shared(std::unique_ptr<T>&& ptr) {
+  return std::shared_ptr<T>(std::move(ptr));
+}
+
 #endif // COMMON_H

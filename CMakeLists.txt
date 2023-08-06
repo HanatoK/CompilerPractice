@@ -66,7 +66,8 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.h
             ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.h
-            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.h)
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/CallParser.h)
 
 set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Backend.cpp
@@ -110,7 +111,8 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.cpp
-            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.cpp)
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/CallParser.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 #find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
