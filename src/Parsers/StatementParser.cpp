@@ -6,6 +6,7 @@
 #include "IfStatementParser.h"
 #include "CaseStatementParser.h"
 #include "ForStatementParser.h"
+#include "CallParser.h"
 
 StatementParser::StatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
   : PascalSubparserTopDownBase(parent) {}
@@ -28,8 +29,34 @@ std::shared_ptr<ICodeNodeImplBase> StatementParser::parse(
       break;
     }
     case PascalTokenTypeImpl::IDENTIFIER: {
-      AssignmentStatementParser assignment_parser(currentParser());
-      statement_node = assignment_parser.parse(token, parent_id);
+      auto name = boost::algorithm::to_lower_copy(token->text());
+      auto id = getSymbolTableStack()->lookup(name);
+      auto id_definition = (id != nullptr) ? id->getDefinition() : DefinitionImpl::UNDEFINED;
+      using enum DefinitionImpl;
+      switch (id_definition) {
+        case VARIABLE:
+        case VALUE_PARM:
+        case VAR_PARM:
+        case UNDEFINED: {
+          AssignmentStatementParser assignment_parser(currentParser());
+          statement_node = assignment_parser.parse(token, parent_id);
+          break;
+        }
+        case FUNCTION: {
+          AssignmentStatementParser assignment_parser(currentParser());
+          statement_node = assignment_parser.parseFunctionNameAssignment(token, parent_id);
+          break;
+        }
+        case PROCEDURE: {
+          CallParser call_parser(currentParser());
+          statement_node = call_parser.parse(token, parent_id);
+          break;
+        }
+        default: {
+          errorHandler()->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, currentParser());
+          token = nextToken();
+        }
+      }
       break;
     }
     case PascalTokenTypeImpl::REPEAT: {

@@ -1,6 +1,7 @@
 #include "ExpressionParser.h"
 #include "VariableParser.h"
 #include "TypeChecker.h"
+#include "CallParser.h"
 
 ExpressionParser::ExpressionParser(const std::shared_ptr<PascalParserTopDown>& parent):
   PascalSubparserTopDownBase(parent)
@@ -105,7 +106,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
       // consume the (
       token = nextToken();
       // parse the expression as the root node
-      root_node = parse(token);
+      root_node = parse(token, nullptr);
       if (root_node == nullptr) {
         root_node->setTypeSpec(Predefined::instance().undefinedType);
       }
@@ -321,6 +322,11 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared
       id->appendLineNumber(token->lineNum());
       token = nextToken();
       root_node->setTypeSpec(type_spec);
+      break;
+    }
+    case DefinitionImpl::FUNCTION: {
+      CallParser parser(currentParser());
+      root_node = parser.parse(token, id);
       break;
     }
     default: {
