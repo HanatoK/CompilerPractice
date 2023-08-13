@@ -12,8 +12,13 @@ public:
       std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) override;
 protected:
   std::shared_ptr<ICodeNodeImplBase> parseActualParameters(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> pfId,
+      std::shared_ptr<PascalToken> token, const std::shared_ptr<SymbolTableEntryImplBase>& pfId,
       bool isDeclared, bool isReadReadln, bool isWriteWriteln);
+private:
+  void checkActualParameter(
+      const std::shared_ptr<PascalToken>& token, const std::shared_ptr<SymbolTableEntryImplBase>& formalId,
+      const std::shared_ptr<ICodeNodeImplBase>& node);
+  std::shared_ptr<ICodeNodeImplBase> parseWriteSpec(std::shared_ptr<PascalToken> token);
 };
 
 class CallDeclaredParser : public CallParser
@@ -33,47 +38,37 @@ public:
   virtual std::shared_ptr<ICodeNodeImplBase> parse(
       std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) override;
 private:
-  std::shared_ptr<ICodeNodeImplBase>
-  parseReadReadln(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  // TODO: implement the following functions
-  std::shared_ptr<ICodeNodeImplBase>
-  parseWriteWriteln(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseEofEoln(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseAbsSqr(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseArctanCosExpLnSinSqrt(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parsePredSucc(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseChr(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseOdd(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseOrd(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
-  std::shared_ptr<ICodeNodeImplBase>
-  parseRoundTrunc(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<ICodeNodeImplBase> callNode,
-      std::shared_ptr<SymbolTableEntryImplBase> pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseReadReadln(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseWriteWriteln(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseEofEoln(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseAbsSqr(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseArctanCosExpLnSinSqrt(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parsePredSucc(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseChr(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseOdd(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseOrd(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  std::shared_ptr<ICodeNodeImplBase> parseRoundTrunc(
+      const std::shared_ptr<PascalToken>& token, std::shared_ptr<ICodeNodeImplBase> callNode,
+      const std::shared_ptr<SymbolTableEntryImplBase>& pfId);
+  bool checkParmCount(const std::shared_ptr<PascalToken>& token, const std::shared_ptr<ICodeNodeImplBase>& node, size_t count);
 };
 
 #endif //COMPILERPRACTICE_CALLPARSER_H
