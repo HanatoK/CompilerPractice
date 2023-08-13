@@ -16,7 +16,7 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(
   auto select_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT));
   // parse the CASE expression
   ExpressionParser expression_parser(currentParser());
-  auto expr_node = expression_parser.parse(token);
+  auto expr_node = expression_parser.parse(token, parent_id);
   const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
   // type check: the CASE expression's type must be integer, character, or enumeration
   if (!TypeChecker::TypeChecking::isInteger(expr_type) &&
@@ -82,7 +82,7 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
   branch_node->addChild(std::move(constants_node));
   // parse the branch statement
   StatementParser statement_parser(currentParser());
-  branch_node->addChild(statement_parser.parse(token));
+  branch_node->addChild(statement_parser.parse(token, nullptr));
   return branch_node;
 }
 

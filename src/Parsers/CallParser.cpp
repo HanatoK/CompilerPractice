@@ -69,6 +69,18 @@ CallParser::parseActualParameters(std::shared_ptr<PascalToken> token, const std:
       // a scalar, boolean, or subrange of integer
       auto type = actualNode->getTypeSpec();
       auto form = type->form();
+      if (!((actualNode->type() == ICodeNodeTypeImpl::VARIABLE) &&
+            ((form == TypeFormImpl::SCALAR) ||
+             (type == Predefined::instance().booleanType) ||
+             ((form == TypeFormImpl::SUBRANGE) &&
+                 (type->baseType() == Predefined::instance().integerType))))) {
+        errorHandler()->flag(token, PascalErrorCode::INVALID_VAR_PARM, currentParser());
+      }
+    } else if (isWriteWriteln) {
+      // create a WRITE_PARM node which adopts the expression node
+      auto exprNode = std::move(actualNode);
+      actualNode = createICodeNode(ICodeNodeTypeImpl::WRITE_PARM);
+      actualNode->addChild(exprNode);
       // TODO
     }
   }

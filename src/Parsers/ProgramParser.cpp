@@ -1,5 +1,6 @@
 #include "ProgramParser.h"
 #include "DeclarationsParser.h"
+#include "DeclaredRoutineParser.h"
 
 ProgramParser::ProgramParser(const std::shared_ptr<PascalParserTopDown> &parent) : PascalSubparserTopDownBase(parent) {
 

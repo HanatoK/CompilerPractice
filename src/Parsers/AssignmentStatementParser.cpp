@@ -25,7 +25,7 @@ std::shared_ptr<ICodeNodeImplBase> AssignmentStatementParser::parse(
   auto assign_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::ASSIGN));
   // parse the target variable
   VariableParser variable_parser(currentParser());
-  auto target_node = isFunctionTarget ? variable_parser.parseFunctionNameTarget(token) : variable_parser.parse(token, nullptr);
+  auto target_node = isFunctionTarget ? variable_parser.parseFunctionNameTarget(token, parent_id) : variable_parser.parse(token, parent_id);
   const auto target_type = (target_node != nullptr) ? target_node->getTypeSpec() :
                                             Predefined::instance().undefinedType;
   // the ASSIGN node adopts the variable node as its first child
