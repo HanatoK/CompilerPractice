@@ -120,7 +120,9 @@ enum class ICodeNodeTypeImpl {
   // operands
   VARIABLE, SUBSCRIPTS, FIELD,
   INTEGER_CONSTANT, REAL_CONSTANT,
-  STRING_CONSTANT, BOOLEAN_CONSTANT
+  STRING_CONSTANT, BOOLEAN_CONSTANT,
+  // write parameters
+  WRITE_PARM
 };
 
 //enum class VariableInternalType {

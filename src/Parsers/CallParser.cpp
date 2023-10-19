@@ -15,7 +15,7 @@ std::shared_ptr<ICodeNodeImplBase>
 CallParser::parse(std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   auto pfId = getSymbolTableStack()->lookup(boost::algorithm::to_lower_copy(token->text()));
   auto routine_code = pfId->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>();
-  // TODO: I think this is ill-formed
+  // I think this is ill-formed
 //  StatementParser parser =
 //      (routine_code == RoutineCodeImpl::declared) ||
 //      (routine_code == RoutineCodeImpl::forward) ?
@@ -81,9 +81,35 @@ CallParser::parseActualParameters(std::shared_ptr<PascalToken> token, const std:
       auto exprNode = std::move(actualNode);
       actualNode = createICodeNode(ICodeNodeTypeImpl::WRITE_PARM);
       actualNode->addChild(exprNode);
-      // TODO
+      auto type = exprNode->getTypeSpec()->baseType();
+      const auto form = type->form();
+      if (! ((form == TypeFormImpl::SCALAR) || (type == Predefined::instance().booleanType) || (type->isPascalString()))) {
+        errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
+      }
+      // optional field width
+      token = currentToken();
+      actualNode->addChild(parseWriteSpec(token));
+      // optional precision
+      token = currentToken();
+      actualNode->addChild(parseWriteSpec(token));
+    }
+    parmsNode->addChild(actualNode);
+    token = synchronize(commaSet());
+    auto token_type = token->type();
+    // look for the comma
+    if (token_type == PascalTokenTypeImpl::COMMA) {
+      token = nextToken(); // consume
+    } else if (ExpressionParser::expressionStartSet().contains(token_type)) {
+      errorHandler()->flag(token, PascalErrorCode::MISSING_COMMA, currentParser());
+    } else if (token_type != PascalTokenTypeImpl::RIGHT_PAREN) {
+      token = synchronize(ExpressionParser::expressionStartSet());
     }
   }
+  token = nextToken(); // consuming closing )
+  if ((parmsNode->numChildren() == 0) || (isDeclared && (parmIndex != parmCount - 1))) {
+    errorHandler()->flag(token, PascalErrorCode::WRONG_NUMBER_OF_PARMS, currentParser());
+  }
+  return parmsNode;
 }
 
 void
@@ -118,6 +144,12 @@ std::shared_ptr<ICodeNodeImplBase> CallParser::parseWriteSpec(std::shared_ptr<Pa
   } else {
     return nullptr;
   }
+}
+
+PascalSubparserTopDownBase::TokenTypeSet CallParser::commaSet() {
+  auto s = ExpressionParser::expressionStartSet();
+  s.insert({PascalTokenTypeImpl::COMMA, PascalTokenTypeImpl::RIGHT_PAREN});
+  return s;
 }
 
 CallDeclaredParser::CallDeclaredParser(const std::shared_ptr<PascalParserTopDown> &parent) : CallParser(

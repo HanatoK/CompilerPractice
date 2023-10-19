@@ -6,6 +6,7 @@
 class CallParser : public PascalSubparserTopDownBase
 {
 public:
+  static TokenTypeSet commaSet();
   explicit CallParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~CallParser() override;
   virtual std::shared_ptr<ICodeNodeImplBase> parse(
