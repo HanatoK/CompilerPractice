@@ -129,7 +129,7 @@ enum class ICodeNodeTypeImpl {
 //  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
 //};
 
-using VariableValueT = std::variant<std::monostate, bool, PascalInteger, PascalFloat, std::string>;
+using VariableValueT = std::variant<std::monostate, bool, PascalInteger, PascalFloat, std::string, PascalErrorCode>;
 
 enum class TypeFormImpl {
   SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD

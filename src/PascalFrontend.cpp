@@ -13,7 +13,6 @@
 #include <ratio>
 #include <set>
 
-// TODO: use initializer list
 std::map<PascalTokenTypeImpl, std::string> initReservedWordsMap() {
   std::map<PascalTokenTypeImpl, std::string> reserve_words_map;
   // reserved words
@@ -97,7 +96,6 @@ std::map<PascalTokenTypeImpl, std::string> initSpecialWordsMap() {
   return special_words_map;
 }
 
-// TODO: clean-up these global variables
 std::map<PascalTokenTypeImpl, std::string> reservedWordsMap =
     initReservedWordsMap();
 std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap =
@@ -651,22 +649,19 @@ std::string PascalNumberToken::unsignedIntegerDigits(std::string &text) {
 
 PascalInteger PascalNumberToken::computeIntegerValue(const std::string &digits) {
   // does not consume characters
-  bool ok = true;
-  // TODO: try to implement toInt without Qt
-  PascalInteger result = 0;
+  PascalInteger result;
   try {
     result = std::stoll(digits);
-  } catch (const std::exception& e) {
-    ok = false;
-  }
-  if (ok) {
-    return result;
-  } else {
+  } catch (const std::out_of_range& e) {
+    result = 0;
     mType = PascalTokenTypeImpl::ERROR;
-    // TODO: check if integer out of range
-    mValue = VariableValueT();
-    return 0;
+    mValue = PascalErrorCode::RANGE_INTEGER;
+  } catch (const std::invalid_argument& e) {
+    result = 0;
+    mType = PascalTokenTypeImpl::ERROR;
+    mValue = PascalErrorCode::INVALID_NUMBER;
   }
+  return result;
 }
 
 PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits,
@@ -680,22 +675,19 @@ PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits
   if (!exponent_digits.empty()) {
     s += 'e' + std::string{exponent_sign} + exponent_digits;
   }
-  bool ok = true;
-  // TODO: try to implement toDouble without Qt
-  PascalFloat result = 0;
+  PascalFloat result;
   try {
     result = std::stod(s);
-  } catch (const std::exception& e) {
-    ok = false;
-  }
-  if (ok) {
-    return result;
-  } else {
+  } catch (const std::invalid_argument&) {
+    result = 0;
     mType = PascalTokenTypeImpl::ERROR;
-    // TODO: check if integer out of range
-    mValue = VariableValueT();
-    return 0;
+    mValue = PascalErrorCode::INVALID_NUMBER;
+  } catch (const std::out_of_range&) {
+    result = 0;
+    mType = PascalTokenTypeImpl::ERROR;
+    mValue = PascalErrorCode::RANGE_REAL;
   }
+  return result;
 }
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::relOpsMap =

@@ -13,7 +13,7 @@ DeclaredRoutineParser::~DeclaredRoutineParser() {
 
 }
 
-std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
+std::shared_ptr<SymbolTableEntryImplBase> DeclaredRoutineParser::parseToSymbolTableEntry(
     std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   auto routine_defn = DefinitionImpl::UNDEFINED;
   std::string dummy_name;
@@ -67,7 +67,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
     // non-forwarded procedure of function: append to the parent's list of routines
     auto subroutines = parent_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>();
     subroutines.push_back(routine_id);
-    // TODO: do I need to set it back?
+    // set it back?
     parent_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(subroutines);
   }
   // if the routine was forwarded, there should not be any formal parameters or a function return type.
@@ -106,9 +106,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclaredRoutineParser::parse(
   }
   routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
   getSymbolTableStack()->pop();
-  // TODO: the book returns routine_id
-  // return routine_id;
-  return intermediate_code->getRoot();
+   return routine_id;
 }
 
 std::shared_ptr<SymbolTableEntryImplBase>

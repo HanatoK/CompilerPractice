@@ -20,7 +20,7 @@ public:
   virtual VariableValueT parseConstant(std::shared_ptr<PascalToken>& token);
   virtual VariableValueT parseIdentifierConstant(std::shared_ptr<PascalToken>& token, SignType sign);
   virtual std::shared_ptr<TypeSpecImplBase> getConstantType(const VariableValueT& value) const;
-  virtual std::shared_ptr<TypeSpecImplBase> getConstantType(const std::shared_ptr<PascalToken>& token);
+  virtual std::shared_ptr<TypeSpecImplBase> getConstantType(const std::string& token_name);
 };
 
 #endif // CONSTANTDEFINITIONSPARSER_H

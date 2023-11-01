@@ -24,7 +24,7 @@ std::shared_ptr<ICodeNodeImplBase> ProgramParser::parse(
   token = synchronize(ProgramParser::programStartSet());
   // parse the program
   DeclaredRoutineParser routine_parser = DeclaredRoutineParser(currentParser());
-  routine_parser.parse(token, parentId);
+  routine_parser.parseToSymbolTableEntry(token, parentId);
   // look for the final period
   token = currentToken();
   if (token->type() != PascalTokenTypeImpl::DOT) {

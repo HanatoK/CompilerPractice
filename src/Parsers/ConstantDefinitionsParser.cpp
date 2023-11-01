@@ -40,16 +40,16 @@ std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(
       errorHandler()->flag(token, PascalErrorCode::MISSING_EQUALS, currentParser());
     }
     // parse the constant value
-    // TODO: Is this shallow-copy correct?
-    const auto current_token = token;
+    const auto current_token_text = token->text();
+    const auto current_token_type = token->type();
     const VariableValueT constant_value = parseConstant(token);
     // set identifier as a constant and set its value
     if (constant_id != nullptr) {
       constant_id->setDefinition(DefinitionImpl::CONSTANT);
       constant_id->setAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>(constant_value);
       // set the constant's type
-      auto constant_type = (current_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
-                           getConstantType(current_token) : getConstantType(constant_value);
+      auto constant_type = (current_token_type == PascalTokenTypeImpl::IDENTIFIER) ?
+                           getConstantType(current_token_text) : getConstantType(constant_value);
       constant_id->setTypeSpec(constant_type);
     }
     token = currentToken();
@@ -168,9 +168,9 @@ std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(con
   return constant_type;
 }
 
-std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(const std::shared_ptr<PascalToken>& token)
+std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(const std::string& token_name)
 {
-  auto id = getSymbolTableStack()->lookup(token->text());
+  auto id = getSymbolTableStack()->lookup(token_name);
   if (id == nullptr) return nullptr;
   auto definition = id->getDefinition();
   if (definition == DefinitionImpl::CONSTANT ||

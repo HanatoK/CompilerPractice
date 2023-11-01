@@ -41,7 +41,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclarationsParser::parse(
   while ((token_type == PascalTokenTypeImpl::PROCEDURE) ||
          (token_type == PascalTokenTypeImpl::FUNCTION)) {
     DeclaredRoutineParser routine_parser(currentParser());
-    routine_parser.parse(token, parent_id);
+    routine_parser.parseToSymbolTableEntry(token, parent_id);
     // look for one or more semicolons after a definition
     if (token->type() == PascalTokenTypeImpl::SEMICOLON) {
       while (token->type() == PascalTokenTypeImpl::SEMICOLON) {

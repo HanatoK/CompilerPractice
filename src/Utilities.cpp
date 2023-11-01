@@ -321,7 +321,6 @@ void ParseTreePrinter::printTypeSpec(const std::shared_ptr<const ICodeNodeImplBa
 }
 
 void ParseTreePrinter::appendOutputLine(const std::string &text) {
-  // TODO: line wrapping is buggy!
   const auto text_length = text.size();
   bool line_break = false;
   if (mLength + text_length > LINE_WIDTH) {

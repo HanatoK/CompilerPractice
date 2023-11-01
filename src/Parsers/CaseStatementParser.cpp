@@ -125,29 +125,29 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
     token = nextToken();
   }
   switch (token->type()) {
-  case PascalTokenTypeImpl::IDENTIFIER: {
-    constant_node = parseIdentifierConstant(token, sign);
-    if (constant_node != nullptr) {
-      constant_type = constant_node->getTypeSpec();
+    case PascalTokenTypeImpl::IDENTIFIER: {
+      constant_node = parseIdentifierConstant(token, sign);
+      if (constant_node != nullptr) {
+        constant_type = constant_node->getTypeSpec();
+      }
+      break;
     }
-    break;
-  }
-  case PascalTokenTypeImpl::INTEGER: {
-    constant_node = parseIntegerConstant(token->text(), sign);
-    constant_type = Predefined::instance().integerType;
-    break;
-  }
-  case PascalTokenTypeImpl::STRING: {
-    constant_node = parseCharacterConstant(
-        token, std::get<std::string>(token->value()), sign);
-    constant_type = Predefined::instance().charType;
-    break;
-  }
-  default: {
-    errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
-                         currentParser());
-    break;
-  }
+    case PascalTokenTypeImpl::INTEGER: {
+      constant_node = parseIntegerConstant(token->text(), sign);
+      constant_type = Predefined::instance().integerType;
+      break;
+    }
+    case PascalTokenTypeImpl::STRING: {
+      constant_node = parseCharacterConstant(
+          token, std::get<std::string>(token->value()), sign);
+      constant_type = Predefined::instance().charType;
+      break;
+    }
+    default: {
+      errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
+                           currentParser());
+      break;
+    }
   }
   // check for reused constants
   // TODO: BUG: parse case statement correctly!!
@@ -166,7 +166,6 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
     }
   }
   // type check: the constant type must be comparison compatible with the CASE expression type
-  // TODO
   if (!TypeChecker::TypeCompatibility::areComparisonCompatible(expression_type, constant_type)) {
     errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
   }
@@ -253,7 +252,6 @@ PascalInteger CaseStatementParser::getNegateNodeValue(const std::shared_ptr<ICod
     // get the first child node
     const auto child_node = node->childrenBegin();
     const auto positive_value = std::get<PascalInteger>((*child_node)->getAttribute<ICodeKeyTypeImpl::VALUE>());
-    // TODO: possible overflow
     const PascalInteger result = -1 * positive_value;
     return result;
   } else {

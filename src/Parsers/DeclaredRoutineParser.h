@@ -13,8 +13,8 @@ public:
   static TokenTypeSet commaSet();
   explicit DeclaredRoutineParser(const std::shared_ptr<PascalParserTopDown>& parent);
   virtual ~DeclaredRoutineParser();
-  virtual std::shared_ptr<ICodeNodeImplBase> parse(
-      std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) override;
+  std::shared_ptr<SymbolTableEntryImplBase> parseToSymbolTableEntry(
+      std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id);
 private:
   int mDummyCounter;
 private:
@@ -26,6 +26,12 @@ private:
       std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> routine_id);
   std::vector<std::shared_ptr<SymbolTableEntryImplBase>> parseParmSublist(
       std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> routine_id);
+  // The book uses different return types for parse!
+  std::shared_ptr<ICodeNodeImplBase> parse(
+      std::shared_ptr<PascalToken> token,
+      std::shared_ptr<SymbolTableEntryImplBase> parent_id) override {
+    return PascalSubparserTopDownBase::parse(token, parent_id);
+  }
 };
 
 
