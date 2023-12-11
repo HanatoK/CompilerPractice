@@ -201,7 +201,11 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parseIdentifierConstant(
       errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     }
     constant_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
-    constant_node->setAttribute<ICodeKeyTypeImpl::VALUE>(constant_value);
+    if (constant_value) {
+      constant_node->setAttribute<ICodeKeyTypeImpl::VALUE>(constant_value.value());
+    } else {
+      BUG("empty val");
+    }
   }
   id->appendLineNumber(token->lineNum());
   if (constant_node != nullptr) {

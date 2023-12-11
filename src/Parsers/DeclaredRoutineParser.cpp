@@ -54,25 +54,29 @@ std::shared_ptr<SymbolTableEntryImplBase> DeclaredRoutineParser::parseToSymbolTa
   routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(
       std::vector<std::shared_ptr<SymbolTableEntryImplBase>>{});
   // push the routine's new symbol table onto the stack
-  if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() == RoutineCodeImpl::forward) {
+  const auto current_routine_code = routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>();
+  if (current_routine_code && (current_routine_code.value() == RoutineCodeImpl::forward)) {
     auto symbol_table = routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>();
-    getSymbolTableStack()->push(symbol_table);
+    if (symbol_table) getSymbolTableStack()->push(symbol_table.value());
+    else BUG("empty val");
   } else {
     routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(getSymbolTableStack()->push());
   }
   // program: set the program identifier in the symbol table stack
   if (routine_defn == DefinitionImpl::PROGRAM) {
     getSymbolTableStack()->setProgramId(routine_id);
-  } else if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() != RoutineCodeImpl::forward) {
+  } else if (current_routine_code && (current_routine_code.value() != RoutineCodeImpl::forward)) {
     // non-forwarded procedure of function: append to the parent's list of routines
     auto subroutines = parent_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>();
-    subroutines.push_back(routine_id);
     // set it back?
-    parent_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(subroutines);
+    if (subroutines) {
+      subroutines.value().push_back(routine_id);
+      parent_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(subroutines.value());
+    }
   }
   // if the routine was forwarded, there should not be any formal parameters or a function return type.
   // but parse them anyway if they are there
-  if (routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>() == RoutineCodeImpl::forward) {
+  if (current_routine_code && (current_routine_code.value() == RoutineCodeImpl::forward)) {
     if (token->type() != PascalTokenTypeImpl::SEMICOLON) {
       errorHandler()->flag(token, PascalErrorCode::ALREADY_FORWARDED, currentParser());
       parseHeader(token, routine_id);

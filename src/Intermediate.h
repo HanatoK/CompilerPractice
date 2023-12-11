@@ -109,7 +109,12 @@ public:
   [[nodiscard]] virtual std::any getAttribute(const SymbolTableKeyT& key) const = 0;
   template <SymbolTableKeyT KeyVal>
   [[nodiscard]] auto getAttribute() const {
-    return cast_by_enum<KeyVal>(getAttribute(KeyVal));
+    auto result = getAttribute(KeyVal);
+    std::optional<decltype(cast_by_enum<KeyVal>(getAttribute(KeyVal)))> out;
+    if (result.has_value()) {
+      out = cast_by_enum<KeyVal>(getAttribute(KeyVal));
+    }
+    return out;
   }
   template <SymbolTableKeyT KeyVal>
   void setAttribute(const typename EnumToType<KeyVal>::type& val) {

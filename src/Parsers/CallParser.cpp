@@ -41,7 +41,7 @@ CallParser::parseActualParameters(std::shared_ptr<PascalToken> token, const std:
   int parmCount = 0;
   int parmIndex = -1;
   if (isDeclared) {
-    formalParms = pfId->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_PARMS>();
+    formalParms = pfId->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_PARMS>().value();
     parmCount = static_cast<int>(formalParms.size());
   }
   if (token->type() != PascalTokenTypeImpl::LEFT_PAREN) {
@@ -194,7 +194,7 @@ CallStandardParser::parse(std::shared_ptr<PascalToken> token, std::shared_ptr<Sy
   callNode->setAttribute<ICodeKeyTypeImpl::ID>(pfId);
   token = nextToken();
   using enum RoutineCodeImpl;
-  switch (routineCode) {
+  switch (routineCode.value()) {
     case read:
     case readln: return parseReadReadln(token, callNode, pfId);
     case write:

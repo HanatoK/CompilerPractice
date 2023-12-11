@@ -8,6 +8,9 @@
 #include <variant>
 #include <boost/algorithm/string.hpp>
 #include <boost/current_function.hpp>
+#include <source_location>
+#include "fmt/format.h"
+#include "fmt/printf.h"
 
 typedef long long PascalInteger;
 typedef double PascalFloat;
@@ -201,5 +204,10 @@ template <typename T>
 std::shared_ptr<T> to_shared(std::unique_ptr<T>&& ptr) {
   return std::shared_ptr<T>(std::move(ptr));
 }
+
+#define BUG(arg) \
+{const std::source_location location = std::source_location::current(); \
+fmt::print("BUG at file {}, line {}, function {}: {}!\n",\
+location.file_name(), location.line(), location.function_name(), arg);}
 
 #endif // COMMON_H

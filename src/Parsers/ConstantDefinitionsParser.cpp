@@ -129,13 +129,18 @@ VariableValueT ConstantDefinitionsParser::parseIdentifierConstant(std::shared_pt
   if (definition == DefinitionImpl::CONSTANT) {
     auto constant_value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
     id->appendLineNumber(token->lineNum());
-    if (std::holds_alternative<PascalInteger>(constant_value)) {
-      return sign_value * std::get<PascalInteger>(constant_value);
-    } else if (std::holds_alternative<PascalFloat>(constant_value)) {
-      return sign_value * std::get<PascalFloat>(constant_value);
-    } else if (std::holds_alternative<std::string>(constant_value)) {
-      return constant_value;
+    if (constant_value) {
+      if (std::holds_alternative<PascalInteger>(constant_value.value())) {
+        return sign_value * std::get<PascalInteger>(constant_value.value());
+      } else if (std::holds_alternative<PascalFloat>(constant_value.value())) {
+        return sign_value * std::get<PascalFloat>(constant_value.value());
+      } else if (std::holds_alternative<std::string>(constant_value.value())) {
+        return constant_value.value();
+      } else {
+        return VariableValueT{};
+      }
     } else {
+      BUG("empty val");
       return VariableValueT{};
     }
   } else if (definition == DefinitionImpl::ENUMERATION_CONSTANT) {
@@ -144,7 +149,11 @@ VariableValueT ConstantDefinitionsParser::parseIdentifierConstant(std::shared_pt
     if (sign != SignType::NOSIGN) {
       errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     }
-    return constant_value;
+    if (constant_value) return constant_value.value();
+    else {
+      BUG("empty val");
+      return VariableValueT{};
+    }
   } else {
     errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     return VariableValueT{};

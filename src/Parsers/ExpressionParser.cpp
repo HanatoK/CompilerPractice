@@ -297,15 +297,19 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared
     case DefinitionImpl::CONSTANT: {
       const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
       const auto type_spec = id->getTypeSpec();
-      if (std::holds_alternative<PascalInteger>(value)) {
-        root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
-        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
-      } else if (std::holds_alternative<PascalFloat>(value)) {
-        root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
-        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
-      } else if (std::holds_alternative<std::string>(value)) {
-        root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
-        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      if (value) {
+        if (std::holds_alternative<PascalInteger>(value.value())) {
+          root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
+          root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+        } else if (std::holds_alternative<PascalFloat>(value.value())) {
+          root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
+          root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+        } else if (std::holds_alternative<std::string>(value.value())) {
+          root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
+          root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+        }
+      } else {
+        BUG("empty val");
       }
       id->appendLineNumber(token->lineNum());
       token = nextToken();
@@ -318,7 +322,8 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared
       const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
       const auto type_spec = id->getTypeSpec();
       root_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT));
-      root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      if (value) root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+      else BUG("empty val");
       id->appendLineNumber(token->lineNum());
       token = nextToken();
       root_node->setTypeSpec(type_spec);
