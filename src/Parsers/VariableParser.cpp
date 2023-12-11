@@ -26,16 +26,19 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(
 //  std::cerr << "parseVariable should be called instead of parse for VariableParser."
 //  return PascalSubparserTopDownBase::parse(token);
   // lookup the identifier in the symbol table stack
-//  const auto name = boost::to_lower_copy(token->text());
-//  auto variable_id = getSymbolTableStack()->lookup(name);
-//  // if not found, flag the error and enter the identifier
-//  // as an undefined identifier with an undefined type
-//  if (variable_id == nullptr) {
-//    errorHandler()->flag(token, PascalErrorCode::IDENTIFIER_UNDEFINED, currentParser());
-//    variable_id = getSymbolTableStack()->enterLocal(name);
-//    variable_id->setDefinition(DefinitionImpl::UNDEFINED);
-//    variable_id->setTypeSpec(Predefined::instance().undefinedType);
-//  }
+  const auto name = boost::to_lower_copy(token->text());
+  // TODO: if a nullptr is passed in, then lookup the name in the symbol table. Is this correct?
+  if (variable_id == nullptr) {
+    variable_id = getSymbolTableStack()->lookup(name);
+  }
+  // if not found, flag the error and enter the identifier
+  // as an undefined identifier with an undefined type
+  if (variable_id == nullptr) {
+    errorHandler()->flag(token, PascalErrorCode::IDENTIFIER_UNDEFINED, currentParser());
+    variable_id = getSymbolTableStack()->enterLocal(name);
+    variable_id->setDefinition(DefinitionImpl::UNDEFINED);
+    variable_id->setTypeSpec(Predefined::instance().undefinedType);
+  }
 //  return parseVariable(token, variable_id);
   auto defn = variable_id->getDefinition();
   if (!((defn == DefinitionImpl::VARIABLE) || (defn == DefinitionImpl::VALUE_PARM) ||
