@@ -63,9 +63,11 @@ VariableDeclarationsParser::parseIdentifierSublist(
     }
   } while (!follow_set.contains(token->type()));
   // parse the type specification
-  auto type_spec = parseTypeSpec(token);
-  for (auto& elem : sub_list) {
-    elem->setTypeSpec(type_spec);
+  if (mDefinition != DefinitionImpl::PROGRAM_PARM) {
+    auto type_spec = parseTypeSpec(token);
+    for (auto& elem : sub_list) {
+      elem->setTypeSpec(type_spec);
+    }
   }
   return sub_list;
 }
