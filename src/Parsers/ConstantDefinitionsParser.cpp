@@ -12,7 +12,8 @@ ConstantDefinitionsParser::~ConstantDefinitionsParser()
   //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   token = synchronize(ConstantDefinitionsParser::identifierSet());
   const auto next_start_set = ConstantDefinitionsParser::nextStartSet();
@@ -39,16 +40,16 @@ std::shared_ptr<ICodeNodeImplBase> ConstantDefinitionsParser::parse(std::shared_
       errorHandler()->flag(token, PascalErrorCode::MISSING_EQUALS, currentParser());
     }
     // parse the constant value
-    // TODO: Is this shallow-copy correct?
-    const auto current_token = token;
+    const auto current_token_text = token->text();
+    const auto current_token_type = token->type();
     const VariableValueT constant_value = parseConstant(token);
     // set identifier as a constant and set its value
     if (constant_id != nullptr) {
       constant_id->setDefinition(DefinitionImpl::CONSTANT);
       constant_id->setAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>(constant_value);
       // set the constant's type
-      auto constant_type = (current_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
-                           getConstantType(current_token) : getConstantType(constant_value);
+      auto constant_type = (current_token_type == PascalTokenTypeImpl::IDENTIFIER) ?
+                           getConstantType(current_token_text) : getConstantType(constant_value);
       constant_id->setTypeSpec(constant_type);
     }
     token = currentToken();
@@ -128,13 +129,18 @@ VariableValueT ConstantDefinitionsParser::parseIdentifierConstant(std::shared_pt
   if (definition == DefinitionImpl::CONSTANT) {
     auto constant_value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
     id->appendLineNumber(token->lineNum());
-    if (std::holds_alternative<PascalInteger>(constant_value)) {
-      return sign_value * std::get<PascalInteger>(constant_value);
-    } else if (std::holds_alternative<PascalFloat>(constant_value)) {
-      return sign_value * std::get<PascalFloat>(constant_value);
-    } else if (std::holds_alternative<std::string>(constant_value)) {
-      return constant_value;
+    if (constant_value) {
+      if (std::holds_alternative<PascalInteger>(constant_value.value())) {
+        return sign_value * std::get<PascalInteger>(constant_value.value());
+      } else if (std::holds_alternative<PascalFloat>(constant_value.value())) {
+        return sign_value * std::get<PascalFloat>(constant_value.value());
+      } else if (std::holds_alternative<std::string>(constant_value.value())) {
+        return constant_value.value();
+      } else {
+        return VariableValueT{};
+      }
     } else {
+      BUG("empty val");
       return VariableValueT{};
     }
   } else if (definition == DefinitionImpl::ENUMERATION_CONSTANT) {
@@ -143,7 +149,11 @@ VariableValueT ConstantDefinitionsParser::parseIdentifierConstant(std::shared_pt
     if (sign != SignType::NOSIGN) {
       errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     }
-    return constant_value;
+    if (constant_value) return constant_value.value();
+    else {
+      BUG("empty val");
+      return VariableValueT{};
+    }
   } else {
     errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     return VariableValueT{};
@@ -167,9 +177,9 @@ std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(con
   return constant_type;
 }
 
-std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(const std::shared_ptr<PascalToken>& token)
+std::shared_ptr<TypeSpecImplBase> ConstantDefinitionsParser::getConstantType(const std::string& token_name)
 {
-  auto id = getSymbolTableStack()->lookup(token->text());
+  auto id = getSymbolTableStack()->lookup(token_name);
   if (id == nullptr) return nullptr;
   auto definition = id->getDefinition();
   if (definition == DefinitionImpl::CONSTANT ||

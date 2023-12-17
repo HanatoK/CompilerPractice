@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "Intermediate.h"
 #include "Parsers/StatementParser.h"
+#include "Parsers/ProgramParser.h"
 #include "Parsers/BlockParser.h"
 
 //#include <QCoreApplication>
@@ -12,7 +13,6 @@
 #include <ratio>
 #include <set>
 
-// TODO: use initializer list
 std::map<PascalTokenTypeImpl, std::string> initReservedWordsMap() {
   std::map<PascalTokenTypeImpl, std::string> reserve_words_map;
   // reserved words
@@ -96,7 +96,6 @@ std::map<PascalTokenTypeImpl, std::string> initSpecialWordsMap() {
   return special_words_map;
 }
 
-// TODO: clean-up these global variables
 std::map<PascalTokenTypeImpl, std::string> reservedWordsMap =
     initReservedWordsMap();
 std::map<PascalTokenTypeImpl, std::string> specialSymbolsMap =
@@ -122,62 +121,10 @@ PascalParserTopDown::~PascalParserTopDown() {
 
 void PascalParserTopDown::parse() {
   const auto start_time = std::chrono::high_resolution_clock::now();
-  std::shared_ptr<ICodeImplBase> intermediate_code = createICode();
-  // create a dummy program identifier symbol table entry
-  mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
-  mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
-  mSymbolTableStack->setProgramId(mRoutineId);
-  // push a new symbol table into the stack and set the routine's symbol table and iCode
-  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(mSymbolTableStack->push());
-  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
-  BlockParser block_parser(shared_from_this());
   auto token = nextToken();
-  // parse a block
-  std::shared_ptr<ICodeNodeImplBase> root_node = block_parser.parse(token, mRoutineId);
-  intermediate_code->setRoot(root_node);
-  mSymbolTableStack->pop();
-  // look for the final .
+  ProgramParser program_parser(shared_from_this());
+  program_parser.parse(token, nullptr);
   token = currentToken();
-  if (token->type() != PascalTokenTypeImpl::DOT) {
-    mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, shared_from_this());
-  }
-  token = currentToken();
-//  while (!token->isEof()) {
-//    if (token->type() != PascalTokenTypeImpl::ERROR) {
-//      if (token->type() == PascalTokenTypeImpl::BEGIN) {
-//        StatementParser statement_parser(*this);
-//        root_node = statement_parser.parse(token);
-//        token = currentToken();
-//      } else {
-//        mErrorHandler->flag(token, PascalErrorCode::UNEXPECTED_TOKEN, this);
-//      }
-//      if (token->type() != PascalTokenTypeImpl::DOT) {
-//        mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, this);
-//      }
-//      token = currentToken();
-//      if (root_node != nullptr) {
-//        mICode->setRoot(std::move(root_node));
-//      }
-//      //      if (token->type() == PascalTokenTypeImpl::IDENTIFIER) {
-//      //        const std::string name =
-//      //        boost::algorithm::to_lower_copy(token->text()); auto
-//      //        symbol_table_stack =
-//      //            dynamic_cast<SymbolTableStackImpl
-//      //            *>(mSymbolTableStack.get());
-//      //        auto entry = symbol_table_stack->lookup(name);
-//      //        if (entry == nullptr) {
-//      //          entry = symbol_table_stack->enterLocal(name);
-//      //        }
-//      //        entry->appendLineNumber(token->lineNum());
-//      //      }
-//      pascalTokenMessage(token->lineNum(), token->position(), token->type(),
-//                         token->text(), token->value());
-//    } else {
-//      mErrorHandler->flag(token, std::any_cast<PascalErrorCode>(token->value()),
-//                          this);
-//    }
-//    token = nextToken();
-//  }
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time_sec = end_time - start_time;
   parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());
@@ -227,7 +174,7 @@ std::shared_ptr<PascalToken> PascalScanner::extractToken() {
   auto current_char = currentChar();
   // Construct the next token
   // The current character determines the token type.
-  if (current_char == EOF) {
+  if (current_char == std::char_traits<decltype(current_char)>::eof()) { // use char_traits
     token = std::make_unique<PascalEofToken>(mSource);
     std::cerr << "Reach EOF\n";
   } else if (std::isalpha(current_char)) {
@@ -255,7 +202,7 @@ void PascalScanner::skipWhiteSpace() {
     if (current_char == '{') {
       do {
         current_char = nextChar();
-      } while ((current_char != '}') && (current_char != EOF));
+      } while ((current_char != '}') && (current_char != std::char_traits<decltype(current_char)>::eof()));
       if (current_char == '}') {
         current_char = nextChar();
       }
@@ -313,7 +260,7 @@ int PascalErrorHandler::errorCount() const { return mErrorCount; }
 std::map<PascalErrorCode, std::string> initErrorMessageMap() {
   std::map<PascalErrorCode, std::string> errorMessageMap;
   errorMessageMap[PascalErrorCode::ALREADY_FORWARDED] =
-      "Already specified in FORWARD";
+      "Already specified in forward";
   errorMessageMap[PascalErrorCode::IDENTIFIER_REDEFINED] =
       "Redefined identifier";
   errorMessageMap[PascalErrorCode::IDENTIFIER_UNDEFINED] =
@@ -485,7 +432,7 @@ void PascalStringToken::extract() {
     if (std::isspace(current_char)) {
       current_char = ' ';
     }
-    if (current_char != '\'' && current_char != EOF) {
+    if (current_char != '\'' && current_char != std::char_traits<decltype(current_char)>::eof()) {
       text += current_char;
       value += current_char;
       current_char = nextChar();
@@ -499,7 +446,7 @@ void PascalStringToken::extract() {
         current_char = nextChar();
       }
     }
-  } while ((current_char != '\'') && (current_char != EOF));
+  } while ((current_char != '\'') && (current_char != std::char_traits<decltype(current_char)>::eof()));
   if (current_char == '\'') {
     nextChar(); // consume the final quote
     text += '\'';
@@ -683,22 +630,19 @@ std::string PascalNumberToken::unsignedIntegerDigits(std::string &text) {
 
 PascalInteger PascalNumberToken::computeIntegerValue(const std::string &digits) {
   // does not consume characters
-  bool ok = true;
-  // TODO: try to implement toInt without Qt
-  PascalInteger result = 0;
+  PascalInteger result;
   try {
     result = std::stoll(digits);
-  } catch (const std::exception& e) {
-    ok = false;
-  }
-  if (ok) {
-    return result;
-  } else {
+  } catch (const std::out_of_range& e) {
+    result = 0;
     mType = PascalTokenTypeImpl::ERROR;
-    // TODO: check if integer out of range
-    mValue = VariableValueT();
-    return 0;
+    mValue = PascalErrorCode::RANGE_INTEGER;
+  } catch (const std::invalid_argument& e) {
+    result = 0;
+    mType = PascalTokenTypeImpl::ERROR;
+    mValue = PascalErrorCode::INVALID_NUMBER;
   }
+  return result;
 }
 
 PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits,
@@ -712,22 +656,19 @@ PascalFloat PascalNumberToken::computeFloatValue(const std::string &whole_digits
   if (!exponent_digits.empty()) {
     s += 'e' + std::string{exponent_sign} + exponent_digits;
   }
-  bool ok = true;
-  // TODO: try to implement toDouble without Qt
-  PascalFloat result = 0;
+  PascalFloat result;
   try {
     result = std::stod(s);
-  } catch (const std::exception& e) {
-    ok = false;
-  }
-  if (ok) {
-    return result;
-  } else {
+  } catch (const std::invalid_argument&) {
+    result = 0;
     mType = PascalTokenTypeImpl::ERROR;
-    // TODO: check if integer out of range
-    mValue = VariableValueT();
-    return 0;
+    mValue = PascalErrorCode::INVALID_NUMBER;
+  } catch (const std::out_of_range&) {
+    result = 0;
+    mType = PascalTokenTypeImpl::ERROR;
+    mValue = PascalErrorCode::RANGE_REAL;
   }
+  return result;
 }
 
 const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> PascalSubparserTopDownBase::relOpsMap =
@@ -792,7 +733,8 @@ std::shared_ptr<PascalParserTopDown> PascalSubparserTopDownBase::currentParser()
   return mPascalParser;
 }
 
-std::shared_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> PascalSubparserTopDownBase::parse(
+  std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // should not enter this function
   // the parser does not implement parse(std::shared_ptr<PascalToken>)!

@@ -8,6 +8,9 @@
 #include <variant>
 #include <boost/algorithm/string.hpp>
 #include <boost/current_function.hpp>
+#include <source_location>
+#include "fmt/format.h"
+#include "fmt/printf.h"
 
 typedef long long PascalInteger;
 typedef double PascalFloat;
@@ -120,14 +123,16 @@ enum class ICodeNodeTypeImpl {
   // operands
   VARIABLE, SUBSCRIPTS, FIELD,
   INTEGER_CONSTANT, REAL_CONSTANT,
-  STRING_CONSTANT, BOOLEAN_CONSTANT
+  STRING_CONSTANT, BOOLEAN_CONSTANT,
+  // write parameters
+  WRITE_PARM
 };
 
 //enum class VariableInternalType {
 //  INTEGER, REAL, BOOLEAN, STRING, UNKNOWN
 //};
 
-using VariableValueT = std::variant<std::monostate, bool, PascalInteger, PascalFloat, std::string>;
+using VariableValueT = std::variant<std::monostate, bool, PascalInteger, PascalFloat, std::string, PascalErrorCode>;
 
 enum class TypeFormImpl {
   SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD
@@ -145,6 +150,13 @@ enum class DefinitionImpl {
   TYPE, VARIABLE, FIELD, VALUE_PARM,
   VAR_PARM, PROGRAM_PARM, PROGRAM,
   PROCEDURE, FUNCTION, UNDEFINED
+};
+
+enum class RoutineCodeImpl {
+  declared, forward,
+  read, readln, write, writeln,
+  abs, arctan, chr, cos, eof, eoln, exp, ln, odd, ord,
+  pred, round, sin, sqr, sqrt, succ, trunc,
 };
 
 extern std::map<PascalTokenTypeImpl, std::string> reservedWordsMap;
@@ -186,5 +198,16 @@ template<typename... Ts>
 struct overloaded : Ts... { using Ts::operator()...; };
 
 template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+// helper function for creating an object from unique_ptr from factory functions
+template <typename T>
+std::shared_ptr<T> to_shared(std::unique_ptr<T>&& ptr) {
+  return std::shared_ptr<T>(std::move(ptr));
+}
+
+#define BUG(arg) \
+{const std::source_location location = std::source_location::current(); \
+fmt::print("BUG at file {}, line {}, function {}: {}!\n",\
+location.file_name(), location.line(), location.function_name(), arg);}
 
 #endif // COMMON_H

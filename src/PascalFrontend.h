@@ -68,7 +68,9 @@ public:
   [[nodiscard]] int errorCount();
   std::shared_ptr<PascalErrorHandler> errorHandler();
   std::shared_ptr<PascalParserTopDown> currentParser();
-  virtual std::shared_ptr<ICodeNodeImplBase> parse(std::shared_ptr<PascalToken> token);
+  virtual std::shared_ptr<ICodeNodeImplBase> parse(
+    std::shared_ptr<PascalToken> token,
+    std::shared_ptr<SymbolTableEntryImplBase> parent_id);
   static void setLineNumber(std::shared_ptr<ICodeNodeImplBase>& node,
                             const std::shared_ptr<PascalToken>& token);
   static const std::unordered_map<PascalTokenTypeImpl, ICodeNodeTypeImpl> relOpsMap;

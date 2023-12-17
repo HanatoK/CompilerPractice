@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <fmt/format.h>
+#include <source_location>
 
 Pascal::Pascal(const std::string &operation, const std::string &filePath,
                const std::string &flags)
@@ -55,7 +56,13 @@ Pascal::Pascal(const std::string &operation, const std::string &filePath,
   if (mParser->errorCount() == 0) {
     mSymbolTableStack = mParser->getSymbolTableStack();
     const auto program_id = mSymbolTableStack->programId();
-    mICode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
+//    mICode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
+    auto icode_opt = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
+    if (icode_opt) {
+      mICode = icode_opt.value();
+    } else {
+      BUG("empty val");
+    }
     if (xref) {
       CrossReferencer cross_referencer;
       cross_referencer.print(mSymbolTableStack);

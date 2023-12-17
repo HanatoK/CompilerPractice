@@ -7,14 +7,16 @@
 CaseStatementParser::CaseStatementParser(const std::shared_ptr<PascalParserTopDown>& parent)
     : PascalSubparserTopDownBase(parent) {}
 
-std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parse(
+    std::shared_ptr<PascalToken> token,
+    std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
   // consume the CASE
   token = nextToken();
   // create a SELECT node
   auto select_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::SELECT));
   // parse the CASE expression
   ExpressionParser expression_parser(currentParser());
-  auto expr_node = expression_parser.parse(token);
+  auto expr_node = expression_parser.parse(token, parent_id);
   const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
   // type check: the CASE expression's type must be integer, character, or enumeration
   if (!TypeChecker::TypeChecking::isInteger(expr_type) &&
@@ -80,7 +82,7 @@ CaseStatementParser::parseBranch(std::shared_ptr<PascalToken> token,
   branch_node->addChild(std::move(constants_node));
   // parse the branch statement
   StatementParser statement_parser(currentParser());
-  branch_node->addChild(statement_parser.parse(token));
+  branch_node->addChild(statement_parser.parse(token, nullptr));
   return branch_node;
 }
 
@@ -123,29 +125,29 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
     token = nextToken();
   }
   switch (token->type()) {
-  case PascalTokenTypeImpl::IDENTIFIER: {
-    constant_node = parseIdentifierConstant(token, sign);
-    if (constant_node != nullptr) {
-      constant_type = constant_node->getTypeSpec();
+    case PascalTokenTypeImpl::IDENTIFIER: {
+      constant_node = parseIdentifierConstant(token, sign);
+      if (constant_node != nullptr) {
+        constant_type = constant_node->getTypeSpec();
+      }
+      break;
     }
-    break;
-  }
-  case PascalTokenTypeImpl::INTEGER: {
-    constant_node = parseIntegerConstant(token->text(), sign);
-    constant_type = Predefined::instance().integerType;
-    break;
-  }
-  case PascalTokenTypeImpl::STRING: {
-    constant_node = parseCharacterConstant(
-        token, std::get<std::string>(token->value()), sign);
-    constant_type = Predefined::instance().charType;
-    break;
-  }
-  default: {
-    errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
-                         currentParser());
-    break;
-  }
+    case PascalTokenTypeImpl::INTEGER: {
+      constant_node = parseIntegerConstant(token->text(), sign);
+      constant_type = Predefined::instance().integerType;
+      break;
+    }
+    case PascalTokenTypeImpl::STRING: {
+      constant_node = parseCharacterConstant(
+          token, std::get<std::string>(token->value()), sign);
+      constant_type = Predefined::instance().charType;
+      break;
+    }
+    default: {
+      errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT,
+                           currentParser());
+      break;
+    }
   }
   // check for reused constants
   // TODO: BUG: parse case statement correctly!!
@@ -164,7 +166,6 @@ CaseStatementParser::parseConstant(std::shared_ptr<PascalToken> token,
     }
   }
   // type check: the constant type must be comparison compatible with the CASE expression type
-  // TODO
   if (!TypeChecker::TypeCompatibility::areComparisonCompatible(expression_type, constant_type)) {
     errorHandler()->flag(token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
   }
@@ -200,7 +201,11 @@ std::shared_ptr<ICodeNodeImplBase> CaseStatementParser::parseIdentifierConstant(
       errorHandler()->flag(token, PascalErrorCode::INVALID_CONSTANT, currentParser());
     }
     constant_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
-    constant_node->setAttribute<ICodeKeyTypeImpl::VALUE>(constant_value);
+    if (constant_value) {
+      constant_node->setAttribute<ICodeKeyTypeImpl::VALUE>(constant_value.value());
+    } else {
+      BUG("empty val");
+    }
   }
   id->appendLineNumber(token->lineNum());
   if (constant_node != nullptr) {
@@ -251,7 +256,6 @@ PascalInteger CaseStatementParser::getNegateNodeValue(const std::shared_ptr<ICod
     // get the first child node
     const auto child_node = node->childrenBegin();
     const auto positive_value = std::get<PascalInteger>((*child_node)->getAttribute<ICodeKeyTypeImpl::VALUE>());
-    // TODO: possible overflow
     const PascalInteger result = -1 * positive_value;
     return result;
   } else {

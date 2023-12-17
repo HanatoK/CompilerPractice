@@ -21,7 +21,7 @@ std::shared_ptr<TypeSpecImplBase> RecordTypeParser::parseSpec(std::shared_ptr<Pa
   // parse the field declarations
   VariableDeclarationsParser parser(currentParser());
   parser.setDefinition(DefinitionImpl::FIELD);
-  parser.parse(token);
+  parser.parse(token, nullptr);
   // pop off the record symbol table
   getSymbolTableStack()->pop();
   // synchronize at the END

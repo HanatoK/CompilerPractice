@@ -4,7 +4,8 @@
 #include "VariableParser.h"
 #include "TypeChecker.h"
 
-AssignmentStatementParser::AssignmentStatementParser(const std::shared_ptr<PascalParserTopDown>& parent): PascalSubparserTopDownBase(parent)
+AssignmentStatementParser::AssignmentStatementParser(const std::shared_ptr<PascalParserTopDown>& parent):
+PascalSubparserTopDownBase(parent), isFunctionTarget(false)
 {
 
 }
@@ -16,13 +17,15 @@ AssignmentStatementParser::~AssignmentStatementParser()
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> AssignmentStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> AssignmentStatementParser::parse(
+    std::shared_ptr<PascalToken> token,
+    std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // create the assign node
   auto assign_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::ASSIGN));
   // parse the target variable
   VariableParser variable_parser(currentParser());
-  auto target_node = variable_parser.parse(token);
+  auto target_node = isFunctionTarget ? variable_parser.parseFunctionNameTarget(token, parent_id) : variable_parser.parse(token, parent_id);
   const auto target_type = (target_node != nullptr) ? target_node->getTypeSpec() :
                                             Predefined::instance().undefinedType;
   // the ASSIGN node adopts the variable node as its first child
@@ -38,7 +41,7 @@ std::shared_ptr<ICodeNodeImplBase> AssignmentStatementParser::parse(std::shared_
   }
   // parse the expression
   ExpressionParser expression_parser(currentParser());
-  auto expression_node = expression_parser.parse(token);
+  auto expression_node = expression_parser.parse(token, nullptr);
   // type check: assignment compatible?
   const auto expression_type = (expression_node != nullptr) ?
                                expression_node->getTypeSpec() : Predefined::instance().undefinedType;
@@ -56,4 +59,10 @@ PascalSubparserTopDownBase::TokenTypeSet AssignmentStatementParser::colonEqualsS
   s.insert(PascalTokenTypeImpl::COLON_EQUALS);
   s.merge(StatementParser::statementFollowSet());
   return s;
+}
+
+std::shared_ptr<ICodeNodeImplBase>
+AssignmentStatementParser::parseFunctionNameAssignment(std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id) {
+  isFunctionTarget = true;
+  return parse(token, parent_id);
 }

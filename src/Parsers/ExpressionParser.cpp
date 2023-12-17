@@ -1,6 +1,7 @@
 #include "ExpressionParser.h"
 #include "VariableParser.h"
 #include "TypeChecker.h"
+#include "CallParser.h"
 
 ExpressionParser::ExpressionParser(const std::shared_ptr<PascalParserTopDown>& parent):
   PascalSubparserTopDownBase(parent)
@@ -15,7 +16,8 @@ ExpressionParser::~ExpressionParser()
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   using namespace TypeChecker::TypeCompatibility;
   // parse a simple expression and make the root of its tree the root node
@@ -104,7 +106,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseFactor(std::shared_ptr
       // consume the (
       token = nextToken();
       // parse the expression as the root node
-      root_node = parse(token);
+      root_node = parse(token, nullptr);
       if (root_node == nullptr) {
         root_node->setTypeSpec(Predefined::instance().undefinedType);
       }
@@ -214,7 +216,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
   // type check: leading sign
   if ((sign_type == PascalTokenTypeImpl::PLUS ||
        sign_type == PascalTokenTypeImpl::MINUS) &&
-      isIntegerOrReal(result_type)) {
+      !isIntegerOrReal(result_type)) {
     errorHandler()->flag(sign_token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
   }
   // was there a leading minus sign?
@@ -295,15 +297,19 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared
     case DefinitionImpl::CONSTANT: {
       const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
       const auto type_spec = id->getTypeSpec();
-      if (std::holds_alternative<PascalInteger>(value)) {
-        root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
-        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
-      } else if (std::holds_alternative<PascalFloat>(value)) {
-        root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
-        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
-      } else if (std::holds_alternative<std::string>(value)) {
-        root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
-        root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      if (value) {
+        if (std::holds_alternative<PascalInteger>(value.value())) {
+          root_node = createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT);
+          root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+        } else if (std::holds_alternative<PascalFloat>(value.value())) {
+          root_node = createICodeNode(ICodeNodeTypeImpl::REAL_CONSTANT);
+          root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+        } else if (std::holds_alternative<std::string>(value.value())) {
+          root_node = createICodeNode(ICodeNodeTypeImpl::STRING_CONSTANT);
+          root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+        }
+      } else {
+        BUG("empty val");
       }
       id->appendLineNumber(token->lineNum());
       token = nextToken();
@@ -316,10 +322,16 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseIdentifier(std::shared
       const auto value = id->getAttribute<SymbolTableKeyTypeImpl::CONSTANT_VALUE>();
       const auto type_spec = id->getTypeSpec();
       root_node = std::shared_ptr(createICodeNode(ICodeNodeTypeImpl::INTEGER_CONSTANT));
-      root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value);
+      if (value) root_node->setAttribute<ICodeKeyTypeImpl::VALUE>(value.value());
+      else BUG("empty val");
       id->appendLineNumber(token->lineNum());
       token = nextToken();
       root_node->setTypeSpec(type_spec);
+      break;
+    }
+    case DefinitionImpl::FUNCTION: {
+      CallParser parser(currentParser());
+      root_node = parser.parse(token, id);
       break;
     }
     default: {

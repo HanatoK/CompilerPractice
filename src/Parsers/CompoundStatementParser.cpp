@@ -11,7 +11,8 @@ CompoundStatementParser::~CompoundStatementParser()
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> CompoundStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> CompoundStatementParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // consume the BEGIN
   token = nextToken();

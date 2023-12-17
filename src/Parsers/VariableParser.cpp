@@ -11,7 +11,7 @@ PascalSubparserTopDownBase::TokenTypeSet VariableParser::subscriptFieldStartSet(
 }
 
 VariableParser::VariableParser(const std::shared_ptr<PascalParserTopDown> &parent) : PascalSubparserTopDownBase(
-    parent) {
+    parent), isFunctionTarget(false) {
 
 }
 
@@ -21,12 +21,16 @@ VariableParser::~VariableParser() {
 //#endif
 }
 
-std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(std::shared_ptr<PascalToken> token) {
+std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> variable_id) {
 //  std::cerr << "parseVariable should be called instead of parse for VariableParser."
 //  return PascalSubparserTopDownBase::parse(token);
   // lookup the identifier in the symbol table stack
   const auto name = boost::to_lower_copy(token->text());
-  auto variable_id = getSymbolTableStack()->lookup(name);
+  // TODO: if a nullptr is passed in, then lookup the name in the symbol table. Is this correct?
+  if (variable_id == nullptr) {
+    variable_id = getSymbolTableStack()->lookup(name);
+  }
   // if not found, flag the error and enter the identifier
   // as an undefined identifier with an undefined type
   if (variable_id == nullptr) {
@@ -35,7 +39,32 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(std::shared_ptr<PascalT
     variable_id->setDefinition(DefinitionImpl::UNDEFINED);
     variable_id->setTypeSpec(Predefined::instance().undefinedType);
   }
-  return parseVariable(token, variable_id);
+//  return parseVariable(token, variable_id);
+  auto defn = variable_id->getDefinition();
+  if (!((defn == DefinitionImpl::VARIABLE) || (defn == DefinitionImpl::VALUE_PARM) ||
+        (defn == DefinitionImpl::VAR_PARM) || (isFunctionTarget && (defn == DefinitionImpl::FUNCTION)))) {
+    errorHandler()->flag(token, PascalErrorCode::INVALID_IDENTIFIER_USAGE, currentParser());
+  }
+  variable_id->appendLineNumber(token->lineNum());
+  auto variable_node = to_shared(createICodeNode(ICodeNodeTypeImpl::VARIABLE));
+  variable_node->setAttribute<ICodeKeyTypeImpl::ID>(variable_id);
+  token = nextToken(); // consume the identifier
+  auto variable_type = variable_id->getTypeSpec();
+  if (!isFunctionTarget) {
+    // parse array subscripts or record fields
+    const auto set = subscriptFieldStartSet();
+    while (set.contains(token->type())) {
+      auto node = token->type() == PascalTokenTypeImpl::LEFT_BRACKET ?
+                  parseSubscripts(variable_type) : parseField(variable_type);
+      token = currentToken();
+      // update the variable's type
+      // the variable node adopts the SUBSCRIPTS or FIELD node
+      variable_type = node->getTypeSpec();
+      variable_node->addChild(node);
+    }
+  }
+  variable_node->setTypeSpec(variable_type);
+  return variable_node;
 }
 
 std::shared_ptr<ICodeNodeImplBase> VariableParser::parseVariable(std::shared_ptr<PascalToken> token,
@@ -77,7 +106,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseSubscripts(std::shared_p
     token = nextToken();
     // the current variable is an array
     if (variable_type->form() == TypeFormImpl::ARRAY) {
-      auto expression_node = expression_parser.parse(token);
+      auto expression_node = expression_parser.parse(token, nullptr);
       const auto expression_type = (expression_node != nullptr) ?
                                                     expression_node->getTypeSpec() :
                                                     Predefined::instance().undefinedType;
@@ -94,7 +123,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseSubscripts(std::shared_p
     } else {
       // not an array type, so too many subscripts
       errorHandler()->flag(token, PascalErrorCode::TOO_MANY_SUBSCRIPTS, currentParser());
-      expression_parser.parse(token);
+      expression_parser.parse(token, nullptr);
     }
     token = currentToken();
   } while (token->type() == PascalTokenTypeImpl::COMMA);
@@ -144,4 +173,10 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parseField(std::shared_ptr<Ty
   token = nextToken();
   field_node->setTypeSpec(variable_type);
   return field_node;
+}
+
+std::shared_ptr<ICodeNodeImplBase> VariableParser::parseFunctionNameTarget(std::shared_ptr<PascalToken> token,
+                                                                           std::shared_ptr<SymbolTableEntryImplBase> id) {
+  isFunctionTarget = true;
+  return parse(token, id);
 }

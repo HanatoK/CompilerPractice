@@ -9,7 +9,7 @@ set(PROJECT_SOURCE_DIR src)
 #set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #set(QT_VERSION_MAJOR 5)
@@ -48,6 +48,7 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/ProgramParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/RecordTypeParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.h
             ${PROJECT_SOURCE_DIR}/Parsers/SimpleTypeParser.h
@@ -64,7 +65,9 @@ set(HEADERS ${PROJECT_SOURCE_DIR}/Backend.h
             ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.h
             ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.h
-            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.h)
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.h
+            ${PROJECT_SOURCE_DIR}/Parsers/CallParser.h)
 
 set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Backend.cpp
@@ -90,6 +93,7 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ExpressionParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/ForStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/IfStatementParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/ProgramParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/RecordTypeParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/RepeatStatementParser.cpp
             ${PROJECT_SOURCE_DIR}/Parsers/SimpleTypeParser.cpp
@@ -106,7 +110,9 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/main.cpp
             ${PROJECT_SOURCE_DIR}/Executors/LoopExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/SelectExecutor.cpp
             ${PROJECT_SOURCE_DIR}/Executors/StatementExecutor.cpp
-            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.cpp)
+            ${PROJECT_SOURCE_DIR}/Parsers/VariableParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/DeclaredRoutineParser.cpp
+            ${PROJECT_SOURCE_DIR}/Parsers/CallParser.cpp)
 
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 #find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)

@@ -20,7 +20,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
   auto min_val = parser.parseConstant(token);
   // set the minimum type
   const auto min_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
-                  parser.getConstantType(constant_token):
+                  parser.getConstantType(constant_token->text()):
                   parser.getConstantType(min_val);
   min_val = checkValueType(constant_token, min_val, min_type);
   VariableValueT max_val;
@@ -40,7 +40,7 @@ std::unique_ptr<TypeSpecImplBase> SubrangeTypeParser::parseSpec(std::shared_ptr<
     constant_token = token->clone();
     max_val = parser.parseConstant(token);
     const auto max_type = (constant_token->type() == PascalTokenTypeImpl::IDENTIFIER) ?
-                      parser.getConstantType(constant_token):
+                      parser.getConstantType(constant_token->text()):
                       parser.getConstantType(max_val);
     max_val = checkValueType(constant_token, max_val, max_type);
     // are the type valid?

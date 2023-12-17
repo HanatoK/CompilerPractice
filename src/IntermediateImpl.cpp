@@ -455,10 +455,10 @@ std::any TypeSpecImpl::getAttribute(TypeKeyImpl key) const
 bool TypeSpecImpl::isPascalString() const
 {
   if (mForm == TypeFormImpl::ARRAY) {
-    const auto element_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::ARRAY_ELEMENT_COUNT));
+    const auto element_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::ARRAY_ELEMENT_TYPE));
     const auto index_type = std::any_cast<std::shared_ptr<TypeSpecImplBase>>(getAttribute(TypeKeyImpl::ARRAY_INDEX_TYPE));
-    if (element_type == Predefined::instance().charType &&
-        index_type == Predefined::instance().integerType) {
+    if (element_type->baseType() == Predefined::instance().charType &&
+        index_type->baseType() == Predefined::instance().integerType) {
       return true;
     } else {
       return false;

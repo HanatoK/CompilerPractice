@@ -55,7 +55,6 @@ std::string definitionimpl_to_string(DefinitionImpl a)
     case DefinitionImpl::VALUE_PARM:            return std::string{"value parameter"};
     case DefinitionImpl::VARIABLE:              return std::string{"variable"};
     case DefinitionImpl::VAR_PARM:              return std::string{"VAR paramater"};
-    // TODO: should I use fall-through here?
     case DefinitionImpl::UNDEFINED:
     default:                                    return std::string{"undefined"};
   }

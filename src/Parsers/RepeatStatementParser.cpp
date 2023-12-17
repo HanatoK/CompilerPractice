@@ -8,7 +8,8 @@ RepeatStatementParser::RepeatStatementParser(const std::shared_ptr<PascalParserT
 
 }
 
-std::shared_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(std::shared_ptr<PascalToken> token)
+std::shared_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(
+    std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id)
 {
   // consume the REPEAT
   token = nextToken();
@@ -22,7 +23,7 @@ std::shared_ptr<ICodeNodeImplBase> RepeatStatementParser::parse(std::shared_ptr<
   token = currentToken();
   // parse the expression in the TEST node
   ExpressionParser expression_parser(currentParser());
-  auto expr_node = expression_parser.parse(token);
+  auto expr_node = expression_parser.parse(token, parent_id);
   const auto expr_type = (expr_node != nullptr) ? expr_node->getTypeSpec() : Predefined::instance().undefinedType;
   using namespace TypeChecker::TypeChecking;
   if (!isBoolean(expr_type)) {
