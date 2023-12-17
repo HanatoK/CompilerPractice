@@ -124,26 +124,7 @@ void PascalParserTopDown::parse() {
   auto token = nextToken();
   ProgramParser program_parser(shared_from_this());
   program_parser.parse(token, nullptr);
-//  std::shared_ptr<ICodeImplBase> intermediate_code = createICode();
-//  // create a dummy program identifier symbol table entry
-//  mRoutineId = mSymbolTableStack->enterLocal(boost::algorithm::to_lower_copy(std::string{"DummyProgramName"}));
-//  mRoutineId->setDefinition(DefinitionImpl::PROGRAM);
-//  mSymbolTableStack->setProgramId(mRoutineId);
-//  // push a new symbol table into the stack and set the routine's symbol table and iCode
-//  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_SYMTAB>(mSymbolTableStack->push());
-//  mRoutineId->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
-//  BlockParser block_parser(shared_from_this());
-//  auto token = nextToken();
-//  // parse a block
-//  std::shared_ptr<ICodeNodeImplBase> root_node = block_parser.parse(token, mRoutineId);
-//  intermediate_code->setRoot(root_node);
-//  mSymbolTableStack->pop();
-//  // look for the final .
-//  token = currentToken();
-//  if (token->type() != PascalTokenTypeImpl::DOT) {
-//    mErrorHandler->flag(token, PascalErrorCode::MISSING_PERIOD, shared_from_this());
-//  }
-//  token = currentToken();
+  token = currentToken();
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time_sec = end_time - start_time;
   parserSummary(token->lineNum(), errorCount(), elapsed_time_sec.count());

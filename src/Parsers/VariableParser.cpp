@@ -49,7 +49,7 @@ std::shared_ptr<ICodeNodeImplBase> VariableParser::parse(
   auto variable_node = to_shared(createICodeNode(ICodeNodeTypeImpl::VARIABLE));
   variable_node->setAttribute<ICodeKeyTypeImpl::ID>(variable_id);
   token = nextToken(); // consume the identifier
-  auto variable_type = variable_node->getTypeSpec();
+  auto variable_type = variable_id->getTypeSpec();
   if (!isFunctionTarget) {
     // parse array subscripts or record fields
     const auto set = subscriptFieldStartSet();
