@@ -216,7 +216,7 @@ std::shared_ptr<ICodeNodeImplBase> ExpressionParser::parseSimpleExpression(std::
   // type check: leading sign
   if ((sign_type == PascalTokenTypeImpl::PLUS ||
        sign_type == PascalTokenTypeImpl::MINUS) &&
-      isIntegerOrReal(result_type)) {
+      !isIntegerOrReal(result_type)) {
     errorHandler()->flag(sign_token, PascalErrorCode::INCOMPATIBLE_TYPES, currentParser());
   }
   // was there a leading minus sign?
