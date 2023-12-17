@@ -43,6 +43,7 @@ std::shared_ptr<ICodeNodeImplBase> DeclarationsParser::parse(
     DeclaredRoutineParser routine_parser(currentParser());
     routine_parser.parseToSymbolTableEntry(token, parent_id);
     // look for one or more semicolons after a definition
+    token = currentToken();
     if (token->type() == PascalTokenTypeImpl::SEMICOLON) {
       while (token->type() == PascalTokenTypeImpl::SEMICOLON) {
         token = nextToken(); // consume the ;
