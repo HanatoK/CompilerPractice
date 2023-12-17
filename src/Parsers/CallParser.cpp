@@ -41,7 +41,10 @@ CallParser::parseActualParameters(std::shared_ptr<PascalToken> token, const std:
   int parmCount = 0;
   int parmIndex = -1;
   if (isDeclared) {
-    formalParms = pfId->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_PARMS>().value();
+    auto formalParms_optional = pfId->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_PARMS>();
+    if (formalParms_optional.has_value()) {
+      formalParms = formalParms_optional.value();
+    }
     parmCount = static_cast<int>(formalParms.size());
   }
   if (token->type() != PascalTokenTypeImpl::LEFT_PAREN) {
