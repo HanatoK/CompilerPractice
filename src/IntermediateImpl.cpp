@@ -192,7 +192,7 @@ void ICodeImpl::setRoot(const std::shared_ptr<ICodeNodeImplBase>& node) {
 }
 
 std::shared_ptr<ICodeNodeImplBase> ICodeImpl::getRoot() const {
-  return mRoot;
+  return mRoot.lock();
 }
 
 ICodeNodeImpl::ICodeNodeImpl(const ICodeNodeTypeImpl &pType)
