@@ -2,7 +2,7 @@
 #include "DeclarationsParser.h"
 #include "DeclaredRoutineParser.h"
 
-ProgramParser::ProgramParser(const std::shared_ptr<PascalParserTopDown> &parent) : PascalSubparserTopDownBase(parent) {
+ProgramParser::ProgramParser(const std::shared_ptr<PascalParserTopDown> &parent) : PascalSubparserTopDownBase(parent), mRootNode(nullptr) {
 
 }
 
@@ -25,6 +25,7 @@ std::shared_ptr<ICodeNodeImplBase> ProgramParser::parse(
   // parse the program
   DeclaredRoutineParser routine_parser = DeclaredRoutineParser(currentParser());
   routine_parser.parseToSymbolTableEntry(token, parentId);
+  mRootNode = routine_parser.getRootNode();
   // look for the final period
   token = currentToken();
   if (token->type() != PascalTokenTypeImpl::DOT) {

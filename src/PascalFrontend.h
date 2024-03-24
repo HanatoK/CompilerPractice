@@ -53,6 +53,7 @@ public:
 protected:
   std::shared_ptr<SymbolTableEntryImplBase> mRoutineId;
   std::shared_ptr<PascalErrorHandler> mErrorHandler;
+  std::shared_ptr<ICodeNodeImplBase> mRootNode;
 };
 
 class PascalSubparserTopDownBase {

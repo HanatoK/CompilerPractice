@@ -13,6 +13,9 @@ public:
   std::shared_ptr<ICodeNodeImplBase> parse(
       std::shared_ptr<PascalToken> token,
       std::shared_ptr<SymbolTableEntryImplBase> parentId);
+  auto getRootNode() {return mRootNode;}
+private:
+  std::shared_ptr<ICodeNodeImplBase> mRootNode;
 };
 
 

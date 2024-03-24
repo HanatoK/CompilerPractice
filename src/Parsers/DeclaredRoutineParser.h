@@ -15,7 +15,9 @@ public:
   virtual ~DeclaredRoutineParser();
   std::shared_ptr<SymbolTableEntryImplBase> parseToSymbolTableEntry(
       std::shared_ptr<PascalToken> token, std::shared_ptr<SymbolTableEntryImplBase> parent_id);
+  auto getRootNode() {return mRootNode;}
 private:
+  std::shared_ptr<ICodeNodeImplBase> mRootNode;
   int mDummyCounter;
 private:
   std::shared_ptr<SymbolTableEntryImplBase> parseRoutineName(

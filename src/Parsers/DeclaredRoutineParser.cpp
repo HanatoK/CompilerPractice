@@ -5,7 +5,7 @@
 #include <fmt/format.h>
 
 DeclaredRoutineParser::DeclaredRoutineParser(const std::shared_ptr<PascalParserTopDown> &parent)
-    : PascalSubparserTopDownBase(parent), mDummyCounter(0) {
+    : PascalSubparserTopDownBase(parent), mRootNode(nullptr), mDummyCounter(0) {
 
 }
 
@@ -105,12 +105,12 @@ std::shared_ptr<SymbolTableEntryImplBase> DeclaredRoutineParser::parseToSymbolTa
   } else {
     routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_CODE>(RoutineCodeImpl::declared);
     BlockParser block_parser(currentParser());
-    auto root_node = block_parser.parse(token, routine_id);
-    intermediate_code->setRoot(root_node);
+    mRootNode = block_parser.parse(token, routine_id);
+    intermediate_code->setRoot(mRootNode);
   }
   routine_id->setAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>(intermediate_code);
   getSymbolTableStack()->pop();
-   return routine_id;
+  return routine_id;
 }
 
 std::shared_ptr<SymbolTableEntryImplBase>

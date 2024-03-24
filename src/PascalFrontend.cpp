@@ -124,6 +124,7 @@ void PascalParserTopDown::parse() {
   auto token = nextToken();
   ProgramParser program_parser(shared_from_this());
   program_parser.parse(token, nullptr);
+  mRootNode = program_parser.getRootNode();
   token = currentToken();
   const auto end_time = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_time_sec = end_time - start_time;
