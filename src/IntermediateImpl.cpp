@@ -5,7 +5,7 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 SymbolTableStackImpl::SymbolTableStackImpl() : SymbolTableStack() {
-//  mCurrentNestingLevel = 0;
+  mCurrentNestingLevel = 0;
   mStack.push_back(createSymbolTable(0));
 }
 
@@ -16,30 +16,29 @@ SymbolTableStackImpl::~SymbolTableStackImpl() {
 }
 
 int SymbolTableStackImpl::currentNestingLevel() const {
-//  return mCurrentNestingLevel;
-  return static_cast<int>(mStack.size()) - 1;
+ return mCurrentNestingLevel;
+  // return static_cast<int>(mStack.size()) - 1;
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::localSymbolTable() const {
-  return mStack.back();
+  return mStack[mCurrentNestingLevel];
 }
 
 std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::enterLocal(const std::string &name) {
-  return mStack.back()->enter(name);
+  return mStack[mCurrentNestingLevel]->enter(name);
 }
 
 std::shared_ptr<SymbolTableEntryImplBase>
 SymbolTableStackImpl::lookupLocal(const std::string &name) const {
-  return mStack.back()->lookup(name);
+  return mStack[mCurrentNestingLevel]->lookup(name);
 }
 
 std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::lookup(const std::string &name) const {
   std::shared_ptr<SymbolTableEntryImplBase> result = nullptr;
-  for (const auto& table: boost::adaptors::reverse(mStack)) {
-    result = table->lookup(name);
-    if (result != nullptr) {
-      break;
-    }
+  // search the current and enclosing scopes
+  for (int i = mCurrentNestingLevel; i >= 0; --i) {
+    result = mStack[i]->lookup(name);
+    if (result != nullptr) break;
   }
   return result;
 }
@@ -56,24 +55,25 @@ std::shared_ptr<SymbolTableEntryImplBase> SymbolTableStackImpl::programId() cons
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push()
 {
-  auto symbol_table = createSymbolTable(mStack.size() + 1);
+  auto symbol_table = createSymbolTable(++mCurrentNestingLevel);
   mStack.push_back(std::move(symbol_table));
   return mStack.back();
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::push(std::shared_ptr<SymbolTableImplBase> symbol_table)
 {
-//  ++mCurrentNestingLevel;
+  ++mCurrentNestingLevel;
   mStack.push_back(symbol_table);
   return mStack.back();
 }
 
 std::shared_ptr<SymbolTableImplBase> SymbolTableStackImpl::pop()
 {
-  auto symbol_table = mStack.back();
-//  auto symbol_table = mStack.at(mCurrentNestingLevel);
-  mStack.pop_back();
-//  --mCurrentNestingLevel;
+  // auto symbol_table = mStack.back();
+  auto symbol_table = mStack.at(mCurrentNestingLevel);
+  // mStack.pop_back();
+  mStack.erase(mStack.begin() + mCurrentNestingLevel);
+ --mCurrentNestingLevel;
   return symbol_table;
 }
 

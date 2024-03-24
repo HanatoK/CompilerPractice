@@ -124,9 +124,7 @@ public:
   std::shared_ptr<SymbolTableImplBase> push(std::shared_ptr<SymbolTableImplBase> symbol_table) override;
   std::shared_ptr<SymbolTableImplBase> pop() override;
 private:
-  // why is it necessary to maintain a standalone variable for recording the nesting level?
-  // Isn't mStack.size() enough?
-//  int mCurrentNestingLevel;
+  int mCurrentNestingLevel;
   StackT mStack;
   // entry for the main program identifier
   std::weak_ptr<SymbolTableEntryImplBase> mProgramId;
