@@ -106,11 +106,15 @@ SymbolTableImpl::enter(const std::string &name) {
 }
 
 std::vector<std::shared_ptr<SymbolTableEntryImplBase> > SymbolTableImpl::sortedEntries() const {
-  // std::map is already sorted
   std::vector<std::shared_ptr<SymbolTableEntryImplBase>> result;
   for (auto it = mSymbolMap.begin(); it != mSymbolMap.end(); ++it) {
     result.push_back(it->second);
   }
+  std::sort(result.begin(), result.end(), [](
+    const std::shared_ptr<SymbolTableEntryImplBase>& x,
+    const std::shared_ptr<SymbolTableEntryImplBase>& y){
+      return x->name() < y->name();
+    });
   return result;
 }
 
