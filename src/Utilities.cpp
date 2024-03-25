@@ -237,15 +237,7 @@ ParseTreePrinter::ParseTreePrinter(std::ostream &os)
 void ParseTreePrinter::print(const std::shared_ptr<SymbolTableStackImplBase>& symbol_table_stack) {
   mOutputStream << fmt::format("{:=^{}}\n", "ParseTreePrinter", LINE_WIDTH);
   const auto& program_id = symbol_table_stack->programId();
-  const auto& iCode = program_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
-  if (iCode) {
-    const auto root_node = iCode.value()->getRoot();
-    printNode(root_node);
-    printLine();
-    mOutputStream << fmt::format("{:=^{}}\n", "", LINE_WIDTH);
-  } else {
-    BUG("empty val");
-  }
+  printRoutine(program_id);
 }
 
 void ParseTreePrinter::printNode(const std::shared_ptr<const ICodeNodeImplBase>& node)
@@ -280,17 +272,17 @@ void ParseTreePrinter::printAttributes(const std::shared_ptr<const ICodeNodeImpl
     switch (it->first) {
       case ICodeKeyTypeImpl::LINE: {
         key_string += "LINE";
-        printAttributes(key_string, cast_by_enum<ICodeKeyTypeImpl::LINE>(it->second));
+        printAttribute(key_string, cast_by_enum<ICodeKeyTypeImpl::LINE>(it->second));
         break;
       }
       case ICodeKeyTypeImpl::ID: {
         key_string += "ID";
-        printAttributes(key_string, cast_by_enum<ICodeKeyTypeImpl::ID>(it->second));
+        printAttribute(key_string, cast_by_enum<ICodeKeyTypeImpl::ID>(it->second));
         break;
       }
       case ICodeKeyTypeImpl::VALUE: {
         key_string += "VALUE";
-        printAttributes(key_string, cast_by_enum<ICodeKeyTypeImpl::VALUE>(it->second));
+        printAttribute(key_string, cast_by_enum<ICodeKeyTypeImpl::VALUE>(it->second));
         break;
       }
     }
@@ -298,8 +290,8 @@ void ParseTreePrinter::printAttributes(const std::shared_ptr<const ICodeNodeImpl
   mLineIndentation = saved_indentation;
 }
 
-void ParseTreePrinter::printAttributes(const std::string &key,
-                                       const std::shared_ptr<SymbolTableEntryImplBase> &value) {
+void ParseTreePrinter::printAttribute(const std::string &key,
+                                      const std::shared_ptr<SymbolTableEntryImplBase> &value) {
   // if the value is a symbol table entry, use the identifier's name
   // else just use the value string
   std::string value_string = value->name();
@@ -308,7 +300,7 @@ void ParseTreePrinter::printAttributes(const std::string &key,
   appendOutputLine(" ");
   appendOutputLine(text);
   const int level = value->symbolTable()->nestingLevel();
-  printAttributes("LEVEL", level);
+  printAttribute("LEVEL", level);
 }
 
 void ParseTreePrinter::printChildNodes(const std::shared_ptr<const ICodeNodeImplBase>& parent_node) {
@@ -338,7 +330,8 @@ void ParseTreePrinter::printTypeSpec(const std::shared_ptr<const ICodeNodeImplBa
       // unnamed type: print an artificial type identifier name
       type_name = "$_anon_" + type_spec->anonymousName() + "$";
     }
-    printAttributes("TYPE_ID", type_name);
+    printAttribute("TYPE_ID", type_name);
+    mLineIndentation = saved_indentation;
   }
 }
 
@@ -365,7 +358,7 @@ void ParseTreePrinter::printLine() {
   }
 }
 
-void ParseTreePrinter::printAttributes(const std::string &key, const VariableValueT &value) {
+void ParseTreePrinter::printAttribute(const std::string &key, const VariableValueT &value) {
   const auto value_string = variable_value_to_string(value);
   const std::string text =
       boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
@@ -373,12 +366,32 @@ void ParseTreePrinter::printAttributes(const std::string &key, const VariableVal
   appendOutputLine(text);
 }
 
-void ParseTreePrinter::printAttributes(const std::string &key, const int &value) {
+void ParseTreePrinter::printAttribute(const std::string &key, const int &value) {
   const auto value_string = std::to_string(value);
   const std::string text =
       boost::algorithm::to_lower_copy(key) + "=\"" + value_string + "\"";
   appendOutputLine(" ");
   appendOutputLine(text);
+}
+
+void ParseTreePrinter::printRoutine(const std::shared_ptr<SymbolTableEntryImplBase>& routine_id) {
+  const auto definition = routine_id->getDefinition();
+  fmt::print("\n*** {} {} ***", definitionimpl_to_string(definition), routine_id->name());
+  const auto& iCode = routine_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ICODE>();
+  if (iCode) {
+    const auto root_node = iCode.value()->getRoot();
+    if (root_node) {
+      printNode(root_node);
+    }
+    // print any procedures and functions defined in the routine
+    const auto routine_ids_any = routine_id->getAttribute(SymbolTableKeyTypeImpl::ROUTINE_ROUTINES);
+    if (routine_ids_any.has_value()) {
+      const auto routine_ids = cast_by_enum<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>(routine_ids_any);
+      for (const auto& i : routine_ids) {
+        printRoutine(i);
+      }
+    }
+  }
 }
 
 ParseTreePrinterDot::ParseTreePrinterDot(std::ostream &os): mOutputStream(os), mIndex(0)
