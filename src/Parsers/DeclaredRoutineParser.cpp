@@ -65,7 +65,7 @@ std::shared_ptr<SymbolTableEntryImplBase> DeclaredRoutineParser::parseToSymbolTa
   // program: set the program identifier in the symbol table stack
   if (routine_defn == DefinitionImpl::PROGRAM) {
     getSymbolTableStack()->setProgramId(routine_id);
-  } else if (current_routine_code && (current_routine_code.value() != RoutineCodeImpl::forward)) {
+  } else if (!current_routine_code || (current_routine_code.value() != RoutineCodeImpl::forward)) {
     // non-forwarded procedure of function: append to the parent's list of routines
     auto subroutines = parent_id->getAttribute<SymbolTableKeyTypeImpl::ROUTINE_ROUTINES>();
     // set it back?
