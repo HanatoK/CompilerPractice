@@ -70,7 +70,7 @@ public:
   [[nodiscard]] std::shared_ptr<ICodeNodeImplBase> getRoot() const override;
 
 private:
-  std::weak_ptr<ICodeNodeImplBase> mRoot;
+  std::shared_ptr<ICodeNodeImplBase> mRoot;
 };
 
 class SymbolTableEntryImpl : public SymbolTableEntryImplBase {
